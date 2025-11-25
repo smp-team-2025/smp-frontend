@@ -1,18 +1,193 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saturday Morning Physics 2025</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Saturday Morning Physics 2025</title>
+  <style>
+    /* Basit Medium-like stil */
+    :root{
+      --max-width: 760px;
+      --accent: #1a73e8;
+      --muted: #6b6b6b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Georgia", "Times New Roman", serif;
+      color:#222;
+      background:#fff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* NAVBAR */
+    .navbar{
+      position: sticky;
+      top:0;
+      z-index: 30;
+      background:rgba(255,255,255,0.92);
+      backdrop-filter: blur(4px);
+      border-bottom:1px solid #eee;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 28px;
+    }
+    .brand{
+      font-weight:700;
+      font-size:18px;
+      letter-spacing:0.2px;
+    }
+
+    .nav-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .btn{
+      font-family:inherit;
+      font-size:14px;
+      padding:8px 14px;
+      border-radius:8px;
+      border:1px solid transparent;
+      cursor:pointer;
+    }
+    .btn.login{
+      background:transparent;
+      color:#222;
+      border-color:#ccc;
+    }
+    .btn.register{
+      background:var(--accent);
+      color:white;
+      box-shadow:0 1px 0 rgba(0,0,0,0.04);
+    }
+
+    /* SAYFA İÇERİĞİ */
+    .container{
+      max-width:var(--max-width);
+      margin:48px auto;
+      padding:0 20px 80px;
+    }
+
+    .title{
+      font-size:42px;
+      line-height:1.08;
+      margin:8px 0 10px;
+      font-weight:700;
+    }
+    .subtitle{
+      color:var(--muted);
+      margin-bottom:32px;
+      font-size:16px;
+    }
+
+    .hero-card{
+      border-radius:10px;
+      border:1px solid #eee;
+      overflow:hidden;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.04);
+      background:white;
+    }
+    .hero-inner{
+      display:flex;
+      gap:20px;
+      align-items:center;
+      padding:28px;
+      flex-wrap:wrap;
+    }
+
+    /* Görsel: local dosya yolu kullanıldı */
+    .hero-image{
+      flex:0 0 240px;
+      max-width:240px;
+    }
+    .hero-image img{
+      display:block;
+      width:100%;
+      height:auto;
+      border-radius:6px;
+    }
+
+    .hero-text{
+      flex:1 1 380px;
+      min-width:200px;
+    }
+    .hero-text h3{
+      margin:0 0 10px;
+      font-size:20px;
+    }
+    .hero-text p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    /* Responsive */
+    @media (max-width:720px){
+      .navbar{padding:10px 14px}
+      .title{font-size:28px}
+      .hero-inner{padding:18px}
+      .hero-image{flex-basis:100%; max-width:100%}
+      .hero-text{flex-basis:100%}
+      .container{margin:20px auto; padding-bottom:40px}
+    }
+
+    /* Küçük görsel alt başlık */
+    .content{
+      margin-top:28px;
+      color:#333;
+      line-height:1.8;
+      font-size:17px;
+    }
+
+  </style>
 </head>
-
-
 <body>
 
-    <h1>Saturday Morning Physics 2025</h1>
-    <p>Hello</p>
+  <header class="navbar">
+    <div class="brand">Saturday Morning Physics 2025</div>
 
+    <div class="nav-actions">
+        <a href="login.html" class="btn login">Login</a>
+        <a href="register.html" class="btn register">Register</a>
+    </div>
+  </header>
 
-    
+  <main class="container">
+    <h1 class="title">Saturday Morning Physics 2025</h1>
+    <div class="subtitle">???</div>
+
+    <article class="hero-card">
+      <div class="hero-inner">
+       <!--the photo on the left-->
+    <div class="hero-image">
+        <img src="saturday_morning_physics-27742_1300x0.jpg" alt="Saturday Morning Physics">
+      </div>
+
+        <div class="hero-text">
+          <h3>Das Programm für dieses Jahr ist veröffentlicht</h3>
+          <p>Unsere Veranstaltungsreihe Saturday Morning Physics 2025 kehrt mit Universitätsvorträgen, Labortouren und offenen Diskussionsrunden zurück.
+            Um sich anzumelden, klicken Sie bitte auf die Schaltfläche Register, oder wenn Sie bereits Teilnehmer*in sind, können Sie sich über Login einloggen.</p>
+        </div>
+      </div>
+    </article>
+
+    <section class="content">
+        <h2>Programm</h2>
+        <p>
+          SATURDAY MORNING PHYSICS findet im Wintersemester 2025 an 5 Samstagen 
+          von 9.00 bis 12.00 Uhr im großen Physik-Hörsaal und per Zoom statt. 
+          Samstags sind wir, die Professor*innen und Wissenschaftler*innen 
+          der TU Darmstadt und der Gesellschaft für Schwerionenforschung in Darmstadt, 
+          frei von Lehrveranstaltungen und können uns ganz Ihnen widmen. 
+          Sie müssen samstags nicht in die Schule und somit können wir gemeinsam 
+          die aktuellen Fragen der Modernen Physik diskutieren.
+        </p>
+      </section>
+      
+  </main>
+
 </body>
 </html>
