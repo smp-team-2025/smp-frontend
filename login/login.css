@@ -36,6 +36,7 @@ body{
 }
 
 .container .input-text{
+    position: relative;
     width: 100%;
     height: 50px;
     /*Background can be added */
@@ -45,6 +46,26 @@ body{
 .input-text input{
     width:100%;
     height:100%;
-    border: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    font-size: 16px;
+    color: black;
+    padding: 20px 45px 2px 20px;
+
 }
+
+.input-text input::placeholder {
+    color: black
+}
+
+.input-text i{
+    position: absolute;
+    right: 20px;
+    top: 70%;
+    transform: translateY(-50%);
+    font-size: 20px;
+}
+
+
+
 
