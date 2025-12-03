@@ -1,46 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>login</title>
+    <title>SMP Login</title>
     <link rel="stylesheet" href="login.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
+
 <body>
-    <div class="container">
-        <form action="">
-            <h1>Login</h1>
-            <div class = "input-text">
-                <input type="text" placeholder="Benutzername"
-                required>
-                <i class='bx  bx-atom'></i> 
-            </div>
-            
-            <div class = "input-text">
-                <input type="text" placeholder="Passwort"
-                required>
-                <i class='bx  bx-lock'></i> 
-            </div>
 
-            <div class = "remember-forgot">
-                <label><input type="checkbox">Remember me
-                </label>
-                <a href=#>"Forgot Password?"</a>
-            </div>
+<div class="container">
 
-            <button type="submit" class="btn">Login</button>
+    <h1>SMP – Login</h1>
+    <p class="intro">
+        Bitte melden Sie sich mit Ihrem Benutzername und Passwort an.
+    </p>
 
-            <div class = "register-link">
-                <p>Didn't register <a
-                     href ="/registration/register.html" >Register</a>
-                </p>
+    <form>
+
+        <div class="form-section">
+
+            <label>Benutzername</label>
+            <input type="text" placeholder="Benutzername" required>
+
+            <label>Passwort</label>
+            <input type="password" placeholder="Passwort" required>
+
+            <div class="remember-forgot">
+                <label><input type="checkbox"> Remember me</label>
+                <a href="forgot-password.html">Forgot Password?</a>
             </div>
 
+        </div>
 
-            
-        </form>
-    </div>
-    
+        <button type="submit" class="submit-btn">Login</button>
+
+        <div class="register-link">
+            <p>Noch nicht registriert? <a href="/registration/register.html">Register</a></p>
+        </div>
+
+    </form>
+
+</div>
+
 </body>
 </html>
