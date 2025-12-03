@@ -1,4 +1,4 @@
-/* GENEL RESET */
+/* general reset */
 * {
     margin: 0;
     padding: 0;
@@ -6,11 +6,11 @@
     font-family: Arial, sans-serif;
 }
 
-/* ARKA PLAN */
+/* background */
 body {
     display: flex;
     justify-content: center;
-    align-items: center;   /* DİKEY + YATAY ORTALAMA */
+    align-items: center;   
     min-height: 100vh;
 
     background: url("department-physics.jpg") no-repeat center center fixed;
@@ -21,7 +21,7 @@ body {
     position: relative;
 }
 
-/* BLUR + SHADOW OVERLAY */
+/* blur + shadow overlay */
 body::before {
     content: "";
     position: fixed;
@@ -39,7 +39,7 @@ body * {
     z-index: 1;
 }
 
-/* CONTAINER */
+/* container */
 .container {
     width: 60%;
     max-width: 700px;
@@ -49,7 +49,7 @@ body * {
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
 }
 
-/* BAŞLIK */
+/* header */
 h1 {
     text-align: center;
     margin-bottom: 10px;
@@ -61,7 +61,7 @@ h1 {
     color: #444;
 }
 
-/* FORM BÖLÜMÜ */
+/* form part */
 .form-section {
     background: #f0f4ff;
     border-left: 5px solid #3a7bd5;
@@ -77,7 +77,7 @@ label {
     margin-top: 12px;
 }
 
-/* INPUT */
+/* input */
 input {
     width: 100%;
     padding: 14px;
@@ -87,7 +87,7 @@ input {
     font-size: 16px;
 }
 
-/* REMEMBER + FORGOT */
+/* remember + forgot */
 .remember-forgot {
     display: flex;
     justify-content: space-between;
@@ -100,7 +100,7 @@ input {
     text-decoration: none;
 }
 
-/* BUTON */
+/* button */
 .submit-btn {
     width: 100%;
     padding: 16px;
@@ -117,7 +117,7 @@ input {
     background: #1e5dbb;
 }
 
-/* ALT BÖLÜM */
+/* sub section */
 .register-link {
     text-align: center;
     margin-top: 20px;
