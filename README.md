@@ -1,6 +1,6 @@
 # SMP Frontend
 
-This repo is the **froentend** part of the SMP Web App
+This repo is the **frontend** part of the SMP Web App
 
 # How to Set Up:
 
