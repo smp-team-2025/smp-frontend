@@ -1,4 +1,4 @@
-const URL = "http://localhost:3000/api/registration";
+const URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/register`;
 
 export interface RegistrationData {
     salutation:string;
@@ -24,8 +24,13 @@ export async function userRegister(data:RegistrationData) {
     });
 
     if(!response.ok) {
-        const error = await response.text();
-        throw new Error(error);
+        let error;
+        try {
+            error = await response.json();
+        } catch (e) {
+            error = { message: await response.text() };
+        }
+        throw new Error(error.message || 'Registration failed due to an unknown error.');
     }
 
     return response.json();
