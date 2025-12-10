@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./login.css";
 
 export default function LoginPage(){
     const [email,setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
     async function handleLogin(e:React.FormEvent) {
         e.preventDefault();
@@ -26,6 +28,14 @@ export default function LoginPage(){
         if(res.ok){
             localStorage.setItem("token", data.token);
             alert("Login successful!");
+
+            // Organizer ise admin paneline, değilse başka yere yönlendir
+            if(data.user.role === "organizer") {
+                navigate("/admin/registrations");
+            } else {
+                // Participant için başka sayfa (şimdilik yok)
+                alert("Logged in as participant");
+            }
         } else {
             alert(data.error || "Login failed");
         }
