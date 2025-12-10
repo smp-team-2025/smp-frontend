@@ -1,5 +1,4 @@
 /* Arka plan fotoğrafı */
-<<<<<<< HEAD
 html, body, #root {
     width: 100%;
     height: 100%;
@@ -26,12 +25,6 @@ html, body, #root {
 
 body {
     font-family: Arial, sans-serif;
-=======
-body {
-    font-family: Arial, sans-serif;
-    background: url("saturday_morning_physics-27742_1300x0.jpg") no-repeat center center fixed;
-    background-size: cover;
->>>>>>> feature/admin-panel
     margin: 0;
     padding: 0;
     position: relative;
