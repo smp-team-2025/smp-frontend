@@ -30,7 +30,7 @@ export default function LoginPage(){
             alert("Login successful!");
 
             // Organizer ise admin paneline, değilse başka yere yönlendir
-            if(data.user.role === "organizer" || data.user.role === "admin") {
+            if(data.user.role === "organizer") {
                 navigate("/admin/registrations");
             } else {
                 // Participant için başka sayfa (şimdilik yok)
