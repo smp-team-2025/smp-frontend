@@ -4,6 +4,7 @@ import RegistrationPage from "./pages/RegistrationPage";
 import HomePage from "./pages/HomePage";
 import AdminRegistrationsListPage from "./pages/AdminRegistrationsListPage";
 import AdminRegistrationDetailPage from "./pages/AdminRegistrationDetailPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 export default function App() {
   return (
@@ -17,6 +18,8 @@ export default function App() {
         <Route path="/registration" element={<RegistrationPage />} />
         <Route path="/admin/registrations" element={<AdminRegistrationsListPage />} />
         <Route path="/admin/registrations/:id" element={<AdminRegistrationDetailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        
 
         {/* optional: catch-all for invalid routes */}
         <Route path="*" element={<h1>404 - Seite nicht gefunden</h1>} />
