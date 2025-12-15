@@ -78,7 +78,7 @@ export default function LoginPage(){
                             <label>
                                 <input type="checkbox" /> Remember me
                             </label>
-                            <a href="/forgot-password">Forgot Password?</a>
+                            <a href="/login/forgot-password">Forgot Password?</a>
                         </div>
 
                     </div>

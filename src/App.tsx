@@ -18,7 +18,7 @@ export default function App() {
         <Route path="/registration" element={<RegistrationPage />} />
         <Route path="/admin/registrations" element={<AdminRegistrationsListPage />} />
         <Route path="/admin/registrations/:id" element={<AdminRegistrationDetailPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
         
 
         {/* optional: catch-all for invalid routes */}
