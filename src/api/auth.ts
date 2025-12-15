@@ -14,4 +14,19 @@ export async function login(email: string,password: string){
     return response.json();
 }
 
-// TODO: Add forgot password function when backend implements it.
+
+export async function forgotPassword(email: string){
+    const response = await fetch(`${URL}/forgot-password`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({email}),
+    });
+
+    if(!response.ok){
+        const error = await response.text();
+        throw new Error(error);
+    }
+    return response.json();
+
+        
+}
