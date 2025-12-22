@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { checkAuthAndRedirect } from "../utils/auth";
 import "./admin.css";
 
 interface Registration {
@@ -18,7 +19,9 @@ export default function AdminRegistrationsListPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchRegistrations();
+    if (checkAuthAndRedirect(navigate)) {
+      fetchRegistrations();
+    }
   }, []);
 
   async function fetchRegistrations() {
@@ -70,10 +73,18 @@ export default function AdminRegistrationsListPage() {
     );
   }
 
+  function handleLogout() {
+    localStorage.removeItem("token");
+    navigate("/login");
+  }
+
   if (loading) return <div className="admin-container">Laden...</div>;
 
   return (
     <div className="admin-container">
+      <button className="btn-back" onClick={handleLogout}>
+        ← Abmelden
+      </button>
       <h1>Registrierungen Verwalten</h1>
       <p>Alle Anmeldungen für SMP</p>
 

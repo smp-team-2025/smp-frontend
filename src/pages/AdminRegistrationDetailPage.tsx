@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { checkAuthAndRedirect } from "../utils/auth";
 import "./admin.css";
 
 interface Registration {
@@ -28,7 +29,9 @@ export default function AdminRegistrationDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchRegistration();
+    if (checkAuthAndRedirect(navigate)) {
+      fetchRegistration();
+    }
   }, [id]);
 
   async function fetchRegistration() {
