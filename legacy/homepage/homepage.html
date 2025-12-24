@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SMP 2026</title>
+    <title>SMP 2026 – Dashboard</title>
     <link rel="stylesheet" href="homepage.css">
 </head>
 <body>
@@ -13,47 +13,44 @@
     </div>
 
     <div class="nav-right">
-        <a href="login.html" class="logout-btn">Logout</a>
+        <a href="../login/login.html" class="logout-btn">Logout</a>
     </div>
-</header>
-
-
 </header>
 
 <main class="container">
     <h1>Dashboard</h1>
 
-<p class="greeting">
-    Hallo, {{username}}! <span class="wave">👋</span>
-</p>
-
-
+    <p class="greeting">
+        Hallo, {{username}}! <span class="wave">👋</span>
+    </p>
 
     <div class="cards">
-        <div class="card">
+
+        <a href="../organizer/quizlist.html" class="card">
             <h2>Fermi Quiz</h2>
             <p>Create and manage quizzes</p>
-        </div>
+        </a>
 
-        <div class="card">
+        <a href="studentqr.html" class="card">
             <h2>QR Code Check-in</h2>
             <p>Attendance via QR scanning</p>
-        </div>
+        </a>
 
-        <div class="card">
+        <a href="../organizer/statistics.html" class="card">
             <h2>Statistics</h2>
             <p>View results and analytics</p>
-        </div>
+        </a>
 
-        <div class="card">
+        <a href="#" class="card">
             <h2>Certificates</h2>
             <p>Generate participation certificates</p>
-        </div>
+        </a>
 
-        <div class="card">
+        <a href="#" class="card">
             <h2>Email Notifications</h2>
             <p>Send updates automatically</p>
-        </div>
+        </a>
+
     </div>
 </main>
 

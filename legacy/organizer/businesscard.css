@@ -1,0 +1,125 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f6f8;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+    background: #0b63b6;
+    color: white;
+    padding: 16px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.back-btn {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+}
+
+/* ===== CARD ===== */
+.card-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 80px;
+}
+
+.business-card {
+    width: 380px;
+    height: 200px;
+    background: white;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    overflow: hidden;
+}
+
+
+.left-strip {
+    width: 100px;
+    height: 100%;
+    background: #0b63b6;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+
+    padding-left: 8px; 
+}
+
+
+
+.info {
+    flex: 1;
+    padding: 0 18px;
+}
+
+.info h2 {
+    margin-bottom: 6px;
+}
+
+.role {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.event {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+/* QR */
+.qr {
+    width: 90px;
+    height: 90px;
+    margin-right: 18px;
+}
+
+/* PRINT BUTTON */
+.print-btn {
+    margin-top: 24px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background: #0b63b6;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ===== PRINT MODE ===== */
+@media print {
+    body {
+        background: white;
+    }
+    .navbar,
+    .print-btn {
+        display: none;
+    }
+}
+
+
