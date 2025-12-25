@@ -14,6 +14,7 @@ import HiWiListPage from "./pages/HiwiListPage";
 import BusinessCardPage from "./pages/BusinessCardPage";
 import QuizListPage from "./pages/QuizListPage";
 import StatisticsPage from "./pages/StatisticsPage";
+import StudentHomePage from "./pages/StudentHomePage";
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/ohomepage/businesscard" element={<BusinessCardPage/>} />
         <Route path="/ohomepage/quizlist" element={<QuizListPage/>} />
         <Route path="/ohomepage/statistics" element={<StatisticsPage/>} />
+        <Route path="/studenthomepage" element={<StudentHomePage/>} />
         
 
         {/* optional: catch-all for invalid routes */}
