@@ -29,6 +29,7 @@ export default function AdminRegistrationDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetchRegistration();
     if (checkAuthAndRedirect(navigate)) {
       fetchRegistration();
     }

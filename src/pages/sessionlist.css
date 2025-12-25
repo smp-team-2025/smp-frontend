@@ -11,6 +11,11 @@ body {
     color: #222;
 }
 
+html, body, #root {
+    width: 100%;
+    height: 100%;
+}
+
 .navbar {
     background-color: #0b63b6;
     color: white;
@@ -111,7 +116,7 @@ body {
 }
 
 .card h2 {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     margin-bottom: 10px;
     color: #0b63b6;
 }

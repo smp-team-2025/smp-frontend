@@ -6,6 +6,14 @@ import AdminRegistrationsListPage from "./pages/AdminRegistrationsListPage";
 import AdminRegistrationDetailPage from "./pages/AdminRegistrationDetailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import OHomePage from "./pages/oHomePage";
+import EventListPage from "./pages/EventListPage";
+import EventDetailPage from "./pages/EventDetailPage";
+import SessionListPage from "./pages/SessionListPage";
+import HiWiListPage from "./pages/HiwiListPage";
+import BusinessCardPage from "./pages/BusinessCardPage";
+import QuizListPage from "./pages/QuizListPage";
+import StatisticsPage from "./pages/StatisticsPage";
 
 export default function App() {
   return (
@@ -21,6 +29,14 @@ export default function App() {
         <Route path="/admin/registrations/:id" element={<AdminRegistrationDetailPage />} />
         <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage/>} />
+        <Route path="/ohomepage" element={<OHomePage/>} />
+        <Route path="/ohomepage/eventlist" element={<EventListPage/>} />
+        <Route path= "/ohomepage/eventdetail" element={<EventDetailPage/>} />
+        <Route path="/ohomepage/sessionlist" element={<SessionListPage/>} />
+        <Route path="/ohomepage/hiwilist" element={<HiWiListPage/>} />
+        <Route path="/ohomepage/businesscard" element={<BusinessCardPage/>} />
+        <Route path="/ohomepage/quizlist" element={<QuizListPage/>} />
+        <Route path="/ohomepage/statistics" element={<StatisticsPage/>} />
         
 
         {/* optional: catch-all for invalid routes */}
