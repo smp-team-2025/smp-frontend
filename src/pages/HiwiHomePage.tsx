@@ -1,9 +1,28 @@
-
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./hiwihome.css";
 
 export default function HiwiHomePage(){
+    const navigate = useNavigate();
     const username = "Hiwi";
+    {/* 
+        useEffect(() => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (!token) {
+            navigate("/login");
+        } else if (role !== "Hiwi") {
+            if (role === "Organizer") {
+                navigate("/ohomepage");
+            } else if (role === "Student") {
+                navigate("/studenthomepage");
+            } else {
+                navigate("/login");
+            }
+        }
+    }, [navigate]);*/}
+    
 
     return(
         <div className="page-wrapper">

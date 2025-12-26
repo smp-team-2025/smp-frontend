@@ -1,8 +1,29 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./ohomepage.css";
 
 export default function OHomePage() {
+    const navigate = useNavigate();
     const username = "Organizer";
+    {/* useEffect(() => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (!token) {
+            navigate("/login");
+        } else if (role !== "Organizer") {
+            if (role === "Student") {
+                navigate("/studenthomepage");
+            } else if (role === "Hiwi") {
+                navigate("/hiwihomepage");
+            } else {
+                navigate("/login");
+            }
+        }
+    }, [navigate]);
+        */}
+
+    
 
     return (
         <div className="page-wrapper">
@@ -56,6 +77,11 @@ export default function OHomePage() {
                     <Link to="/ohomepage/statistics" className="card">
                              <h2>Statistics</h2>
                             <p>View participation statistics</p>
+                    </Link>
+
+                    <Link to="/ohomepage/announcements" className="card">
+                        <h2>Announcements</h2>
+                        <p>Create and list announcements</p>
                     </Link>
 
                 </div>

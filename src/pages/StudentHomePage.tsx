@@ -1,8 +1,30 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./student_homepage.css";
 
 export default function StudentHomePage(){
+    const navigate = useNavigate();
     const username = "User";
+    {/* 
+        useEffect(() => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (!token) {
+            navigate("/login");
+        } else if (role !== "Student") {
+            if (role === "Organizer") {
+                navigate("/ohomepage");
+            } else if (role === "Hiwi") {
+                navigate("/hiwihomepage");
+            } else {
+                navigate("/login");
+            }
+        }
+    }, [navigate]);
+        */}
+
+
     return(
         <div className="page-wrapper">
         <header className="navbar">
