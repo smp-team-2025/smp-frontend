@@ -28,10 +28,10 @@ export default function StudentHomePage(){
                     <p>Create and manage quizzes</p>
                 </a>
 
-                <a href="studentqr.html" className="card">
-                    <h2>QR Code Check-in</h2>
-                    <p>Attendance via QR scanning</p>
-                </a>
+                <Link to="/studenthomepage/qr" className="card">
+                          <h2>QR Code Check-in</h2>
+                          <p>Attendance via QR scanning</p>
+                </Link>
 
                 <a href="../organizer/statistics.html" className="card">
                     <h2>Statistics</h2>
