@@ -1,8 +1,29 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { qrApi } from "../api/qr";
 import "./studentqr.css";
 
 export default function StudentQrPage(){
     const username = "User";
+    const [qrSrc, setQrSrc] = useState<string | null>(null);
+    const [error, setError] = useState<string>("");
+
+    useEffect(() => {
+        const fetchQr = async () => {
+            try {
+                // Assuming userId is stored in localStorage during login
+                const userId = localStorage.getItem("userId");
+                if (!userId) throw new Error("User ID not found");
+                
+                const src = await qrApi.getUserQrCode(userId);
+                setQrSrc(src);
+            } catch (err: any) {
+                setError("Could not load QR code");
+            }
+        };
+        fetchQr();
+    }, []);
+
     return(
         <div className="page-wrapper">
             <header className="navbar">
@@ -23,7 +44,13 @@ export default function StudentQrPage(){
                 <p className="subtitle">Show this QR code at the entrance</p>
 
                 <div className="qr-card">
-                    <img src="qr-placeholder.png" alt="QR Code" />
+                    {error ? (
+                        <p style={{ color: "red" }}>{error}</p>
+                    ) : qrSrc ? (
+                        <img src={qrSrc} alt="QR Code" />
+                    ) : (
+                        <p>Loading QR Code...</p>
+                    )}
                     <p className="student-name">Student: {username}</p>
                 </div>
             </main>

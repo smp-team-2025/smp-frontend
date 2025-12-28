@@ -19,6 +19,7 @@ import HiwiHomePage from "./pages/HiWiHomePage";
 import HiWiStatisticsPage from "./pages/HiwiStatisticsPage";
 import StudentQrPage from "./pages/StudentQrPage";
 import OrganizerAnnouncements from "./pages/OrganizerAnnouncements";
+import HiWiQrScanPage from "./pages/HiWiQrScanPage";
 
 export default function App() {
   return (
@@ -46,7 +47,8 @@ export default function App() {
         <Route path="/hiwihomepage" element={<HiwiHomePage/>} />
         <Route path="/hiwihomepage/statistics" element={<HiWiStatisticsPage/>} />
         <Route path="/studenthomepage/qr" element={<StudentQrPage/>} />
-        <Route path="/ohomepage/announcements" element={<OrganizerAnnouncements/>} />"
+        <Route path="/ohomepage/announcements" element={<OrganizerAnnouncements/>} />
+        <Route path="/hiwihomepage/scan" element={<HiWiQrScanPage/>} />
         
 
         {/* optional: catch-all for invalid routes */}

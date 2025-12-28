@@ -41,10 +41,10 @@ export default function HiwiHomePage(){
                 <div className="cards">
 
                     {/* QR CODE */}
-                    <a href="??" className="card">
+                    <Link to="/hiwihomepage/scan" className="card">
                         <h2>QR Code Check-in</h2>
                         <p>Scan participant QR codes</p>
-                    </a>
+                    </Link>
 
                     {/* STATISTICS */}
                     <Link to="/hiwihomepage/statistics" className="card"> 
