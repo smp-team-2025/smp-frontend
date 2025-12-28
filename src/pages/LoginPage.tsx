@@ -27,14 +27,17 @@ export default function LoginPage(){
 
         if(res.ok){
             localStorage.setItem("token", data.token);
+            localStorage.setItem("role", data.user.role);
+            localStorage.setItem("userId", data.user.id);
             alert("Login successful!");
 
             // Organizer ise admin paneline, değilse başka yere yönlendir
-            if(data.user.role === "ORGANIZER") {
-                navigate("/admin/registrations");
+            if(data.user.role === "ORGANIZER" || data.user.role === "Organizer") {
+                navigate("/ohomepage");
+            } else if (data.user.role === "STUDENT" || data.user.role === "Student" || data.user.role === "PARTICIPANT") {
+                navigate("/studenthomepage");
             } else {
-                // Participant için başka sayfa (şimdilik yok)
-                alert("Logged in as participant");
+                navigate("/hiwihomepage");
             }
         } else {
             alert(data.error || "Login failed");
