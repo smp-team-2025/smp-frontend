@@ -62,13 +62,6 @@ export default function OHomePage() {
                     </Link>
 
 
-                    <Link to="/ohomepage/businesscard" className="card-link">
-                          <div className="card">
-                            <h2>Business Card</h2>
-                            <p>Print participant QR cards</p>
-                        </div>
-                    </Link>
-
                     <Link to="/ohomepage/quizlist" className="card">
                             <h2>Fermi Quiz</h2>
                             <p>Create and manage quizzes</p>
@@ -77,6 +70,11 @@ export default function OHomePage() {
                     <Link to="/ohomepage/statistics" className="card">
                              <h2>Statistics</h2>
                             <p>View participation statistics</p>
+                    </Link>
+
+                    <Link to="/ohomepage/attendance" className="card">
+                        <h2>Attendance Data</h2>
+                        <p>View 7-day attendance logs</p>
                     </Link>
 
                     <Link to="/ohomepage/announcements" className="card">

@@ -4,24 +4,23 @@ import { qrApi } from "../api/qr";
 import "./studentqr.css";
 
 export default function StudentQrPage(){
-    const username = "User";
+    const [username, setUsername] = useState<string>("User");
     const [qrSrc, setQrSrc] = useState<string | null>(null);
     const [error, setError] = useState<string>("");
 
     useEffect(() => {
-        const fetchQr = async () => {
+        const loadData = async () => {
             try {
-                // Assuming userId is stored in localStorage during login
-                const userId = localStorage.getItem("userId");
-                if (!userId) throw new Error("User ID not found");
-                
-                const src = await qrApi.getUserQrCode(userId);
+                const user = await qrApi.getMe();
+                setUsername(user.name);
+
+                const src = await qrApi.getUserQrCode(user.id);
                 setQrSrc(src);
             } catch (err: any) {
                 setError("Could not load QR code");
             }
         };
-        fetchQr();
+        loadData();
     }, []);
 
     return(

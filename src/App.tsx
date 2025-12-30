@@ -15,11 +15,12 @@ import BusinessCardPage from "./pages/BusinessCardPage";
 import QuizListPage from "./pages/QuizListPage";
 import StatisticsPage from "./pages/StatisticsPage";
 import StudentHomePage from "./pages/StudentHomePage";
-import HiwiHomePage from "./pages/HiWiHomePage";
+import HiwiHomePage from "./pages/HiwiHomePage";
 import HiWiStatisticsPage from "./pages/HiwiStatisticsPage";
 import StudentQrPage from "./pages/StudentQrPage";
 import OrganizerAnnouncements from "./pages/OrganizerAnnouncements";
-import HiWiQrScanPage from "./pages/HiWiQrScanPage";
+import HiWiQrScanPage from "./pages/HiwiQrScanPage";
+import AttendanceData from "./pages/AttendanceData";
 
 export default function App() {
   return (
@@ -40,7 +41,7 @@ export default function App() {
         <Route path= "/ohomepage/eventdetail" element={<EventDetailPage/>} />
         <Route path="/ohomepage/sessionlist" element={<SessionListPage/>} />
         <Route path="/ohomepage/hiwilist" element={<HiWiListPage/>} />
-        <Route path="/ohomepage/businesscard" element={<BusinessCardPage/>} />
+        <Route path="/studenthomepage/businesscard" element={<BusinessCardPage/>} />
         <Route path="/ohomepage/quizlist" element={<QuizListPage/>} />
         <Route path="/ohomepage/statistics" element={<StatisticsPage/>} />
         <Route path="/studenthomepage" element={<StudentHomePage/>} />
@@ -49,6 +50,8 @@ export default function App() {
         <Route path="/studenthomepage/qr" element={<StudentQrPage/>} />
         <Route path="/ohomepage/announcements" element={<OrganizerAnnouncements/>} />
         <Route path="/hiwihomepage/scan" element={<HiWiQrScanPage/>} />
+        <Route path="/ohomepage/attendance" element={<AttendanceData/>} />
+
         
 
         {/* optional: catch-all for invalid routes */}

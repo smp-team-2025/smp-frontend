@@ -55,6 +55,13 @@ export default function StudentHomePage(){
                           <p>Attendance via QR scanning</p>
                 </Link>
 
+                <Link to="/studenthomepage/businesscard" className="card-link">
+                          <div className="card">
+                            <h2>Business Card</h2>
+                            <p>Print participant QR cards</p>
+                        </div>
+                </Link>
+
                 <a href="../organizer/statistics.html" className="card">
                     <h2>Statistics</h2>
                     <p>View results and analytics</p>

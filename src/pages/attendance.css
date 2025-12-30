@@ -1,0 +1,76 @@
+.attendance-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.error-msg {
+    color: red;
+    font-weight: bold;
+}
+
+.days-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.day-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+
+.day-header h2 {
+    font-size: 1.4rem;
+    color: #0b63b6;
+    margin: 0;
+}
+
+.date-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.count-badge {
+    background: #eef4fb;
+    color: #0b63b6;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.participant-list {
+    list-style: none;
+}
+
+.participant-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.p-name {
+    font-weight: 600;
+}
+
+.p-email {
+    color: #555;
+}
+
+.no-participants {
+    color: #999;
+    font-style: italic;
+}

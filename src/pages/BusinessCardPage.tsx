@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { qrApi } from "../api/qr";
 import "./businesscard.css";
 
 export default function BusinessCardPage(){
+    const [user, setUser] = useState<{ id: number; name: string; role: string } | null>(null);
+    const [qrUrl, setQrUrl] = useState<string>("");
+
+    useEffect(() => {
+        async function loadData() {
+            try {
+                const me = await qrApi.getMe();
+                setUser(me);
+                const url = await qrApi.getUserQrCode(me.id);
+                setQrUrl(url);
+            } catch (e) {
+                console.error("Failed to load data", e);
+            }
+        }
+        loadData();
+    }, []);
+
+    const handleDownload = async () => {
+        if (!user) return;
+        try {
+            const pdfUrl = await qrApi.getBusinessCardPdf(user.id);
+            window.open(pdfUrl, "_blank");
+        } catch (e) {
+            console.error("Failed to download PDF", e);
+        }
+    };
+
+    if (!user) return <div className="page-wrapper">Loading...</div>;
+
     return(
         <div className="page-wrapper">
             <header className="navbar">
                 <span className="nav-logo">SMP 2026</span>
 
-                <Link to="/ohomepage" className="back-btn">← Dashboard</Link>
+                <Link to="/studenthomepage" className="back-btn">← Dashboard</Link>
             </header>
 
             <main className="card-wrapper">
@@ -20,17 +50,17 @@ export default function BusinessCardPage(){
 
                     {/* CENTER INFO */}
                     <div className="info">
-                        <h2>Max Mustermann</h2>
-                        <p className="role">Student</p>
+                        <h2>{user.name}</h2>
+                        <p className="role">{user.role}</p>
                         <p className="event">Science Day 2026</p>
                     </div>
 
                     {/* QR */}
-                    <img src="qr-placeholder.png" alt="QR Code" className="qr" />
+                    {qrUrl && <img src={qrUrl} alt="QR Code" className="qr" />}
                 </div>
 
-                <button onClick={() => window.print()} className="print-btn">
-                    Print Card
+                <button onClick={handleDownload} className="print-btn">
+                    Download PDF
                 </button>
             </main>
 
