@@ -25,10 +25,21 @@ export default function BusinessCardPage(){
         if (!user) return;
         try {
             const pdfUrl = await qrApi.getBusinessCardPdf(user.id);
-            window.open(pdfUrl, "_blank");
+            const a = document.createElement("a");
+            a.href = pdfUrl;
+            a.download = `business-card-${user.name}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(pdfUrl);
         } catch (e) {
             console.error("Failed to download PDF", e);
+            alert("Failed to download PDF");
         }
+    };
+
+    const handlePrint = () => {
+        window.print();
     };
 
     if (!user) return <div className="page-wrapper">Loading...</div>;
@@ -51,7 +62,6 @@ export default function BusinessCardPage(){
                     {/* CENTER INFO */}
                     <div className="info">
                         <h2>{user.name}</h2>
-                        <p className="role">{user.role}</p>
                         <p className="event">Science Day 2026</p>
                     </div>
 
@@ -59,9 +69,14 @@ export default function BusinessCardPage(){
                     {qrUrl && <img src={qrUrl} alt="QR Code" className="qr" />}
                 </div>
 
-                <button onClick={handleDownload} className="print-btn">
-                    Download PDF
-                </button>
+                <div className="button-group">
+                    <button onClick={handleDownload} className="download-btn">
+                        📥 Download PDF
+                    </button>
+                    <button onClick={handlePrint} className="print-btn">
+                        🖨️ Print Card
+                    </button>
+                </div>
             </main>
 
         </div>

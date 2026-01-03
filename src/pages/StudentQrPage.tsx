@@ -50,7 +50,7 @@ export default function StudentQrPage(){
                     ) : (
                         <p>Loading QR Code...</p>
                     )}
-                    <p className="student-name">Student: {username}</p>
+                    <p className="student-name">{username}</p>
                 </div>
             </main>
         </div>

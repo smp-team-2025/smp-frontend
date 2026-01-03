@@ -103,20 +103,43 @@ html, body, #root {
     margin-right: 18px;
 }
 
-/* PRINT BUTTON */
-.print-btn {
+/* BUTTONS */
+.button-group {
+    display: flex;
+    gap: 16px;
     margin-top: 24px;
-    padding: 10px 20px;
+}
+
+.download-btn, .print-btn {
+    padding: 12px 24px;
     border-radius: 8px;
     border: none;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.download-btn {
+    background: #28a745;
+    color: white;
+}
+
+.download-btn:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.print-btn {
     background: #0b63b6;
     color: white;
-    font-weight: 600;
-    cursor: pointer;
 }
+
 .print-btn:hover {
-    transition: 0.3s;
-    opacity: 0.8;
+    background: #094c8f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(11, 99, 182, 0.3);
 }
 
 /* ===== PRINT MODE ===== */
@@ -125,8 +148,11 @@ html, body, #root {
         background: white;
     }
     .navbar,
-    .print-btn {
+    .button-group {
         display: none;
+    }
+    .card-wrapper {
+        margin-top: 20px;
     }
 }
 

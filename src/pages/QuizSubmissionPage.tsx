@@ -38,20 +38,19 @@ export default function QuizSubmissionPage() {
   }, [sessionId]);
 
   useEffect(() => {
-    if (!quiz || submitting) return;
+    if (!quiz || submitting || timeLeft <= 0) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          handleNext();
-          return 60;
+          return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentQuestionIndex, quiz, submitting]);
+  }, [currentQuestionIndex, quiz, submitting, timeLeft]);
 
   async function fetchQuiz() {
     try {
@@ -95,10 +94,10 @@ export default function QuizSubmissionPage() {
     }
 
     setAnswers(newAnswers);
-    setCurrentAnswer("");
-    setTimeLeft(60);
 
     if (currentQuestionIndex < quiz.questions.length - 1) {
+      setCurrentAnswer("");
+      setTimeLeft(60);
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       submitQuiz(newAnswers);
@@ -166,10 +165,9 @@ export default function QuizSubmissionPage() {
         <div className={`timer-circle ${timeLeft <= 10 ? "warning" : ""}`}>
           {timeLeft}s
         </div>
-      </div>
-
-      <div className="question-card">
-        <h2>{currentQ.question.text}</h2>
+        <p style={{ textAlign: "center", marginTop: "10px", color: "#666", fontSize: "14px" }}>
+          Time remaining
+        </p>
       </div>
 
       <form
@@ -194,9 +192,9 @@ export default function QuizSubmissionPage() {
         <button type="submit" className="btn-submit" disabled={submitting}>
           {currentQuestionIndex === quiz.questions.length - 1
             ? submitting
-              ? "Submitting..."
-              : "Submit"
-            : "Next Question →"}
+              ? "Submitting Quiz..."
+              : "Submit Quiz"
+            : "Submit Answer →"}
         </button>
       </form>
     </div>
