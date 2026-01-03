@@ -62,9 +62,19 @@ export default function OHomePage() {
                     </Link>
 
 
-                    <Link to="/ohomepage/quizlist" className="card">
-                            <h2>Fermi Quiz</h2>
-                            <p>Create and manage quizzes</p>
+                    <Link to="/questions" className="card">
+                            <h2>Fermi Questions</h2>
+                            <p>Manage question bank</p>
+                    </Link>
+
+                    <Link to="/quiz/create" className="card">
+                            <h2>Create Quiz</h2>
+                            <p>New Fermi quiz for session</p>
+                    </Link>
+
+                    <Link to="/quizlist" className="card">
+                            <h2>Quiz Results</h2>
+                            <p>View statistics</p>
                     </Link>
 
                     <Link to="/ohomepage/statistics" className="card">

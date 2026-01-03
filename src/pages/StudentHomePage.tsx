@@ -45,10 +45,10 @@ export default function StudentHomePage(){
 
             <div className="cards">
 
-                <a href="../organizer/quizlist.html" className="card">
+                <Link to="/quiz/session/1" className="card">
                     <h2>Fermi Quiz</h2>
-                    <p>Create and manage quizzes</p>
-                </a>
+                    <p>Answer Fermi questions</p>
+                </Link>
 
                 <Link to="/studenthomepage/qr" className="card">
                           <h2>QR Code Check-in</h2>

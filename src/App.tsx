@@ -21,6 +21,10 @@ import StudentQrPage from "./pages/StudentQrPage";
 import OrganizerAnnouncements from "./pages/OrganizerAnnouncements";
 import HiWiQrScanPage from "./pages/HiwiQrScanPage";
 import AttendanceData from "./pages/AttendanceData";
+import QuizSubmissionPage from "./pages/QuizSubmissionPage";
+import QuizResultsPage from "./pages/QuizResultsPage";
+import QuestionManagementPage from "./pages/QuestionManagementPage";
+import QuizCreationPage from "./pages/QuizCreationPage";
 
 export default function App() {
   return (
@@ -51,8 +55,11 @@ export default function App() {
         <Route path="/ohomepage/announcements" element={<OrganizerAnnouncements/>} />
         <Route path="/hiwihomepage/scan" element={<HiWiQrScanPage/>} />
         <Route path="/ohomepage/attendance" element={<AttendanceData/>} />
-
-        
+        <Route path="/quiz/session/:sessionId" element={<QuizSubmissionPage/>} />
+        <Route path="/quiz/:quizId/results" element={<QuizResultsPage/>} />
+        <Route path="/quizlist" element={<QuizListPage/>} />
+        <Route path="/questions" element={<QuestionManagementPage/>} />
+        <Route path="/quiz/create" element={<QuizCreationPage/>} />
 
         {/* optional: catch-all for invalid routes */}
         <Route path="*" element={<h1>404 - Seite nicht gefunden</h1>} />
