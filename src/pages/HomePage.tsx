@@ -48,11 +48,7 @@ export default function HomePage(){
           <p>
             SATURDAY MORNING PHYSICS findet im Wintersemester 2025 an 5 Samstagen
             von 9.00 bis 12.00 Uhr im großen Physik-Hörsaal und per Zoom statt.
-            Samstags sind wir, die Professor*innen und Wissenschaftler*innen der
-            TU Darmstadt und der Gesellschaft für Schwerionenforschung in Darmstadt,
-            frei von Lehrveranstaltungen und können uns ganz Ihnen widmen.
-            Sie müssen samstags nicht in die Schule und somit können wir gemeinsam
-            die aktuellen Fragen der Modernen Physik diskutieren.
+          
           </p>
         </section>
       </main>

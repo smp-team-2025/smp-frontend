@@ -8,9 +8,15 @@ export default function EventListPage(){
         <div className="page-wrapper">
             <header className="navbar">
                 <span className="logo">SMP 2026</span>
-                <Link to="/ohomepage" className="back">
-                ← Dashboard
-                </Link>
+                <div className="nav-right">
+                                    <Link to="/ohomepage" className="back-btn">
+                                        ← Dashboard
+                                    </Link>
+                                    
+                                    <Link to="/login" className="logout-btn">
+                                        Logout
+                                    </Link>
+                                </div>
             </header>
 
             <main className="container">
@@ -19,14 +25,10 @@ export default function EventListPage(){
                 <div className="event-list">
 
                     <Link to="/ohomepage/eventdetail" className="event-card">
-                        <h2>Introduction Day</h2>
-                        <p>10 April 2026</p>
+                        <h2>SMP 2026</h2>
+                        
                     </Link>
                     
-                    <Link to="/ohomepage/eventdetail" className="event-card">
-                        <h2>Fermi Quiz Session</h2>
-                        <p>15 April 2026</p>
-                    </Link>
 
                 </div>
             </main>

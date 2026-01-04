@@ -27,14 +27,23 @@ export default function SessionListPage(){
 
                 <div className="cards">
                     <div className="card">
-                        <h2>Morning Session</h2>
-                        <p>09:00 – 11:00</p>
+                        <h2>Day1</h2>
                     </div>
 
                     <div className="card">
-                        <h2>Afternoon Session</h2>
-                        <p>13:00 – 15:00</p>
+                        <h2>Day 2</h2>
                     </div>
+
+                    <div className="card">
+                        <h2>Day 3</h2>
+                        
+
+                        
+                    </div>
+
+                    <div className="card">
+                        <h2>Day 4</h2>
+                    </div>  
                 </div>
             </main>
         </div>
