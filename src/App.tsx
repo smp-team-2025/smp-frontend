@@ -25,6 +25,8 @@ import QuizSubmissionPage from "./pages/QuizSubmissionPage";
 import QuizResultsPage from "./pages/QuizResultsPage";
 import QuestionManagementPage from "./pages/QuestionManagementPage";
 import QuizCreationPage from "./pages/QuizCreationPage";
+import ZoomUploadPage from "./pages/ZoomUploadPage";
+import ZoomCheckPage from "./pages/ZoomCheckPage";
 
 export default function App() {
   return (
@@ -60,6 +62,9 @@ export default function App() {
         <Route path="/quizlist" element={<QuizListPage/>} />
         <Route path="/questions" element={<QuestionManagementPage/>} />
         <Route path="/quiz/create" element={<QuizCreationPage/>} />
+        <Route path="/ohomepage/zoom" element={<ZoomUploadPage/>} />
+        <Route path="/zoom-check" element={<ZoomCheckPage/>} />
+
 
         {/* optional: catch-all for invalid routes */}
         <Route path="*" element={<h1>404 - Seite nicht gefunden</h1>} />

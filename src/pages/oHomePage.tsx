@@ -92,6 +92,11 @@ export default function OHomePage() {
                         <p>Create and list announcements</p>
                     </Link>
 
+                    <Link to= "/ohomepage/zoom" className="card">
+                        <h2>Zoom Upload csv</h2>
+                        <p>Upload and get attendance</p>
+                    </Link>
+
                 </div>
             </main>
         </div>
