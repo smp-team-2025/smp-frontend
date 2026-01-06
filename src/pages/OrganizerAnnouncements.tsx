@@ -1,26 +1,60 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { announcementsApi, type Announcement } from "../api/announcements";
 import "./ohomepage.css";
 
+interface Attachment {
+    id: number;
+    url: string;
+    mimeType: string;
+}
+
+interface AnnouncementWithAttachments extends Announcement {
+    attachments?: Attachment[];
+}
+
 export default function OrganizerAnnouncements() {
-    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const navigate = useNavigate();
+    const [announcements, setAnnouncements] = useState<AnnouncementWithAttachments[]>([]);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [eventId, setEventId] = useState<string>("1"); // Defaulting to 1 for simplicity, backend requires ID
     const [error, setError] = useState("");
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
+        // const token = localStorage.getItem("token");
+        // if (!token) {
+        //     navigate("/login");
+        // }
         loadAnnouncements();
-    }, []);
+    }, [navigate]);
 
     const loadAnnouncements = async () => {
         try {
             const data = await announcementsApi.list();
-            setAnnouncements(data);
+            setAnnouncements(data as AnnouncementWithAttachments[]);
         } catch (err) {
             console.error(err);
             setError("Failed to load announcements");
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setSelectedImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const clearImage = () => {
+        setSelectedImage(null);
+        setPreviewUrl(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
         }
     };
 
@@ -35,10 +69,38 @@ export default function OrganizerAnnouncements() {
                 eventId: eventId ? Number(eventId) : undefined,
             });
             
-            setAnnouncements([newPost, ...announcements]);
+            let uploadedAttachment = null;
+
+            if (selectedImage) {
+                const formData = new FormData();
+                formData.append("file", selectedImage);
+                const token = localStorage.getItem("token");
+
+                const uploadRes = await fetch(`/api/announcements/${newPost.id}/attachments`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (uploadRes.ok) {
+                    uploadedAttachment = await uploadRes.json();
+                } else {
+                    console.error("Failed to upload image");
+                }
+            }
+
+            const postToDisplay: AnnouncementWithAttachments = {
+                ...newPost,
+                attachments: uploadedAttachment ? [uploadedAttachment] : []
+            };
+
+            setAnnouncements([postToDisplay, ...announcements]);
             setTitle("");
             setContent("");
             setError("");
+            clearImage();
         } catch (err: any) {
             setError(err.message || "Failed to post announcement");
         }
@@ -101,6 +163,38 @@ export default function OrganizerAnnouncements() {
                             rows={4}
                             style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", fontSize: "1rem", resize: "vertical" }}
                         />
+                        
+                        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <label 
+                                    htmlFor="image-upload" 
+                                    className="add-image-btn"
+                                >
+                                    📷 Add Image
+                                </label>
+                                <input
+                                    id="image-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    style={{ display: "none" }}
+                                    ref={fileInputRef}
+                                />
+                                {selectedImage && <span style={{ fontSize: "0.9rem", color: "#666" }}>{selectedImage.name}</span>}
+                            </div>
+
+                            {previewUrl && (
+                                <div style={{ position: "relative", width: "fit-content" }}>
+                                    <img 
+                                        src={previewUrl} 
+                                        alt="Preview" 
+                                        style={{ maxWidth: "200px", maxHeight: "200px", borderRadius: "8px", border: "1px solid #ddd" }} 
+                                    />
+                                    <button type="button" onClick={clearImage} style={{ position: "absolute", top: "-8px", right: "-8px", background: "red", color: "white", border: "none", borderRadius: "50%", width: "24px", height: "24px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+                                </div>
+                            )}
+                        </div>
+
                         <button type="submit" className="logout-btn" style={{ background: "#0b63b6", color: "white", alignSelf: "flex-start", border: "none", cursor: "pointer" }}>
                             Post Announcement
                         </button>
@@ -127,6 +221,15 @@ export default function OrganizerAnnouncements() {
                                 </div>
                             </div>
                             <p style={{ whiteSpace: "pre-wrap" }}>{post.body}</p>
+                            {post.attachments && post.attachments.length > 0 && (
+                                <div style={{ marginTop: "15px" }}>
+                                    <img 
+                                        src={post.attachments[0].url} 
+                                        alt="Attachment" 
+                                        style={{ maxWidth: "100%", maxHeight: "400px", borderRadius: "8px", objectFit: "contain" }} 
+                                    />
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>

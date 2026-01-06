@@ -45,6 +45,11 @@ export default function StudentHomePage(){
 
             <div className="cards">
 
+                <Link to="/studenthomepage/calendar" className="card">
+                    <h2>My Calendar</h2>
+                    <p>View upcoming sessions</p>
+                </Link>
+
                 <Link to="/quiz/session/1" className="card">
                     <h2>Fermi Quiz</h2>
                     <p>Answer Fermi questions</p>

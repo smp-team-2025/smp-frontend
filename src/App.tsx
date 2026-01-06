@@ -27,6 +27,8 @@ import QuestionManagementPage from "./pages/QuestionManagementPage";
 import QuizCreationPage from "./pages/QuizCreationPage";
 import ZoomUploadPage from "./pages/ZoomUploadPage";
 import ZoomCheckPage from "./pages/ZoomCheckPage";
+import HiwiSessions from "./pages/HiwiSessions";
+import StudentSessionsCalendar from "./pages/StudentSessionsCalendar";
 
 export default function App() {
   return (
@@ -64,6 +66,9 @@ export default function App() {
         <Route path="/quiz/create" element={<QuizCreationPage/>} />
         <Route path="/ohomepage/zoom" element={<ZoomUploadPage/>} />
         <Route path="/zoom-check" element={<ZoomCheckPage/>} />
+        <Route path="/hiwihomepage/sessions" element={<HiwiSessions/>} />
+        <Route path="/studenthomepage/calendar" element={<StudentSessionsCalendar/>} />
+        
 
 
         {/* optional: catch-all for invalid routes */}

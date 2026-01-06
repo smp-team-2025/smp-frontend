@@ -40,6 +40,12 @@ export default function HiwiHomePage(){
 
                 <div className="cards">
 
+                    {/* MY SESSIONS */}
+                    <Link to="/hiwihomepage/sessions" className="card">
+                        <h2>My Sessions</h2>
+                        <p>View assigned sessions</p>
+                    </Link>
+
                     {/* QR CODE */}
                     <Link to="/hiwihomepage/scan" className="card">
                         <h2>QR Code Check-in</h2>
