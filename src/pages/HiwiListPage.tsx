@@ -29,10 +29,7 @@ export default function HiWiListPage(){
                     <p><strong>Clothing Size:</strong> S</p>
                     <p><strong>Status:</strong> Pending</p>
 
-                    <div className="actions">
-                        <button className="approve-btn">Approve</button>
-                        <button className="reject-btn">Reject</button>
-                    </div>
+                    
                 </div>
             </main>
         </div>

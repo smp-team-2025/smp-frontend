@@ -73,20 +73,14 @@ export default function StudentHomePage(){
                 </Link>
 
 
-                <a href="../organizer/statistics.html" className="card">
-                    <h2>Statistics</h2>
-                    <p>View results and analytics</p>
-                </a>
+    
 
                 <a href="#" className="card">
                     <h2>Certificates</h2>
                     <p>Generate participation certificates</p>
                 </a>
 
-                <a href="#" className="card">
-                    <h2>Email Notifications</h2>
-                    <p>Send updates automatically</p>
-                </a>
+                
 
             </div>
         </main>

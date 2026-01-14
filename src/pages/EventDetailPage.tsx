@@ -24,7 +24,7 @@ export default function EventDetailPage(){
 
                 <div className="event-card">
                     <h2>Science Day 2026</h2>
-                    <p><strong>Date:</strong> 12.06.2026</p>
+                    <p><strong>Date:</strong> 12.06.2026 - 19.06.2026</p>
                     <p><strong>Location:</strong> TU Darmstadt</p>
                     <p><strong>Status:</strong> Active</p>
                 </div>

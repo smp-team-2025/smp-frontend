@@ -1,0 +1,159 @@
+/* style.css - Saturday Morning Physics 2025 */
+
+/* variables */
+:root{
+    --max-width: 1100px;  
+    --accent: #1a73e8;
+    --muted: #6b6b6b;
+    --bg: #ffffff;
+    --card-border: #eee;
+}
+  
+/* general reset */
+* { box-sizing: border-box; }
+html,body { height: 100%; }
+body{
+    margin: 0;
+    font-family: "Georgia", "Times New Roman", serif;
+    color: #222;
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+  
+/* nasvbar */
+.navbar{
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(4px);
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 40px; 
+}
+  
+.brand{
+    font-weight: 700;
+    font-size: 20px; 
+    letter-spacing: 0.2px;
+}
+  
+/* Butonlar */
+.nav-actions{
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+  
+.btn{
+    font-family: inherit;
+    font-size: 15px;
+    padding: 10px 18px; 
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+  
+.btn.login{
+    background: transparent;
+    color: #222;
+    border-color: #ccc;
+}
+  
+.btn.register{
+    background: var(--accent);
+    color: white;
+}
+  
+/* container and headers */
+.container{
+    max-width: var(--max-width);
+    margin: 60px auto;
+    padding: 0 50px 80px; 
+}
+
+.title{
+    font-size: 48px; 
+    line-height: 1.08;
+    margin: 8px 0 14px;
+    font-weight: 700;
+}
+  
+.subtitle{
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-size: 18px;
+}
+  
+/* hero card */
+.hero-card{
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    background: white;
+}
+  
+.hero-inner{
+    display: flex;
+    gap: 32px;   
+    align-items: center;
+    padding: 32px;  
+    flex-wrap: wrap;
+}
+  
+/* left image */
+.hero-image{
+    flex: 0 0 300px; 
+    max-width: 300px;
+}
+  
+.hero-image img{
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+}
+  
+/* right text */
+.hero-text{
+    flex: 1 1 400px;
+    min-width: 220px;
+}
+  
+.hero-text h3{
+    margin: 0 0 10px;
+    font-size: 26px; 
+}
+  
+.hero-text p{
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: 18px;
+}
+  
+/* content */
+.content{
+    margin-top: 32px;
+    color: #333;
+    line-height: 1.9;
+    font-size: 18px;
+}
+  
+/* responsive */
+@media (max-width: 720px){
+    .navbar{ padding: 10px 20px; }
+    .title{ font-size: 32px; }
+    .hero-inner{ padding: 22px; }
+    .hero-image{ flex-basis: 100%; max-width: 100%; }
+    .hero-text{ flex-basis: 100%; }
+    .container{ margin: 20px auto; padding-bottom: 40px; }
+}
+  
+@media (max-width: 420px){
+    .btn { padding: 6px 10px; font-size: 14px; }
+    .brand { font-size: 17px; }
+}
