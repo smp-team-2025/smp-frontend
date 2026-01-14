@@ -29,6 +29,8 @@ import ZoomUploadPage from "./pages/ZoomUploadPage";
 import ZoomCheckPage from "./pages/ZoomCheckPage";
 import HiwiSessions from "./pages/HiwiSessions";
 import StudentSessionsCalendar from "./pages/StudentSessionsCalendar";
+import DiplomaListPage from "./pages/DiplomaListPage";
+import DiplomaDownloadPage from "./pages/DiplomaDownloadPage";
 
 export default function App() {
   return (
@@ -68,7 +70,8 @@ export default function App() {
         <Route path="/zoom-check" element={<ZoomCheckPage/>} />
         <Route path="/hiwihomepage/sessions" element={<HiwiSessions/>} />
         <Route path="/studenthomepage/calendar" element={<StudentSessionsCalendar/>} />
-        
+        <Route path="/ohomepage/diplomas" element={<DiplomaListPage/>} />
+        <Route path="/studenthomepage/diplomas" element={<DiplomaDownloadPage/>} />
 
 
         {/* optional: catch-all for invalid routes */}

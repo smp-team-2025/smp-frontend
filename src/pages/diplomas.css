@@ -1,0 +1,286 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(180deg, #f6f9fc 0%, #f4f6f8 100%);
+  color: #222;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.navbar {
+  background-color: #0b63b6;
+  color: white;
+  padding: 16px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logout-btn,
+.back-btn {
+  background-color: #ffffff;
+  color: #0b63b6;
+  padding: 8px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.logout-btn:hover,
+.back-btn:hover {
+  background-color: #e6eef8;
+  transform: translateY(-1px);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 60px auto;
+  padding: 0 32px;
+  background: transparent;
+}
+
+.container h1 {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+}
+
+.container h1::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 4px;
+  background-color: #0b63b6;
+  border-radius: 2px;
+  margin-top: 12px;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 10px;
+}
+
+.diplomas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.diplomas-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-input {
+  min-width: 320px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #d8e3f2;
+  background: white;
+  outline: none;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+  border-color: #0b63b6;
+}
+
+.primary-btn,
+.secondary-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.primary-btn {
+  background: #0b63b6;
+  color: white;
+  box-shadow: 0 12px 26px rgba(11, 99, 182, 0.2);
+}
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px rgba(11, 99, 182, 0.25);
+}
+
+.secondary-btn {
+  background: #ffffff;
+  color: #0b63b6;
+  border: 1px solid #d8e3f2;
+}
+
+.secondary-btn:hover {
+  background: #f1f6ff;
+  transform: translateY(-1px);
+}
+
+.error-msg {
+  margin-top: 16px;
+  background: #fff4f4;
+  border: 1px solid #ffd0d0;
+  color: #8a1f1f;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.empty-state {
+  margin-top: 22px;
+  padding: 26px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.muted {
+  color: #6b7280;
+  font-size: 0.92rem;
+  margin-top: 6px;
+}
+
+.table-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.diplomas-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.diplomas-table th,
+.diplomas-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.diplomas-table th {
+  background: #f7fafc;
+  color: #0b63b6;
+  font-weight: 800;
+}
+
+.diplomas-table tr:hover td {
+  background: #fbfdff;
+}
+
+.name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-weight: 700;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 34px;
+  justify-content: center;
+}
+
+.card {
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background-color: #0b63b6;
+}
+
+.card h2 {
+  font-size: 1.35rem;
+  margin-bottom: 10px;
+  color: #0b63b6;
+}
+
+.card p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #555;
+}
+
+.card-actions {
+  margin-top: 18px;
+}
+
+.mini-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mini-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+}
+
+.mini-title {
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .diplomas-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .search-input {
+    min-width: 100%;
+    width: 100%;
+  }
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

@@ -97,6 +97,12 @@ export default function OHomePage() {
                         <p>Upload and get attendance</p>
                     </Link>
 
+                    <Link to="/ohomepage/diplomas" className="card">
+                        <h2>Diplomas</h2>
+                        <p>List and download generated diplomas</p>
+                    </Link>
+
+
                 </div>
             </main>
         </div>

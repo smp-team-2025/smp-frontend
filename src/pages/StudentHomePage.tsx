@@ -67,6 +67,12 @@ export default function StudentHomePage(){
                         </div>
                 </Link>
 
+                <Link to="/studenthomepage/diplomas" className="card">
+                            <h2>Diploma</h2>
+                            <p>Download your participation diploma</p>
+                </Link>
+
+
                 <a href="../organizer/statistics.html" className="card">
                     <h2>Statistics</h2>
                     <p>View results and analytics</p>
