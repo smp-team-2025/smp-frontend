@@ -52,10 +52,10 @@ export default function HiwiHomePage(){
                         <p>Scan participant QR codes</p>
                     </Link>
 
-                    {/* STATISTICS */}
+                    {/* ATTENDANCE */}
                     <Link to="/hiwihomepage/statistics" className="card"> 
-                        <h2>Statistics</h2>
-                        <p>View attendance statistics</p>
+                        <h2>Attendance</h2>
+                        <p>View attendance logs</p>
                     </Link>
                         
                     

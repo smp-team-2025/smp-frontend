@@ -77,11 +77,6 @@ export default function OHomePage() {
                             <p>View statistics</p>
                     </Link>
 
-                    <Link to="/ohomepage/statistics" className="card">
-                             <h2>Statistics</h2>
-                            <p>View participation statistics</p>
-                    </Link>
-
                     <Link to="/ohomepage/attendance" className="card">
                         <h2>Attendance Data</h2>
                         <p>View attendance logs</p>
