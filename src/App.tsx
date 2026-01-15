@@ -13,7 +13,6 @@ import SessionListPage from "./pages/SessionListPage";
 import HiWiListPage from "./pages/HiwiListPage";
 import BusinessCardPage from "./pages/BusinessCardPage";
 import QuizListPage from "./pages/QuizListPage";
-import StatisticsPage from "./pages/StatisticsPage";
 import StudentHomePage from "./pages/StudentHomePage";
 import HiwiHomePage from "./pages/HiwiHomePage";
 import HiWiStatisticsPage from "./pages/HiwiStatisticsPage";
@@ -53,7 +52,6 @@ export default function App() {
         <Route path="/ohomepage/hiwilist" element={<HiWiListPage/>} />
         <Route path="/studenthomepage/businesscard" element={<BusinessCardPage/>} />
         <Route path="/ohomepage/quizlist" element={<QuizListPage/>} />
-        <Route path="/ohomepage/statistics" element={<StatisticsPage/>} />
         <Route path="/studenthomepage" element={<StudentHomePage/>} />
         <Route path="/hiwihomepage" element={<HiwiHomePage/>} />
         <Route path="/hiwihomepage/statistics" element={<HiWiStatisticsPage/>} />
