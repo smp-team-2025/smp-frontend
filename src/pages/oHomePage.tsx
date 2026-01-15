@@ -98,7 +98,7 @@ export default function OHomePage() {
                     </Link>
 
                     <Link to="/admin/registrations" className="card">
-                        <h2>User Registrations</h2>
+                        <h2>Approve Registrations</h2>
                         <p>Approve or reject user registrations</p>
                     </Link>
 
