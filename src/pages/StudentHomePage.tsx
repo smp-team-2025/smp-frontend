@@ -1,28 +1,33 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./student_homepage.css";
 
 export default function StudentHomePage(){
     const navigate = useNavigate();
     const username = "User";
-    {/* 
-        useEffect(() => {
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("role");
-
-        if (!token) {
-            navigate("/login");
-        } else if (role !== "Student") {
-            if (role === "Organizer") {
-                navigate("/ohomepage");
-            } else if (role === "Hiwi") {
-                navigate("/hiwihomepage");
-            } else {
-                navigate("/login");
+    const [availableQuizSessionId, setAvailableQuizSessionId] = useState<number | null>(null);
+    useEffect(() => {
+        // Fetch available quiz sessions
+        const fetchQuizSessions = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const res = await fetch("/api/events/1/sessions", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const sessions = await res.json();
+                    // Find first session with a quiz
+                    const sessionWithQuiz = sessions.find((s: any) => s.fermiQuiz);
+                    if (sessionWithQuiz) {
+                        setAvailableQuizSessionId(sessionWithQuiz.id);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch quiz sessions:", error);
             }
-        }
-    }, [navigate]);
-        */}
+        };
+        fetchQuizSessions();
+    }, []);
 
 
     return(
@@ -50,10 +55,17 @@ export default function StudentHomePage(){
                     <p>View upcoming sessions</p>
                 </Link>
 
-                <Link to="/quiz/session/1" className="card">
-                    <h2>Fermi Quiz</h2>
-                    <p>Answer Fermi questions</p>
-                </Link>
+                {availableQuizSessionId ? (
+                    <Link to={`/quiz/session/${availableQuizSessionId}`} className="card">
+                        <h2>Fermi Quiz</h2>
+                        <p>Answer Fermi questions</p>
+                    </Link>
+                ) : (
+                    <div className="card" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                        <h2>Fermi Quiz</h2>
+                        <p>No quiz available</p>
+                    </div>
+                )}
 
                 <Link to="/studenthomepage/qr" className="card">
                           <h2>QR Code Check-in</h2>
