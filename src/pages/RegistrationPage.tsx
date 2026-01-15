@@ -1,4 +1,5 @@
 import { useState} from "react";
+import { Link } from "react-router-dom";
 import { userRegister, type RegistrationData } from "../api/registration";
 import "./register.css"; 
 
@@ -20,6 +21,7 @@ export default function RegistrationPage(){
     });
 
     const [message, setMessage] = useState("");
+    const [isSuccess, setIsSuccess] = useState(false);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
         const { name, value } = e.target;
@@ -37,12 +39,29 @@ export default function RegistrationPage(){
         }
         try {
             const response = await userRegister(formData);
-            setMessage("Registrierung erfolgreich! Bitte kontrollieren Sie Ihre E-Mail-Adresse.");
+            setIsSuccess(true);
             console.log("Server response:", response);
         } catch (error) {
             setMessage("Registration fehlgeschlagen.");
             console.error(error);
         }
+    }
+
+    if (isSuccess) {
+        return (
+            <div className="page-wrapper">
+                <img className="bg-img" src="/public/saturday_morning_physics-27742_1300x0.jpg" />
+                <div className="container">
+                    <h1>Registrierung erfolgreich</h1>
+                    <p className="intro">
+                        Registrierung erfolgreich. Sie werden ein E-Mail aus Organisatoren bekommen, wenn die Ihnen billigen.
+                    </p>
+                    <Link to="/homepage" className="submit-btn" style={{ display: "block", width: "fit-content", margin: "20px auto", textDecoration: "none", textAlign: "center" }}>
+                        Zurück zur Startseite
+                    </Link>
+                </div>
+            </div>
+        );
     }
 
     return (

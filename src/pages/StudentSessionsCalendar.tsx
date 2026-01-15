@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { studentApi, type StudentSession } from "../api/student";
 import "./studentsessionscalendar.css";
+
+interface Session {
+    id: number;
+    title: string;
+    description?: string | null;
+    location?: string | null;
+    startsAt: string;
+    endsAt?: string | null;
+}
 
 interface DateGroup {
     dateKey: string;
     displayDate: string;
-    sessions: StudentSession[];
+    sessions: Session[];
 }
 
 export default function StudentSessionsCalendar() {
@@ -21,9 +29,19 @@ export default function StudentSessionsCalendar() {
 
     const loadSessions = async () => {
         try {
-            const data = await studentApi.getMySessions();
-            const groups = groupSessionsByDate(data);
-            setGroupedSessions(groups);
+            const token = localStorage.getItem("token");
+            // Fetching all sessions for event 1, ensuring students see what organizers created
+            const res = await fetch("/api/events/1/sessions", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                const groups = groupSessionsByDate(data);
+                setGroupedSessions(groups);
+            } else {
+                setError("Failed to load sessions.");
+            }
         } catch (err) {
             console.error(err);
             setError("Failed to load sessions.");
@@ -32,7 +50,7 @@ export default function StudentSessionsCalendar() {
         }
     };
 
-    const groupSessionsByDate = (sessions: StudentSession[]) => {
+    const groupSessionsByDate = (sessions: Session[]) => {
         const groups: { [key: string]: DateGroup } = {};
         
         sessions.forEach(session => {
@@ -55,8 +73,9 @@ export default function StudentSessionsCalendar() {
         return Object.values(groups).sort((a, b) => a.dateKey.localeCompare(b.dateKey));
     };
 
-    const formatTime = (start: string, end: string) => {
+    const formatTime = (start: string, end?: string | null) => {
         const startTime = new Date(start).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+        if (!end) return startTime;
         const endTime = new Date(end).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
         return `${startTime} - ${endTime}`;
     };
@@ -67,13 +86,13 @@ export default function StudentSessionsCalendar() {
                 <div className="nav-left">
                     <span className="logo">SMP 2026</span>
                 </div>
-                <button onClick={() => navigate("/studenthomepage")} className="logout-btn" style={{ border: 'none', cursor: 'pointer' }}>
-                    Back
+                <button onClick={() => navigate("/studenthomepage")} className="back-btn" style={{ border: 'none', cursor: 'pointer' }}>
+                     ← Dashboard
                 </button>
             </header>
 
             <main className="container">
-                <h1>My Session Calendar</h1>
+                <h1>Session Calendar</h1>
 
                 {loading && <p>Loading calendar...</p>}
                 {error && <p className="error-msg">{error}</p>}
@@ -85,11 +104,11 @@ export default function StudentSessionsCalendar() {
                             <h3 className="date-header">{group.displayDate}</h3>
                             <div className="sessions-grid">
                                 {group.sessions.map(session => (
-                                    <div key={session.id} className="calendar-card">
+                                    <div key={session.id} className="calendar-card" title={session.description || ""}>
                                         <div className="time-badge">{formatTime(session.startsAt, session.endsAt)}</div>
                                         <h4 className="session-title">{session.title}</h4>
-                                        <div className="session-meta">{session.event.title}</div>
-                                        <div className="session-location">📍 {session.location}</div>
+                                        <div className="session-location">📍 {session.location || "TBA"}</div>
+                                        {session.description && <p style={{ fontSize: "0.9rem", color: "#555", marginTop: "8px" }}>{session.description}</p>}
                                     </div>
                                 ))}
                             </div>
