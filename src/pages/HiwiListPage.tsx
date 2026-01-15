@@ -27,7 +27,7 @@ export default function HiWiListPage(){
 
                     <p><strong>Email:</strong> max.mustermann@tu-darmstadt.de</p>
                     <p><strong>Clothing Size:</strong> S</p>
-                    <p><strong>Status:</strong> Pending</p>
+
 
                     
                 </div>
