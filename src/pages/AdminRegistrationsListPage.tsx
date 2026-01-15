@@ -82,8 +82,8 @@ export default function AdminRegistrationsListPage() {
 
   return (
     <div className="admin-container">
-      <button className="btn-back" onClick={handleLogout}>
-        ← Abmelden
+      <button className="btn-back" onClick={() => navigate("/ohomepage")}>
+        ← Dashboard
       </button>
       <h1>Registrierungen Verwalten</h1>
       <p>Alle Anmeldungen für SMP</p>
