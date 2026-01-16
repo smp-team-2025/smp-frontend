@@ -125,3 +125,41 @@ html, body, #root {
     font-size: 0.95rem;
     color: #555;
 }
+
+.session-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.session-form input,
+.session-form textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.session-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.session-form label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 5px;
+}
