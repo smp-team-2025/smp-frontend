@@ -30,7 +30,11 @@ export default function StudentSessionsCalendar() {
     const loadSessions = async () => {
         try {
             const token = localStorage.getItem("token");
-            // Fetching all sessions for event 1, ensuring students see what organizers created
+            if (!token) {
+                navigate("/login");
+                return;
+            }
+            // Fetching all sessions for event 1, the same api for organizors.
             const res = await fetch("/api/events/1/sessions", {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -39,6 +43,7 @@ export default function StudentSessionsCalendar() {
                 const data = await res.json();
                 const groups = groupSessionsByDate(data);
                 setGroupedSessions(groups);
+                setError("");
             } else {
                 setError("Failed to load sessions.");
             }
@@ -96,7 +101,7 @@ export default function StudentSessionsCalendar() {
 
                 {loading && <p>Loading calendar...</p>}
                 {error && <p className="error-msg">{error}</p>}
-                {!loading && !error && groupedSessions.length === 0 && <p>No upcoming sessions found.</p>}
+                {!loading && !error && groupedSessions.length === 0 && <p>No sessions found</p>}
 
                 <div className="calendar-list">
                     {groupedSessions.map((group) => (
