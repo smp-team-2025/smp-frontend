@@ -87,11 +87,6 @@ export default function StudentHomePage(){
 
     
 
-                <a href="#" className="card">
-                    <h2>Certificates</h2>
-                    <p>Generate participation certificates</p>
-                </a>
-
                 
 
             </div>
