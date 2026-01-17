@@ -207,7 +207,7 @@ export default function OrganizerAnnouncements() {
         <div className="page-wrapper">
             <header className="navbar">
                 <div className="nav-left">
-                    <span className="logo">SMP 2026 - Organizer</span>
+                    <span className="logo">SMP 2026</span>
                 </div>
                 <div className="nav-right">
                     <Link to="/ohomepage" className="back-btn">
