@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE = "/api/announcements";
 
 export interface Announcement {
     id: number;
@@ -6,13 +6,16 @@ export interface Announcement {
     body: string;
     createdAt: string;
     authorId: number;
-    eventId: number | null;
-    sessionId: number | null;
-    author?: {
+    author: {
         id: number;
         name: string;
         role: string;
     };
+    attachments?: {
+        id: number;
+        url: string;
+        mimeType: string;
+    }[];
 }
 
 export interface AnnouncementComment {
@@ -26,101 +29,45 @@ export interface AnnouncementComment {
     };
 }
 
-export const announcementsApi = {
-   
-    async list(params?: { eventId?: number; sessionId?: number }): Promise<Announcement[]> {
-        const token = localStorage.getItem("token");
-        const query = new URLSearchParams();
-        if (params?.eventId) query.append("eventId", params.eventId.toString());
-        if (params?.sessionId) query.append("sessionId", params.sessionId.toString());
+function getToken() {
+    return localStorage.getItem("token");
+}
 
-        const response = await fetch(`${API_BASE_URL}/announcements?${query.toString()}`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-            },
-        });
+async function request(url: string, options: RequestInit = {}) {
+    const token = getToken();
+    const headers = new Headers(options.headers);
 
-        if (!response.ok) {
-            throw new Error("Failed to fetch announcements");
-        }
-        return response.json();
-    },
-
-    
-    async create(data: { title?: string; body: string; eventId?: number; sessionId?: number }): Promise<Announcement> {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_BASE_URL}/announcements`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            throw new Error(err.error || "Failed to create announcement");
-        }
-        return response.json();
-    },
-
-    async delete(id: number): Promise<void> {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_BASE_URL}/announcements/${id}`, {
-            method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` },
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to delete announcement");
-        }
-    },
-
-    async getComments(announcementId: number): Promise<AnnouncementComment[]> {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_BASE_URL}/announcements/${announcementId}/comments`, {
-            headers: { "Authorization": `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Failed to fetch comments");
-        return response.json();
-    },
-
-    async createComment(announcementId: number, body: string): Promise<AnnouncementComment> {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_BASE_URL}/announcements/${announcementId}/comments`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify({ body }),
-        });
-        if (!response.ok) throw new Error("Failed to post comment");
-        return response.json();
-    },
-
-    async updateComment(commentId: number, body: string): Promise<AnnouncementComment> {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_BASE_URL}/announcements/comments/${commentId}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify({ body }),
-        });
-        if (!response.ok) throw new Error("Failed to update comment");
-        return response.json();
-    },
-
-    async deleteComment(commentId: number): Promise<void> {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_BASE_URL}/announcements/comments/${commentId}`, {
-            method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Failed to delete comment");
+    if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
     }
+
+    if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
+        headers.set("Content-Type", "application/json");
+    }
+
+    const response = await fetch(url, { ...options, headers });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Request failed with status ${response.status}`);
+    }
+
+    if (response.status === 204) return null;
+
+    return response.json();
+}
+
+export const announcementsApi = {
+    list: () => request(API_BASE),
+    create: (data: { title?: string; body: string; eventId?: number }) => 
+        request(API_BASE, { method: "POST", body: JSON.stringify(data) }),
+    delete: (id: number) => request(`${API_BASE}/${id}`, { method: "DELETE" }),
+    
+    getComments: (id: number) => request(`${API_BASE}/${id}/comments`),
+    createComment: (announcementId: number, body: string) => 
+        request(`${API_BASE}/${announcementId}/comments`, { method: "POST", body: JSON.stringify({ body }) }),
+    updateComment: (commentId: number, body: string) => 
+        request(`${API_BASE}/comments/${commentId}`, { method: "PATCH", body: JSON.stringify({ body }) }),
+    deleteComment: (commentId: number) => 
+        request(`${API_BASE}/comments/${commentId}`, { method: "DELETE" }),
 };

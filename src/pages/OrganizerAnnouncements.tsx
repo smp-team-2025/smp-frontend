@@ -29,10 +29,10 @@ export default function OrganizerAnnouncements() {
     const [editingComment, setEditingComment] = useState<{ id: number, body: string } | null>(null);
 
     useEffect(() => {
-        // const token = localStorage.getItem("token");
-        // if (!token) {
-        //     navigate("/login");
-        // }
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/login");
+        }
         loadAnnouncements();
     }, [navigate]);
 
