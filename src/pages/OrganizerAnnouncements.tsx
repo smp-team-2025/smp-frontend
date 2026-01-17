@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { announcementsApi, type Announcement, type AnnouncementComment } from "../api/announcements";
-import "./ohomepage.css";
+import "./organizerannouncements.css";
 
 interface Attachment {
     id: number;
@@ -207,11 +207,11 @@ export default function OrganizerAnnouncements() {
         <div className="page-wrapper">
             <header className="navbar">
                 <div className="nav-left">
-                    <span className="logo">SMP 2026</span>
+                    <span className="logo">SMP 2026 - Organizer</span>
                 </div>
-                <div className="nav-right" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    <Link to="/ohomepage" className="back-btn" style={{ color: 'white', textDecoration: 'none' }}>
-                        ← Back
+                <div className="nav-right">
+                    <Link to="/ohomepage" className="back-btn">
+                        ← Dashboard
                     </Link>
                     <Link to="/login" className="logout-btn">
                         Logout
@@ -219,21 +219,21 @@ export default function OrganizerAnnouncements() {
                 </div>
             </header>
 
-            <main className="container">
+            <main className="announcements-container">
                 <h1>Announcements</h1>
 
-                {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
+                {error && <p className="error-message">{error}</p>}
 
                 {/* Create Post an Announcement */}
-                <div className="card" style={{ transform: "none", cursor: "default", marginBottom: "40px" }}>
-                    <h2 style={{ marginBottom: "20px" }}>Create New Post</h2>
-                    <form onSubmit={handlePost} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                <div className="announcement-card create-post-card">
+                    <h2 className="section-title">Create New Post</h2>
+                    <form onSubmit={handlePost} className="post-form">
                         <input
                             type="number"
                             placeholder="Event ID (Required)"
                             value={eventId}
                             onChange={(e) => setEventId(e.target.value)}
-                            style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", fontSize: "1rem" }}
+                            className="form-control"
                             required
                         />
                         <input
@@ -241,18 +241,18 @@ export default function OrganizerAnnouncements() {
                             placeholder="Post Title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", fontSize: "1rem" }}
+                            className="form-control"
                         />
                         <textarea
                             placeholder="Write your announcement here..."
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             rows={4}
-                            style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", fontSize: "1rem", resize: "vertical" }}
+                            className="form-control"
                         />
                         
-                        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div className="image-section">
+                            <div className="file-input-wrapper">
                                 <label 
                                     htmlFor="image-upload" 
                                     className="add-image-btn"
@@ -267,100 +267,100 @@ export default function OrganizerAnnouncements() {
                                     style={{ display: "none" }}
                                     ref={fileInputRef}
                                 />
-                                {selectedImage && <span style={{ fontSize: "0.9rem", color: "#666" }}>{selectedImage.name}</span>}
+                                {selectedImage && <span className="file-name">{selectedImage.name}</span>}
                             </div>
 
                             {previewUrl && (
-                                <div style={{ position: "relative", width: "fit-content" }}>
+                                <div className="preview-wrapper">
                                     <img 
                                         src={previewUrl} 
                                         alt="Preview" 
-                                        style={{ maxWidth: "200px", maxHeight: "200px", borderRadius: "8px", border: "1px solid #ddd" }} 
+                                        className="preview-img"
                                     />
-                                    <button type="button" onClick={clearImage} style={{ position: "absolute", top: "-8px", right: "-8px", background: "red", color: "white", border: "none", borderRadius: "50%", width: "24px", height: "24px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+                                    <button type="button" onClick={clearImage} className="clear-btn"></button>
                                 </div>
                             )}
                         </div>
 
-                        <button type="submit" className="logout-btn" style={{ background: "#0b63b6", color: "white", alignSelf: "flex-start", border: "none", cursor: "pointer" }}>
+                        <button type="submit" className="submit-post-btn">
                             Post Announcement
                         </button>
                     </form>
                 </div>
 
                 {/* List of Announcements */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div className="announcements-list">
                     {announcements.length === 0 && <p>No announcements found.</p>}
                     {announcements.map((post) => (
-                        <div key={post.id} className="card" style={{ transform: "none", cursor: "default" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                                <h2 style={{ fontSize: "1.4rem", margin: 0 }}>{post.title || "Untitled"}</h2>
-                                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                                    <span style={{ color: "#888", fontSize: "0.9rem" }}>
+                        <div key={post.id} className="announcement-card">
+                            <div className="post-header">
+                                <h2 className="post-title">{post.title || "Untitled"}</h2>
+                                <div className="post-meta">
+                                    <span className="post-date">
                                         {new Date(post.createdAt).toLocaleDateString()}
                                     </span>
                                     <button 
                                         onClick={() => handleDelete(post.id)}
-                                        style={{ background: "red", color: "white", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}
+                                        className="delete-post-btn"
                                     >
                                         Delete
                                     </button>
                                 </div>
                             </div>
-                            <p style={{ whiteSpace: "pre-wrap" }}>{post.body}</p>
+                            <p className="post-body">{post.body}</p>
                             {post.attachments && post.attachments.length > 0 && (
-                                <div style={{ marginTop: "15px" }}>
+                                <div className="post-attachment">
                                     <img 
                                         src={post.attachments[0].url} 
                                         alt="Attachment" 
-                                        style={{ maxWidth: "100%", maxHeight: "400px", borderRadius: "8px", objectFit: "contain" }} 
+                                        className="attachment-img"
                                     />
                                 </div>
                             )}
 
                             {/* Comments Part */}
-                            <div style={{ marginTop: "15px", borderTop: "1px solid #eee", paddingTop: "10px" }}>
+                            <div className="comments-section">
                                 <button 
                                     onClick={() => toggleComments(post.id)}
-                                    style={{ background: "none", border: "none", color: "#0b63b6", cursor: "pointer", padding: 0, fontSize: "0.9rem" }}
+                                    className="toggle-comments-btn"
                                 >
                                     {post.showComments ? "Hide Comments" : `Show Comments`}
                                 </button>
                                 
                                 {post.showComments && (
-                                    <div style={{ marginTop: "10px", paddingLeft: "10px" }}>
+                                    <div className="comments-list">
                                         {/* Listing the Comments */}
                                         {post.comments?.map(comment => (
-                                            <div key={comment.id} style={{ marginBottom: "8px", background: "#f9f9f9", padding: "8px", borderRadius: "4px" }}>
-                                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#666", marginBottom: "4px" }}>
+                                            <div key={comment.id} className="comment-item">
+                                                <div className="comment-meta">
                                                     <span>{comment.author.name}</span>
                                                     <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
                                                 </div>
                                                 
                                                 {editingComment?.id === comment.id ? (
-                                                    <div style={{ display: "flex", gap: "5px" }}>
+                                                    <div className="edit-comment-form">
                                                         <input 
                                                             value={editingComment.body}
                                                             onChange={(e) => setEditingComment({ ...editingComment, body: e.target.value })}
-                                                            style={{ flex: 1, padding: "4px" }}
+                                                            className="edit-comment-input"
                                                         />
-                                                        <button onClick={saveEditComment} style={{ fontSize: "0.8rem", cursor: "pointer" }}>Save</button>
-                                                        <button onClick={() => setEditingComment(null)} style={{ fontSize: "0.8rem", cursor: "pointer" }}>Cancel</button>
+                                                        <button onClick={saveEditComment} className="comment-action-btn">Save</button>
+                                                        <button onClick={() => setEditingComment(null)} className="comment-action-btn">Cancel</button>
                                                     </div>
                                                 ) : (
-                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                                        <p style={{ margin: 0, fontSize: "0.95rem" }}>{comment.body}</p>
-                                                        <div>
+                                                    <div className="comment-content">
+                                                        <p className="comment-text">{comment.body}</p>
+                                                        <div className="comment-actions">
                                                             <button 
                                                                 onClick={() => setEditingComment({ id: comment.id, body: comment.body })}
-                                                                style={{ fontSize: "0.8rem", background: "none", border: "none", color: "#888", cursor: "pointer", marginRight: "8px" }}
+                                                                className="icon-btn edit"
                                                                 title="Edit"
                                                             >
                                                                 ✎
                                                             </button>
                                                             <button 
                                                                 onClick={() => handleDeleteComment(post.id, comment.id)}
-                                                                style={{ fontSize: "0.8rem", background: "none", border: "none", color: "#dc3545", cursor: "pointer" }}
+                                                                className="icon-btn delete"
                                                                 title="Delete"
                                                             >
                                                                 🗑
@@ -372,17 +372,17 @@ export default function OrganizerAnnouncements() {
                                         ))}
                                         
                                         {/* Adding Comments */}
-                                        <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                                        <div className="add-comment-form">
                                             <input 
                                                 type="text" 
                                                 placeholder="Write a comment..." 
                                                 value={commentInputs[post.id] || ""}
                                                 onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
-                                                style={{ flex: 1, padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                                                className="add-comment-input"
                                             />
                                             <button 
                                                 onClick={() => submitComment(post.id)}
-                                                style={{ background: "#0b63b6", color: "white", border: "none", borderRadius: "4px", padding: "0 12px", cursor: "pointer" }}
+                                                className="post-comment-btn"
                                             >
                                                 Post
                                             </button>
