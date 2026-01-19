@@ -87,9 +87,10 @@ export default function RegistrationPage(){
             <div className="form-section">
             <h2>(1) Zur Person</h2>
 
-            <label>Anrede</label>
+            <label>Anrede (*)</label>
             <select
                 name="salutation"
+                required
                 value={formData.salutation}
                 onChange={handleChange}
             >
@@ -99,29 +100,32 @@ export default function RegistrationPage(){
                 <option value="Divers">Divers</option>
             </select>
 
-            <label>Vorname</label>
+            <label>Vorname (*)</label>
             <input
                 type="text"
                 placeholder="Vorname"
                 name="firstName"
+                required
                 value={formData.firstName}
                 onChange={handleChange}
             />
 
-            <label>Nachname</label>
+            <label>Nachname (*)</label>
             <input
                 type="text"
                 placeholder="Nachname"
                 name="lastName"
+                required
                 value={formData.lastName}
                 onChange={handleChange}
             />
 
-            <label>E-Mail</label>
+            <label>E-Mail (*)</label>
             <input
                 type="email"
                 placeholder="name@beispiel.de"
                 name="email"
+                required
                 value={formData.email}
                 onChange={handleChange}
             />
@@ -136,11 +140,12 @@ export default function RegistrationPage(){
             <div className="form-section">
             <h2>(2) Adresse</h2>
 
-            <label>Straße und Hausnummer</label>
+            <label>Straße und Hausnummer (*)</label>
             <input
                 type="text"
                 placeholder="Musterstr. 1"
                 name="street"
+                required
                 value={formData.street}
                 onChange={handleChange}
             />
@@ -154,20 +159,22 @@ export default function RegistrationPage(){
                 onChange={handleChange}
             />
 
-            <label>PLZ</label>
+            <label>PLZ (*)</label>
             <input
                 type="text"
                 placeholder="12345"
                 name="zipCode"
+                required
                 value={formData.zipCode}
                 onChange={handleChange}
             />
 
-            <label>Ort</label>
+            <label>Ort (*)</label>
             <input
                 type="text"
                 placeholder="Stadt"
                 name="city"
+                required
                 value={formData.city}
                 onChange={handleChange}
             />
@@ -175,13 +182,14 @@ export default function RegistrationPage(){
 
             {/* SECTION 3 — CONFIRM EMAIL */}
             <div className="form-section">
-            <h2>(3) Teilnahmebestätigung</h2>
+            <h2>(3) Teilnahmebestätigung (*)</h2>
 
             <label>E-Mail-Adresse zur Sicherheit noch einmal eingeben</label>
             <input
                 type="email"
                 placeholder="name@beispiel.de"
                 name="confirmEmail"
+                required
                 value={formData.confirmEmail}
                 onChange={handleChange}
             />
@@ -191,9 +199,10 @@ export default function RegistrationPage(){
             <div className="form-section">
             <h2>(4) Schulinformationen</h2>
 
-            <label>Schule</label>
+            <label>Schule (*)</label>
             <select 
                 name="school"
+                required
                 value={formData.school}
                 onChange={handleChange} 
             >
@@ -575,9 +584,10 @@ export default function RegistrationPage(){
             </select>
 
 
-            <label>Jahrgang</label>
+            <label>Jahrgang (*)</label>
             <select
                 name="grade"
+                required
                 value={formData.grade}
                 onChange={handleChange}
             >
@@ -602,10 +612,11 @@ export default function RegistrationPage(){
 
             {/* SECTION 5 — MOTIVATION */}
             <div className="form-section">
-            <h2>(5) Kurze Begründung</h2>
+            <h2>(5) Kurze Begründung (*)</h2>
             <textarea
                 placeholder="Warum möchten Sie an SMP teilnehmen?"
                 name="motivation"
+                required
                 value={formData.motivation}
                 onChange={handleChange}
             ></textarea>
@@ -613,10 +624,11 @@ export default function RegistrationPage(){
 
             {/* SECTION 6 — COMMENTS */}
             <div className="form-section">
-            <h2>(6) Kommentare</h2>
+            <h2>(6) Kommentare (*)</h2>
             <textarea
                 placeholder="Weitere Hinweise, Wünsche..."
                 name="comments"
+                required
                 value={formData.comments}
                 onChange={handleChange}
             ></textarea>
@@ -627,6 +639,10 @@ export default function RegistrationPage(){
             </button>
 
             {message && <p>{message}</p>}
+
+            <p className="mandatory-hint">
+                Felder mit (*) sind Pflichtfelder.
+            </p>
         </form>
         </div>
     </div>
