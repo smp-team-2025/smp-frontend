@@ -89,6 +89,10 @@ export default function StudentHomePage(){
                             <p>View your attendance for all sessions</p>
                 </Link>
 
+                <Link to="/studentannouncements" className="dashboard-card">
+                            <h3>Ankündigungen</h3>
+                            <p>Öffentliche Ankündigungen ansehen</p>
+                </Link>
 
     
 

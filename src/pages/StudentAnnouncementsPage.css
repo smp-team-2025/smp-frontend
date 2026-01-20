@@ -1,0 +1,98 @@
+.student-announcements-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.title {
+  margin: 0;
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #2f2f2f;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  font-size: 22px;
+  color: #6b7280;
+}
+
+.back-link {
+  font-size: 22px;
+  text-decoration: none;
+  color: #4f46e5;
+  white-space: nowrap;
+}
+
+.info-box,
+.error-box,
+.empty-box {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+.info-box {
+  background: #eef2ff;
+  color: #1f2937;
+}
+
+.error-box {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.empty-box {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.announcement-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  padding: 18px 18px 16px;
+  border-left: 6px solid #2563eb; /* sizdeki mavi tema */
+}
+
+.announcement-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.announcement-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.announcement-meta {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.announcement-body {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #1f2937;
+  white-space: normal;
+}
