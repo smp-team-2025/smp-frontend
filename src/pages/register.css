@@ -133,11 +133,13 @@ textarea {
   margin-top: 24px;
   font-size: 14px;
   color: #374151;
+  display: flex;
+  justify-content: center;
 }
 
 .privacy-label {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   cursor: pointer;
 }
