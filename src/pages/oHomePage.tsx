@@ -102,6 +102,11 @@ export default function OHomePage() {
                         <p>Approve or reject user registrations</p>
                     </Link>
 
+                    <Link to="/organizer/participants" className="card">
+                        <h2>Teilnehmer</h2>
+                        <p>Bestätigte Teilnehmende anzeigen</p>
+                    </Link>
+
 
                 </div>
             </main>
