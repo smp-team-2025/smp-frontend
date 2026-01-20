@@ -84,6 +84,11 @@ export default function StudentHomePage(){
                             <p>Download your participation diploma</p>
                 </Link>
 
+                <Link to="/studenthomepage/attendance" className="card">
+                            <h2>My Attendance</h2>
+                            <p>View your attendance for all sessions</p>
+                </Link>
+
 
     
 

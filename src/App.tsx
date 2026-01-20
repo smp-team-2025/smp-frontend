@@ -30,6 +30,8 @@ import HiwiSessions from "./pages/HiwiSessions";
 import StudentSessionsCalendar from "./pages/StudentSessionsCalendar";
 import DiplomaListPage from "./pages/DiplomaListPage";
 import DiplomaDownloadPage from "./pages/DiplomaDownloadPage";
+import StudentAttendancePage from "./pages/StudentAttendancePage";
+
 
 export default function App() {
   return (
@@ -70,6 +72,7 @@ export default function App() {
         <Route path="/studenthomepage/calendar" element={<StudentSessionsCalendar/>} />
         <Route path="/ohomepage/diplomas" element={<DiplomaListPage/>} />
         <Route path="/studenthomepage/diplomas" element={<DiplomaDownloadPage/>} />
+        <Route path="/studenthomepage/attendance" element={<StudentAttendancePage />} />
 
 
         {/* optional: catch-all for invalid routes */}
