@@ -128,3 +128,29 @@ textarea {
 .submit-btn:hover {
     background: #1e5dbb;
 }
+
+.privacy-consent {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.privacy-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.privacy-label input {
+  margin-top: 4px;
+}
+
+.privacy-label a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.privacy-label a:hover {
+  text-decoration: none;
+}

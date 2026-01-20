@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import { userRegister, type RegistrationData } from "../api/registration";
 import "./register.css"; 
 
+
 export default function RegistrationPage(){
+    const [privacyAccepted, setPrivacyAccepted] = useState(false);
+
     const [formData, setFormData] = useState<RegistrationData>({
         salutation:"",
         firstName: "",
@@ -32,6 +35,11 @@ export default function RegistrationPage(){
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+
+        if (!privacyAccepted) {
+         setMessage("Bitte akzeptieren Sie die Datenschutzerklärung.");
+         return;
+        }
 
         if(formData.email !== formData.confirmEmail){
             setMessage("Die E-Mail-Adressen stimmen nicht überein.");
@@ -634,6 +642,29 @@ export default function RegistrationPage(){
             ></textarea>
             </div>
 
+            <div className="privacy-consent">
+  <label className="privacy-label">
+    <input
+      className="privacy-checkbox"
+      type="checkbox"
+      checked={privacyAccepted}
+      onChange={(e) => setPrivacyAccepted(e.target.checked)}
+      required
+    />
+
+    <span className="privacy-text">
+      Ich habe die{" "}
+      <a
+        href="https://www.tu-darmstadt.de/datenschutzerklaerung.de.jsp"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Datenschutzerklärung
+      </a>{" "}
+      gelesen und akzeptiere sie. *
+    </span>
+  </label>
+</div>
             <button className="submit-btn" type="submit">
             Registrieren
             </button>

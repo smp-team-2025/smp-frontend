@@ -12,7 +12,7 @@ type Session = {
 
 type Attendance = {
   id: number;
-  sessionId?: number; // eğer include ile gelmiyorsa
+  sessionId?: number;
   scannedAt: string;
   session?: {
     id: number;
@@ -53,8 +53,7 @@ export default function StudentAttendancePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Sizde event list participant'a kapalı, ama StudentSessionsCalendar zaten eventId=1 ile gidiyor.
-  // İstersen bunu env veya config'e taşırsın.
+  
   const EVENT_ID_FOR_STUDENT_VIEW = 1;
 
   useEffect(() => {
@@ -113,7 +112,6 @@ export default function StudentAttendancePage() {
   const attendedSessionIds = useMemo(() => {
     const set = new Set<number>();
     for (const a of attendances) {
-      // senin backend include ile session.id döndürüyor → en sağlamı bu
       const sid = a.session?.id ?? a.sessionId;
       if (typeof sid === "number") set.add(sid);
     }
