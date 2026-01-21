@@ -7,35 +7,16 @@ type Announcement = {
   title: string | null;
   body: string;
   createdAt: string;
-  visibility: "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC";
-  eventId: number | null;
-  sessionId: number | null;
   author?: {
-    id: number;
     name: string;
-    role: string;
   };
 };
 
 function formatDateTimeDe(iso: string) {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
-  return d.toLocaleString("de-DE", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+  return new Date(iso).toLocaleString("de-DE", {
+    dateStyle: "medium",
+    timeStyle: "short",
   });
-}
-
-function nl2br(text: string) {
-  return text.split("\n").map((line, idx) => (
-    <span key={idx}>
-      {line}
-      <br />
-    </span>
-  ));
 }
 
 export default function StudentAnnouncementsPage() {
@@ -43,89 +24,64 @@ export default function StudentAnnouncementsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
-  const EVENT_ID_FOR_STUDENT_VIEW = 1;
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setError("Nicht eingeloggt. Bitte erneut anmelden.");
+      setError("Nicht eingeloggt");
       setLoading(false);
       return;
     }
 
-    const headers: HeadersInit = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
-
-    async function load() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await fetch(
-          `/api/announcements?eventId=${EVENT_ID_FOR_STUDENT_VIEW}`,
-          { headers }
-        );
-
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`Failed to fetch announcements (${res.status}): ${text}`);
-        }
-
-        const json = await res.json();
-        setItems(Array.isArray(json) ? json : []);
-      } catch (e: any) {
-        setError(e?.message ?? "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    load();
+    fetch("/api/announcements?eventId=1", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then(setItems)
+      .catch(() => setError("Fehler beim Laden"))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="student-announcements-page">
-      <div className="header-row">
-        <div>
-          <h1 className="title">Ankündigungen</h1>
-          <p className="subtitle">Öffentliche Ankündigungen</p>
+    <div className="page-wrapper">
+      {/* NAVBAR */}
+      <header className="navbar">
+        <span className="logo">SMP 2026</span>
+        <div className="nav-right">
+          <Link to="/studenthomepage" className="back-btn">
+            ← Dashboard
+          </Link>
         </div>
+      </header>
 
-        <Link className="back-link" to="/studenthomepage">
-          ← Zurück
-        </Link>
-      </div>
+      {/* CONTENT */}
+      <main className="container">
+        <h1>Ankündigungen</h1>
+        <p className="ann-subtitle">Öffentliche Ankündigungen</p>
 
-      {loading && <div className="info-box">Lade Daten...</div>}
+        {loading && <div className="ann-info">Lade Daten...</div>}
+        {error && <div className="ann-error">{error}</div>}
 
-      {!loading && error && <div className="error-box">{error}</div>}
+        {!loading && !error && items.length === 0 && (
+          <div className="ann-empty">Keine Ankündigungen gefunden.</div>
+        )}
 
-      {!loading && !error && (
-        <div className="list">
-          {items.length === 0 ? (
-            <div className="empty-box">Keine Ankündigungen gefunden.</div>
-          ) : (
-            items.map((a) => (
-              <div className="announcement-card" key={a.id}>
-                <div className="announcement-head">
-                  <div className="announcement-title">
-                    {a.title?.trim() ? a.title : "Ohne Titel"}
-                  </div>
-                  <div className="announcement-meta">
-                    <span>{formatDateTimeDe(a.createdAt)}</span>
-                    {a.author?.name ? <span>• {a.author.name}</span> : null}
-                  </div>
-                </div>
-
-                <div className="announcement-body">{nl2br(a.body)}</div>
+        <div className="ann-list">
+          {items.map((a) => (
+            <div key={a.id} className="ann-card">
+              <div className="ann-head">
+                <h3>{a.title || "Ohne Titel"}</h3>
+                <span>{formatDateTimeDe(a.createdAt)}</span>
               </div>
-            ))
-          )}
+
+              <p className="ann-body">{a.body}</p>
+
+              {a.author?.name && (
+                <div className="ann-author">— {a.author.name}</div>
+              )}
+            </div>
+          ))}
         </div>
-      )}
+      </main>
     </div>
   );
 }
