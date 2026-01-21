@@ -72,6 +72,11 @@ export default function SessionListPage() {
         e.preventDefault();
         const token = localStorage.getItem("token");
 
+        if (!newSession.startsAt) {
+            alert("Start time is required");
+            return;
+        }
+
         const res = await fetch("/api/events/1/sessions", {
             method: "POST",
             headers: {
@@ -79,10 +84,11 @@ export default function SessionListPage() {
                 Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-                ...newSession,
+                title: newSession.title,
                 description: newSession.description || null,
                 location: newSession.location || null,
-                endsAt: newSession.endsAt || null,
+                startsAt: new Date(newSession.startsAt).toISOString(),
+                endsAt: newSession.endsAt ? new Date(newSession.endsAt).toISOString() : null,
             }),
         });
 
@@ -104,7 +110,8 @@ export default function SessionListPage() {
                 endsAt: "",
             });
         } else {
-            alert("Failed to create session");
+            const data = await res.json().catch(() => ({}));
+            alert(data.error || "Failed to create session");
         }
     };
 
