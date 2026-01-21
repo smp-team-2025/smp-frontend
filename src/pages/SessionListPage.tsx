@@ -111,7 +111,11 @@ export default function SessionListPage() {
             });
         } else {
             const data = await res.json().catch(() => ({}));
-            alert(data.error || "Failed to create session");
+            if (data.error === "EVENT_NOT_FOUND") {
+                alert("Event ID 1 not found in database. Please create the event first.");
+            } else {
+                alert(data.error || "Failed to create session");
+            }
         }
     };
 
