@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import "./StudentAnnouncementsPage.css";
 
@@ -19,6 +19,69 @@ function formatDateTimeDe(iso: string) {
   });
 }
 
+/**
+ * Parse [color=...]...[/color] tags and keep line breaks (\n -> <br/>)
+ * Supported:
+ *   [color=red]text[/color]
+ *   [color=#ff00aa]text[/color]
+ * Nested colors supported.
+ */
+function renderColoredText(input: string): ReactNode {
+  if (!input) return null;
+
+  const tokenRegex = /\[color=([^\]]+)\]|\[\/color\]/g;
+
+  type StyleFrame = { color: string };
+  const stack: StyleFrame[] = [];
+
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  let key = 0;
+
+  function pushTextChunk(text: string) {
+    if (!text) return;
+
+    const parts = text.split("\n");
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      if (part) {
+        const color = stack.length ? stack[stack.length - 1].color : undefined;
+        nodes.push(
+          color ? (
+            <span key={`t-${key++}`} style={{ color }}>
+              {part}
+            </span>
+          ) : (
+            <span key={`t-${key++}`}>{part}</span>
+          )
+        );
+      }
+      if (i < parts.length - 1) nodes.push(<br key={`br-${key++}`} />);
+    }
+  }
+
+  let match: RegExpExecArray | null;
+  while ((match = tokenRegex.exec(input)) !== null) {
+    pushTextChunk(input.slice(lastIndex, match.index));
+
+    const full = match[0];
+    if (full.startsWith("[color=")) {
+      const rawColor = match[1]?.trim() || "";
+      const ok =
+        /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(rawColor) ||
+        /^[a-zA-Z]+$/.test(rawColor);
+      if (ok) stack.push({ color: rawColor });
+    } else if (full === "[/color]") {
+      if (stack.length) stack.pop();
+    }
+
+    lastIndex = tokenRegex.lastIndex;
+  }
+
+  pushTextChunk(input.slice(lastIndex));
+  return nodes;
+}
+
 export default function StudentAnnouncementsPage() {
   const [items, setItems] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +98,10 @@ export default function StudentAnnouncementsPage() {
     fetch("/api/announcements?eventId=1", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Request failed");
+        return r.json();
+      })
       .then(setItems)
       .catch(() => setError("Fehler beim Laden"))
       .finally(() => setLoading(false));
@@ -73,11 +139,10 @@ export default function StudentAnnouncementsPage() {
                 <span>{formatDateTimeDe(a.createdAt)}</span>
               </div>
 
-              <p className="ann-body">{a.body}</p>
+              {/*colored render + line breaks */}
+              <div className="ann-body">{renderColoredText(a.body)}</div>
 
-              {a.author?.name && (
-                <div className="ann-author">— {a.author.name}</div>
-              )}
+              {a.author?.name && <div className="ann-author">— {a.author.name}</div>}
             </div>
           ))}
         </div>
