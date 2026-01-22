@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   announcementsApi,
@@ -19,26 +19,23 @@ interface AnnouncementWithAttachments extends Announcement {
   showComments?: boolean;
 }
 
+type Visibility = "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC";
+
+
 /**
- * IMPORTANT:
- * Backend attachments url is like "/uploads/xxx.jpg".
- * If frontend runs on different origin (e.g. :5173) this will 404.
+ * Backend attachment url is like "/uploads/xxx.jpg".
+ * If frontend runs on different origin (e.g. :5173) this will 404 unless you resolve it.
  *
  * Set VITE_BACKEND_ORIGIN in your frontend .env:
  *   VITE_BACKEND_ORIGIN=http://localhost:3000
- *
- * In production (same domain) this also works.
  */
 function resolveAssetUrl(rawUrl: string | undefined | null) {
   if (!rawUrl) return "";
-  // already absolute
   if (/^https?:\/\//i.test(rawUrl)) return rawUrl;
 
   const backendOrigin =
     (import.meta as any).env?.VITE_BACKEND_ORIGIN?.toString()?.trim() || "";
 
-  // If you set VITE_BACKEND_ORIGIN, always use it for /uploads paths.
-  // Otherwise fall back to current origin (works if same origin / reverse proxy).
   const base = backendOrigin || window.location.origin;
 
   try {
@@ -46,6 +43,81 @@ function resolveAssetUrl(rawUrl: string | undefined | null) {
   } catch {
     return rawUrl;
   }
+}
+
+/**
+ * Parse [color=...]...[/color] tags and also keep line breaks (\n -> <br/>)
+ * Supported:
+ *   [color=red]text[/color]
+ *   [color=#ff00aa]text[/color]
+ *   nested colors are supported
+ *
+ * Everything else is rendered as plain text (no HTML injection).
+ */
+function renderColoredText(input: string): ReactNode {
+  if (!input) return null;
+
+  // tokens: [color=...] , [/color], or text chunks
+  const tokenRegex = /\[color=([^\]]+)\]|\[\/color\]/g;
+
+  type StyleFrame = { color: string };
+  const stack: StyleFrame[] = [];
+
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  let key = 0;
+
+  function pushTextChunk(text: string) {
+    if (!text) return;
+
+    // keep line breaks
+    const parts = text.split("\n");
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      if (part) {
+        const color = stack.length ? stack[stack.length - 1].color : undefined;
+        nodes.push(
+          color ? (
+            <span key={`t-${key++}`} style={{ color }}>
+              {part}
+            </span>
+          ) : (
+            <span key={`t-${key++}`}>{part}</span>
+          )
+        );
+      }
+      if (i < parts.length - 1) {
+        nodes.push(<br key={`br-${key++}`} />);
+      }
+    }
+  }
+
+  let match: RegExpExecArray | null;
+  while ((match = tokenRegex.exec(input)) !== null) {
+    // text before token
+    pushTextChunk(input.slice(lastIndex, match.index));
+
+    const full = match[0];
+    if (full.startsWith("[color=")) {
+      const rawColor = match[1]?.trim() || "";
+      // Basic sanity: allow #hex or simple words; otherwise ignore.
+      const ok =
+        /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(rawColor) ||
+        /^[a-zA-Z]+$/.test(rawColor);
+      if (ok) {
+        stack.push({ color: rawColor });
+      }
+    } else if (full === "[/color]") {
+      if (stack.length) stack.pop();
+    }
+
+    lastIndex = tokenRegex.lastIndex;
+  }
+
+  // remaining tail
+  pushTextChunk(input.slice(lastIndex));
+
+  return nodes;
 }
 
 export default function OrganizerAnnouncements() {
@@ -63,6 +135,10 @@ export default function OrganizerAnnouncements() {
 
   const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
   const [editingComment, setEditingComment] = useState<{ id: number; body: string } | null>(null);
+
+  // for color feature
+  const [pickedColor, setPickedColor] = useState<string>("#1d4ed8");
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -85,7 +161,6 @@ export default function OrganizerAnnouncements() {
     try {
       setError("");
       const data = await announcementsApi.list();
-      // backend now returns attachments in list() (you added include.attachments)
       setAnnouncements(data as AnnouncementWithAttachments[]);
     } catch (err) {
       console.error(err);
@@ -99,7 +174,6 @@ export default function OrganizerAnnouncements() {
 
     setSelectedImage(file);
 
-    // replace old preview url
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
   };
@@ -109,6 +183,41 @@ export default function OrganizerAnnouncements() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // Wrap selected text with [color=...][/color]
+  const applyColorToSelection = () => {
+    const el = contentRef.current;
+    if (!el) return;
+
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+
+    // no selection -> insert tags and place cursor inside
+    if (start === end) {
+      const insert = `[color=${pickedColor}][/color]`;
+      const newValue = content.slice(0, start) + insert + content.slice(end);
+      setContent(newValue);
+
+      // place cursor before closing tag
+      requestAnimationFrame(() => {
+        el.focus();
+        const cursorPos = start + `[color=${pickedColor}]`.length;
+        el.setSelectionRange(cursorPos, cursorPos);
+      });
+      return;
+    }
+
+    const selected = content.slice(start, end);
+    const wrapped = `[color=${pickedColor}]${selected}[/color]`;
+    const newValue = content.slice(0, start) + wrapped + content.slice(end);
+    setContent(newValue);
+
+    requestAnimationFrame(() => {
+      el.focus();
+      // keep selection around the original selection (optional)
+      el.setSelectionRange(start, start + wrapped.length);
+    });
   };
 
   const handlePost = async (e: React.FormEvent) => {
@@ -129,14 +238,11 @@ export default function OrganizerAnnouncements() {
         const formData = new FormData();
         formData.append("file", selectedImage);
 
-        // IMPORTANT: must send auth; you already do
         const token = localStorage.getItem("token");
 
         const uploadRes = await fetch(`/api/announcements/${newPost.id}/attachments`, {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           body: formData,
         });
 
@@ -146,7 +252,6 @@ export default function OrganizerAnnouncements() {
         }
       }
 
-      // Best practice: reload from backend so we get attachments included + consistent state
       await loadAnnouncements();
 
       setTitle("");
@@ -169,9 +274,7 @@ export default function OrganizerAnnouncements() {
 
   const toggleComments = async (announcementId: number) => {
     setAnnouncements((prev) =>
-      prev.map((p) =>
-        p.id === announcementId ? { ...p, showComments: !p.showComments } : p
-      )
+      prev.map((p) => (p.id === announcementId ? { ...p, showComments: !p.showComments } : p))
     );
 
     const current = announcements.find((a) => a.id === announcementId);
@@ -201,9 +304,7 @@ export default function OrganizerAnnouncements() {
       const newComment = await announcementsApi.createComment(announcementId, body);
       setAnnouncements((prev) =>
         prev.map((a) =>
-          a.id === announcementId
-            ? { ...a, comments: [...(a.comments || []), newComment] }
-            : a
+          a.id === announcementId ? { ...a, comments: [...(a.comments || []), newComment] } : a
         )
       );
       setCommentInputs((prev) => ({ ...prev, [announcementId]: "" }));
@@ -291,11 +392,39 @@ export default function OrganizerAnnouncements() {
               className="form-control"
             />
 
+            {/* Simple color toolbar */}
+            <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 6 }}>
+              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
+                <input
+                  type="color"
+                  value={pickedColor}
+                  onChange={(e) => setPickedColor(e.target.value)}
+                  style={{ width: 42, height: 32, padding: 0, border: "none", background: "transparent" }}
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={applyColorToSelection}
+                className="submit-post-btn"
+                style={{ padding: "10px 14px" }}
+                title="Select text in the textarea and click to apply color"
+              >
+                Apply to selection
+              </button>
+
+              <span style={{ fontSize: 13, color: "#666" }}>
+                (wraps as <code>[color=...]...[/color]</code>)
+              </span>
+            </div>
+
             <textarea
+              ref={contentRef}
               placeholder="Write your announcement here..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={4}
+              rows={6}
               className="form-control"
             />
 
@@ -349,7 +478,10 @@ export default function OrganizerAnnouncements() {
                   </div>
                 </div>
 
-                <p className="post-body">{post.body}</p>
+                {/* Render colored tags + line breaks */}
+                <div className="post-body" style={{ whiteSpace: "normal" }}>
+                  {renderColoredText(post.body)}
+                </div>
 
                 {!!imgSrc && (
                   <div className="post-attachment">
@@ -364,11 +496,7 @@ export default function OrganizerAnnouncements() {
                         borderRadius: 12,
                         marginTop: 10,
                       }}
-                      onError={(e) => {
-                        // helpful debug: see failing src quickly
-                        console.error("Image failed to load:", imgSrc);
-                        (e.currentTarget as HTMLImageElement).style.display = "none";
-                      }}
+                      onError={() => console.error("Image failed to load:", imgSrc)}
                     />
                   </div>
                 )}
@@ -392,9 +520,7 @@ export default function OrganizerAnnouncements() {
                             <div className="edit-comment-form">
                               <input
                                 value={editingComment.body}
-                                onChange={(e) =>
-                                  setEditingComment({ ...editingComment, body: e.target.value })
-                                }
+                                onChange={(e) => setEditingComment({ ...editingComment, body: e.target.value })}
                                 className="edit-comment-input"
                               />
                               <button onClick={saveEditComment} className="comment-action-btn">

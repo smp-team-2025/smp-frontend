@@ -59,7 +59,7 @@ async function request(url: string, options: RequestInit = {}) {
 
 export const announcementsApi = {
     list: () => request(API_BASE),
-    create: (data: { title?: string; body: string; eventId?: number }) => 
+    create: (data: { title?: string; body: string; eventId?: number; visibility?: "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC" }) => 
         request(API_BASE, { method: "POST", body: JSON.stringify(data) }),
     delete: (id: number) => request(`${API_BASE}/${id}`, { method: "DELETE" }),
     
