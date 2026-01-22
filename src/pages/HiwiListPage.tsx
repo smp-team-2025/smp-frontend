@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./hiwilist.css";
+import "./admin.css";
+
+interface Session {
+    id: number;
+    title: string;
+}
 
 interface HiWi {
     id: number;
@@ -15,14 +21,16 @@ interface HiWi {
 export default function HiWiListPage(){
     const navigate = useNavigate();
     const [hiwis, setHiwis] = useState<HiWi[]>([]);
+    const [sessions, setSessions] = useState<Session[]>([]);
+    const [selectedSessions, setSelectedSessions] = useState<{[key: number]: string}>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetchHiwis();
+        fetchData();
     }, []);
 
-    const fetchHiwis = async () => {
+    const fetchData = async () => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
@@ -30,21 +38,57 @@ export default function HiWiListPage(){
                 return;
             }
 
-            const res = await fetch("/api/hiwis", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const [hiwiRes, sessionRes] = await Promise.all([
+                fetch("/api/hiwis", { headers: { Authorization: `Bearer ${token}` } }),
+                fetch("/api/events/1/sessions", { headers: { Authorization: `Bearer ${token}` } })
+            ]);
 
-            if (res.ok) {
-                const data = await res.json();
+            if (hiwiRes.ok) {
+                const data = await hiwiRes.json();
                 setHiwis(data);
             } else {
                 setError("Failed to load HiWis.");
             }
+
+            if (sessionRes.ok) {
+                const data = await sessionRes.json();
+                setSessions(data);
+            }
         } catch (err) {
             console.error(err);
-            setError("Failed to load HiWis.");
+            setError("Failed to load data.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleAssign = async (hiwiId: number) => {
+        const sessionId = selectedSessions[hiwiId];
+        if (!sessionId) {
+            alert("Please select a session.");
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`/api/events/1/sessions/${sessionId}/hiwis`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ hiwiId })
+            });
+
+            if (res.ok) {
+                alert("Assigned successfully");
+            } else {
+                const data = await res.json();
+                alert(data.error || "Failed to assign");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error assigning session");
         }
     };
 
@@ -65,22 +109,53 @@ export default function HiWiListPage(){
             </header>
 
             <main className="container">
-                <h1>HiWi Details</h1>
+                <h1>HiWi Management</h1>
 
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
 
+                {!loading && !error && (
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Clothing Size</th>
+                                <th>Assign Session</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {hiwis.map((hiwi) => (
+                                <tr key={hiwi.id}>
+                                    <td>{hiwi.user.name}</td>
+                                    <td>{hiwi.user.email}</td>
+                                    <td>{hiwi.clothingSize || "-"}</td>
+                                    <td>
+                                        <div style={{ display: "flex", gap: "10px" }}>
+                                            <select
+                                                value={selectedSessions[hiwi.id] || ""}
+                                                onChange={(e) => setSelectedSessions({...selectedSessions, [hiwi.id]: e.target.value})}
+                                                style={{ padding: "5px" }}
+                                            >
+                                                <option value="">Select Session</option>
+                                                {sessions.map(s => (
+                                                    <option key={s.id} value={s.id}>{s.title}</option>
+                                                ))}
+                                            </select>
+                                            <button 
+                                                onClick={() => handleAssign(hiwi.id)}
+                                                style={{ padding: "5px 10px", cursor: "pointer" }}
+                                            >
+                                                Assign
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
                 {!loading && !error && hiwis.length === 0 && <p>No HiWis found.</p>}
-
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px" }}>
-                    {hiwis.map((hiwi) => (
-                        <div key={hiwi.id} className="detail-card">
-                            <h2>{hiwi.user.name}</h2>
-                            <p><strong>Email:</strong> {hiwi.user.email}</p>
-                            <p><strong>Clothing Size:</strong> {hiwi.clothingSize || "N/A"}</p>
-                        </div>
-                    ))}
-                </div>
             </main>
         </div>
     );
