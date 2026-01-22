@@ -57,6 +57,11 @@ export default function HiwiHomePage(){
                         <h2>Attendance</h2>
                         <p>View attendance logs</p>
                     </Link>
+
+                    <Link to="/hiwiannouncements" className="card"> 
+                        <h2>Announcements</h2>
+                        <p>View announcements</p>
+                    </Link>
                         
                     
 

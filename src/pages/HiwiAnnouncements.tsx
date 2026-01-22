@@ -7,35 +7,21 @@ import {
 } from "../api/announcements";
 import "./organizerannouncements.css";
 
+type Visibility = "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC";
+
 interface Attachment {
   id: number;
   url: string;
   mimeType: string;
 }
 
-interface AnnouncementWithAttachments extends Announcement {
+interface AnnouncementWithExtras extends Announcement {
   attachments?: Attachment[];
   comments?: AnnouncementComment[];
   showComments?: boolean;
+  visibility?: Visibility;
 }
 
-type Visibility = "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC";
-
-type EditingPost = {
-  id: number;
-  eventId: string; // input için string
-  visibility: Visibility;
-  title: string;
-  body: string;
-};
-
-/**
- * Backend attachment url is like "/uploads/xxx.jpg".
- * If frontend runs on different origin (e.g. :5173) this will 404 unless you resolve it.
- *
- * Set VITE_BACKEND_ORIGIN in your frontend .env:
- *   VITE_BACKEND_ORIGIN=http://localhost:3000
- */
 function resolveAssetUrl(rawUrl: string | undefined | null) {
   if (!rawUrl) return "";
   if (/^https?:\/\//i.test(rawUrl)) return rawUrl;
@@ -53,13 +39,7 @@ function resolveAssetUrl(rawUrl: string | undefined | null) {
 }
 
 /**
- * Parse [color=...]...[/color] tags and also keep line breaks (\n -> <br/>)
- * Supported:
- *   [color=red]text[/color]
- *   [color=#ff00aa]text[/color]
- *   nested colors are supported
- *
- * Everything else is rendered as plain text (no HTML injection).
+ * [color=...]...[/color] + \n -> <br/>
  */
 function renderColoredText(input: string): ReactNode {
   if (!input) return null;
@@ -91,9 +71,7 @@ function renderColoredText(input: string): ReactNode {
           )
         );
       }
-      if (i < parts.length - 1) {
-        nodes.push(<br key={`br-${key++}`} />);
-      }
+      if (i < parts.length - 1) nodes.push(<br key={`br-${key++}`} />);
     }
   }
 
@@ -119,40 +97,54 @@ function renderColoredText(input: string): ReactNode {
   return nodes;
 }
 
-function getPostVisibility(post: any): Visibility {
-  const v = post?.visibility;
-  if (v === "ORGA_ONLY" || v === "HIWI_ORGA" || v === "PUBLIC") return v;
-  return "HIWI_ORGA";
+function getMyUserIdFromToken(): number | null {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return Number(payload.userId ?? payload.sub ?? payload.id ?? null) || null;
+  } catch {
+    return null;
+  }
 }
 
-export default function OrganizerAnnouncements() {
+export default function HiwiAnnouncements() {
   const navigate = useNavigate();
 
-  const [announcements, setAnnouncements] = useState<AnnouncementWithAttachments[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementWithExtras[]>([]);
+  const [error, setError] = useState("");
+
+  // create
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [eventId, setEventId] = useState<string>("1");
-  const [error, setError] = useState("");
-  const [events, setEvents] = useState<Array<{ id: number; title: string }>>([]);
+  const [visibility, setVisibility] = useState<Visibility>("HIWI_ORGA");
 
+  // color tool
+  const [pickedColor, setPickedColor] = useState<string>("#1d4ed8");
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  // attachment
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // comments
   const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
   const [editingComment, setEditingComment] = useState<{ id: number; body: string } | null>(null);
 
-  // color feature (create)
-  const [pickedColor, setPickedColor] = useState<string>("#1d4ed8");
-  const contentRef = useRef<HTMLTextAreaElement>(null);
+  // announcement edit
+  const [editingPost, setEditingPost] = useState<{
+    id: number;
+    title: string;
+    body: string;
+    visibility: Visibility;
+  } | null>(null);
 
-  const [visibility, setVisibility] = useState<Visibility>("HIWI_ORGA");
-
-  // Edit Feature
-  const [editingPost, setEditingPost] = useState<EditingPost | null>(null);
-  const editBodyRef = useRef<HTMLTextAreaElement>(null);
-  const [editPickedColor, setEditPickedColor] = useState<string>("#1d4ed8");
-  const [savingEdit, setSavingEdit] = useState(false);
+  const myUserId = useMemo(() => getMyUserIdFromToken(), []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -161,11 +153,9 @@ export default function OrganizerAnnouncements() {
       return;
     }
     loadAnnouncements();
-    loadEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
-  // Cleanup preview object URL (avoid memory leak)
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -175,29 +165,16 @@ export default function OrganizerAnnouncements() {
   const loadAnnouncements = async () => {
     try {
       setError("");
-      const data = await announcementsApi.list();
-      setAnnouncements(data as AnnouncementWithAttachments[]);
+      const data = (await announcementsApi.list()) as AnnouncementWithExtras[];
+
+    const filtered = data.filter((p) => {
+        const v = (p as any).visibility as Visibility | undefined;
+        return v === "HIWI_ORGA" || v === "PUBLIC";
+    }); 
+     setAnnouncements(filtered);
     } catch (err) {
       console.error(err);
       setError("Failed to load announcements");
-    }
-  };
-
-  const loadEvents = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("/api/events", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEvents(data);
-        if (data.length > 0 && !eventId) {
-          setEventId(String(data[0].id));
-        }
-      }
-    } catch (err) {
-      console.error("Failed to load events:", err);
     }
   };
 
@@ -218,7 +195,6 @@ export default function OrganizerAnnouncements() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Wrap selected text with [color=...][/color] (create)
   const applyColorToSelection = () => {
     const el = contentRef.current;
     if (!el) return;
@@ -250,52 +226,21 @@ export default function OrganizerAnnouncements() {
     });
   };
 
-  // Wrap selected text with [color=...][/color] (edit)
-  const applyColorToEditSelection = () => {
-    if (!editingPost) return;
-    const el = editBodyRef.current;
-    if (!el) return;
-
-    const start = el.selectionStart ?? 0;
-    const end = el.selectionEnd ?? 0;
-    const body = editingPost.body ?? "";
-
-    if (start === end) {
-      const insert = `[color=${editPickedColor}][/color]`;
-      const newValue = body.slice(0, start) + insert + body.slice(end);
-      setEditingPost({ ...editingPost, body: newValue });
-
-      requestAnimationFrame(() => {
-        el.focus();
-        const cursorPos = start + `[color=${editPickedColor}]`.length;
-        el.setSelectionRange(cursorPos, cursorPos);
-      });
-      return;
-    }
-
-    const selected = body.slice(start, end);
-    const wrapped = `[color=${editPickedColor}]${selected}[/color]`;
-    const newValue = body.slice(0, start) + wrapped + body.slice(end);
-    setEditingPost({ ...editingPost, body: newValue });
-
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(start, start + wrapped.length);
-    });
-  };
-
-  const handlePost = async (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
 
     try {
       setError("");
 
+      const safeVisibility: Visibility =
+        visibility === "ORGA_ONLY" ? "HIWI_ORGA" : visibility;
+
       const newPost = await announcementsApi.create({
         title: title.trim() || undefined,
         body: content,
         eventId: eventId ? Number(eventId) : undefined,
-        visibility,
+        visibility: safeVisibility,
       });
 
       if (selectedImage) {
@@ -303,7 +248,6 @@ export default function OrganizerAnnouncements() {
         formData.append("file", selectedImage);
 
         const token = localStorage.getItem("token");
-
         const uploadRes = await fetch(`/api/announcements/${newPost.id}/attachments`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -316,69 +260,51 @@ export default function OrganizerAnnouncements() {
         }
       }
 
-      await loadAnnouncements();
-
       setTitle("");
       setContent("");
       clearImage();
+      await loadAnnouncements();
     } catch (err: any) {
-      setError(err?.message || "Failed to post announcement");
+      setError(err?.message || "Failed to create announcement");
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this announcement?")) return;
-    try {
-      await announcementsApi.delete(id);
-      setAnnouncements((prev) => prev.filter((a) => a.id !== id));
-      if (editingPost?.id === id) setEditingPost(null);
-    } catch {
-      alert("Failed to delete announcement");
-    }
-  };
-
-  // open edit mode
-  const startEdit = (post: any) => {
+  const startEditPost = (post: AnnouncementWithExtras) => {
     setEditingPost({
       id: post.id,
-      eventId: post.eventId ? String(post.eventId) : "",
-      visibility: getPostVisibility(post),
       title: post.title ?? "",
       body: post.body ?? "",
+      visibility: ((post as any).visibility as Visibility) || "HIWI_ORGA",
     });
-    setEditPickedColor("#1d4ed8");
-    requestAnimationFrame(() => editBodyRef.current?.focus());
   };
 
-  // save edit
-  const saveEdit = async () => {
+  const cancelEditPost = () => setEditingPost(null);
+
+  const saveEditPost = async () => {
     if (!editingPost) return;
 
-    if (!editingPost.body.trim()) {
-      alert("Body cannot be empty.");
-      return;
-    }
-
     try {
-      setSavingEdit(true);
-
-      const payload: any = {
-        title: editingPost.title.trim() ? editingPost.title.trim() : null,
+      setError("");
+      await announcementsApi.update(editingPost.id, {
+        title: editingPost.title.trim() || undefined,
         body: editingPost.body,
         visibility: editingPost.visibility,
-        eventId: editingPost.eventId ? Number(editingPost.eventId) : undefined,
-      };
-
-      await announcementsApi.update(editingPost.id, payload);
-
-      // safest: reload (keeps attachments/comments consistent)
-      await loadAnnouncements();
+      });
 
       setEditingPost(null);
+      await loadAnnouncements();
     } catch (err: any) {
-      alert(err?.message || "Failed to update announcement");
-    } finally {
-      setSavingEdit(false);
+      setError(err?.message || "Failed to update announcement");
+    }
+  };
+
+  const deletePost = async (id: number) => {
+    if (!window.confirm("Delete this announcement?")) return;
+    try {
+      await announcementsApi.delete(id);
+      setAnnouncements((prev) => prev.filter((p) => p.id !== id));
+    } catch {
+      alert("Failed to delete announcement");
     }
   };
 
@@ -461,8 +387,8 @@ export default function OrganizerAnnouncements() {
   }
 };
 
-  const handleDeleteComment = async (announcementId: number, commentId: number) => {
-    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+  const deleteComment = async (announcementId: number, commentId: number) => {
+    if (!window.confirm("Delete this comment?")) return;
     try {
       await announcementsApi.deleteComment(commentId);
       setAnnouncements((prev) =>
@@ -485,45 +411,36 @@ export default function OrganizerAnnouncements() {
           <span className="logo">SMP 2026</span>
         </div>
         <div className="nav-right">
-          <Link to="/ohomepage" className="back-btn">
+          <Link to="/hiwihomepage" className="back-btn">
             ← Dashboard
-          </Link>
-          <Link to="/login" className="logout-btn">
-            Logout
           </Link>
         </div>
       </header>
 
       <main className="announcements-container">
-        <h1>Announcements</h1>
+        <h1>Announcements (Hiwi)</h1>
 
         {error && <p className="error-message">{error}</p>}
 
-        {/* Create Post */}
+        {/* CREATE */}
         <div className="announcement-card create-post-card">
           <h2 className="section-title">Create New Post</h2>
 
-          <form onSubmit={handlePost} className="post-form">
-            <select
+          <form onSubmit={handleCreate} className="post-form">
+            <input
+              type="number"
+              placeholder="Event ID (Required)"
               value={eventId}
               onChange={(e) => setEventId(e.target.value)}
               className="form-control"
               required
-            >
-              <option value="">Select Event (Required)</option>
-              {events.map((event) => (
-                <option key={event.id} value={String(event.id)}>
-                  {event.title}
-                </option>
-              ))}
-            </select>
+            />
 
             <select
               value={visibility}
               onChange={(e) => setVisibility(e.target.value as Visibility)}
               className="form-control"
             >
-              <option value="ORGA_ONLY">ORGA_ONLY (only Organizers)</option>
               <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organizers)</option>
               <option value="PUBLIC">PUBLIC (Everyone)</option>
             </select>
@@ -536,7 +453,7 @@ export default function OrganizerAnnouncements() {
               className="form-control"
             />
 
-            {/* Simple color toolbar */}
+            {/* Color toolbar */}
             <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 6 }}>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
@@ -572,6 +489,7 @@ export default function OrganizerAnnouncements() {
               className="form-control"
             />
 
+            {/* Attachment */}
             <div className="image-section">
               <div className="file-input-wrapper">
                 <label htmlFor="image-upload" className="add-image-btn">
@@ -602,193 +520,122 @@ export default function OrganizerAnnouncements() {
           </form>
         </div>
 
-        {/* List */}
+        {/* LIST */}
         <div className="announcements-list">
           {postList.length === 0 && <p>No announcements found.</p>}
 
           {postList.map((post) => {
             const firstAttachment = post.attachments?.[0];
             const imgSrc = resolveAssetUrl(firstAttachment?.url);
-            const isEditingThis = editingPost?.id === post.id;
+            const postVisibility = ((post as any).visibility as Visibility | undefined) ?? undefined;
+
+            const canEditPost = myUserId != null && post.authorId === myUserId;
+            const canDeletePost = canEditPost;
 
             return (
               <div key={post.id} className="announcement-card">
                 <div className="post-header">
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        <h2 className="post-title" style={{ margin: 0 }}>
-                            {post.title || "Untitled"}
-                         </h2>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                    <h2 className="post-title" style={{ margin: 0 }}>
+                      {post.title || "Untitled"}
+                    </h2>
 
-                    {"visibility" in post && (post as any).visibility && (
-                        <span
-                            style={{
-                            fontSize: 12,
-                            padding: "4px 10px",
-                            borderRadius: 999,
-                            background: "rgba(0,0,0,0.06)",
-                            color: "#333",
-                            fontWeight: 600,
-                     }}
+                    {postVisibility && (
+                      <span
+                        style={{
+                          fontSize: 12,
+                          padding: "4px 10px",
+                          borderRadius: 999,
+                          background: "rgba(0,0,0,0.06)",
+                          color: "#333",
+                          fontWeight: 600,
+                        }}
                         title="Visibility"
-                        >
-                        {(post as any).visibility}
-                     </span>
+                      >
+                        {postVisibility}
+                      </span>
                     )}
-                 </div>
-
-                <div style={{ fontSize: 13, color: "#666" }}>
-                    by <strong>{post.author?.name ?? "Unknown"}</strong>
-                        {post.author?.role ? (
-                    <span style={{ marginLeft: 8, opacity: 0.85 }}>({post.author.role})</span>
-                ) : null}
-                 </div>
-            </div>
+                  </div>
 
                   <div className="post-meta">
                     <span className="post-date">{new Date(post.createdAt).toLocaleDateString()}</span>
 
-                    {/*EDIT BUTTON */}
-                    <button
-                      onClick={() => startEdit(post)}
-                      className="submit-post-btn"
-                      style={{ padding: "10px 14px", marginRight: 10 }}
-                      disabled={savingEdit}
-                      title="Edit this announcement"
-                    >
-                      Edit
-                    </button>
+                    {canEditPost && (
+                      <button
+                        onClick={() => startEditPost(post)}
+                        className="delete-post-btn"
+                        style={{ background: "#2563eb", marginRight: 8 }}
+                        title="Edit"
+                      >
+                        Edit
+                      </button>
+                    )}
 
-                    <button onClick={() => handleDelete(post.id)} className="delete-post-btn" disabled={savingEdit}>
-                      Delete
-                    </button>
+                    {canDeletePost && (
+                      <button onClick={() => deletePost(post.id)} className="delete-post-btn" title="Delete">
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                {/*EDIT MODE */}
-                {isEditingThis ? (
+                {/* EDIT MODE */}
+                {editingPost?.id === post.id ? (
                   <div style={{ marginTop: 10 }}>
-                    <select
+                    <input
                       className="form-control"
-                      value={editingPost?.eventId ?? ""}
-                      onChange={(e) =>
-                        setEditingPost((p) => (p ? { ...p, eventId: e.target.value } : p))
-                      }
-                    >
-                      <option value="">Select Event</option>
-                      {events.map((event) => (
-                        <option key={event.id} value={String(event.id)}>
-                          {event.title}
-                        </option>
-                      ))}
-                    </select>
+                      value={editingPost.title}
+                      onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+                      placeholder="Title"
+                    />
 
                     <select
-                      value={editingPost?.visibility ?? "HIWI_ORGA"}
-                      onChange={(e) =>
-                        setEditingPost((p) =>
-                          p ? { ...p, visibility: e.target.value as Visibility } : p
-                        )
-                      }
                       className="form-control"
                       style={{ marginTop: 10 }}
+                      value={editingPost.visibility}
+                      onChange={(e) =>
+                        setEditingPost({ ...editingPost, visibility: e.target.value as Visibility })
+                      }
                     >
-                      <option value="ORGA_ONLY">ORGA_ONLY (only Organizers)</option>
                       <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organizers)</option>
                       <option value="PUBLIC">PUBLIC (Everyone)</option>
                     </select>
 
-                    <input
-                      className="form-control"
-                      placeholder="Post Title"
-                      value={editingPost?.title ?? ""}
-                      onChange={(e) =>
-                        setEditingPost((p) => (p ? { ...p, title: e.target.value } : p))
-                      }
-                      style={{ marginTop: 10 }}
-                    />
-
-                    {/* Edit color toolbar */}
-                    <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
-                      <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
-                        <input
-                          type="color"
-                          value={editPickedColor}
-                          onChange={(e) => setEditPickedColor(e.target.value)}
-                          style={{ width: 42, height: 32, padding: 0, border: "none", background: "transparent" }}
-                        />
-                      </label>
-
-                      <button
-                        type="button"
-                        onClick={applyColorToEditSelection}
-                        className="submit-post-btn"
-                        style={{ padding: "10px 14px" }}
-                        title="Select text and apply color"
-                        disabled={savingEdit}
-                      >
-                        Apply to selection
-                      </button>
-
-                      <span style={{ fontSize: 13, color: "#666" }}>
-                        (wraps as <code>[color=...]...[/color]</code>)
-                      </span>
-                    </div>
-
                     <textarea
-                      ref={editBodyRef}
                       className="form-control"
-                      rows={6}
-                      placeholder="Body"
-                      value={editingPost?.body ?? ""}
-                      onChange={(e) =>
-                        setEditingPost((p) => (p ? { ...p, body: e.target.value } : p))
-                      }
                       style={{ marginTop: 10 }}
-                      disabled={savingEdit}
+                      rows={6}
+                      value={editingPost.body}
+                      onChange={(e) => setEditingPost({ ...editingPost, body: e.target.value })}
                     />
 
                     <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                      <button
-                        type="button"
-                        className="submit-post-btn"
-                        onClick={saveEdit}
-                        disabled={savingEdit}
-                      >
-                        {savingEdit ? "Saving..." : "Save"}
+                      <button onClick={saveEditPost} className="submit-post-btn" type="button">
+                        Save
                       </button>
-
-                      <button
-                        type="button"
-                        className="comment-action-btn"
-                        onClick={() => setEditingPost(null)}
-                        disabled={savingEdit}
-                      >
+                      <button onClick={cancelEditPost} className="submit-post-btn" type="button">
                         Cancel
                       </button>
                     </div>
-
-                    {/* preview (optional ama faydalı) */}
-                    <div
-                      style={{
-                        marginTop: 12,
-                        padding: 12,
-                        borderRadius: 12,
-                        background: "rgba(0,0,0,0.03)",
-                      }}
-                    >
-                      <div style={{ fontSize: 12, color: "#666", marginBottom: 6 }}>Preview</div>
-                      <div style={{ whiteSpace: "normal" }}>
-                        {renderColoredText(editingPost?.body ?? "")}
-                      </div>
-                    </div>
                   </div>
                 ) : (
-                  // Normal render
                   <div className="post-body" style={{ whiteSpace: "normal" }}>
                     {renderColoredText(post.body)}
                   </div>
+                )}
+
+                {post.author?.name && (
+                    <div
+                        style={{
+                        marginTop: 8,
+                        fontSize: 13,
+                        color: "#666",
+                        fontStyle: "italic",
+                        textAlign: "right",
+                    }}
+                    >
+                    — {post.author.name}
+                    </div>
                 )}
 
                 {!!imgSrc && (
@@ -809,7 +656,7 @@ export default function OrganizerAnnouncements() {
                   </div>
                 )}
 
-                {/* Comments */}
+                {/* COMMENTS */}
                 <div className="comments-section">
                   <button onClick={() => toggleComments(post.id)} className="toggle-comments-btn">
                     {post.showComments ? "Hide Comments" : "Show Comments"}
@@ -817,63 +664,72 @@ export default function OrganizerAnnouncements() {
 
                   {post.showComments && (
                     <div className="comments-list">
-                      {post.comments?.map((comment) => (
-                        <div key={comment.id} className="comment-item">
-                          <div className="comment-meta">
-                            <span>{comment.author.name}</span>
-                            <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
-                          </div>
+                      {post.comments?.map((comment) => {
+                        const canEditComment = myUserId != null && comment.author.id === myUserId;
+                        const canDeleteComment = canEditComment;
 
-                          {editingComment?.id === comment.id ? (
-                            <div className="edit-comment-form">
-                              <input
-                                value={editingComment.body}
-                                onChange={(e) =>
-                                  setEditingComment({ ...editingComment, body: e.target.value })
-                                }
-                                className="edit-comment-input"
-                              />
-                                <button
-                                type="button"
-                                onClick={saveEditComment}
-                                className="comment-action-btn save-btn"
-                                >
-                                Save
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => setEditingComment(null)}
-                                className="comment-action-btn cancel-btn"
-                            >
-                                Cancel
-                            </button>
+                        return (
+                          <div key={comment.id} className="comment-item">
+                            <div className="comment-meta">
+                              <span>{comment.author.name}</span>
+                              <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
                             </div>
-                          ) : (
-                            <div className="comment-content">
-                              <p className="comment-text">{comment.body}</p>
-                              <div className="comment-actions">
-                                <button
-                                  onClick={() =>
-                                    setEditingComment({ id: comment.id, body: comment.body })
+
+                            {editingComment?.id === comment.id ? (
+                              <div className="edit-comment-form">
+                                <input
+                                  value={editingComment.body}
+                                  onChange={(e) =>
+                                    setEditingComment({ ...editingComment, body: e.target.value })
                                   }
-                                  className="icon-btn edit"
-                                  title="Edit"
-                                >
-                                  ✎
-                                </button>
+                                  className="edit-comment-input"
+                                />
                                 <button
-                                  onClick={() => handleDeleteComment(post.id, comment.id)}
-                                  className="icon-btn delete"
-                                  title="Delete"
+                                    type="button"
+                                    onClick={saveEditComment}
+                                    className="comment-action-btn"
+                                    style={{ background: "#2563eb", color: "#fff", border: "none" }}
+                                    >
+                                    Save
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingComment(null)}
+                                    className="comment-action-btn"
+                                    style={{ background: "rgba(0,0,0,0.08)", color: "#111", border: "none" }}
                                 >
-                                  🗑
+                                    Cancel
                                 </button>
                               </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                            ) : (
+                              <div className="comment-content">
+                                <p className="comment-text">{comment.body}</p>
+                                <div className="comment-actions">
+                                  {canEditComment && (
+                                    <button
+                                      onClick={() => setEditingComment({ id: comment.id, body: comment.body })}
+                                      className="icon-btn edit"
+                                      title="Edit"
+                                    >
+                                      ✎
+                                    </button>
+                                  )}
+                                  {canDeleteComment && (
+                                    <button
+                                      onClick={() => deleteComment(post.id, comment.id)}
+                                      className="icon-btn delete"
+                                      title="Delete"
+                                    >
+                                      🗑
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
 
                       <div className="add-comment-form">
                         <input
@@ -883,10 +739,7 @@ export default function OrganizerAnnouncements() {
                           onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
                           className="add-comment-input"
                         />
-                        <button
-                          onClick={() => submitComment(post.id)}
-                          className="post-comment-btn"
-                        >
+                        <button onClick={() => submitComment(post.id)} className="post-comment-btn">
                           Post
                         </button>
                       </div>
