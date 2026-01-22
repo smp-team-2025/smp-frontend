@@ -433,3 +433,32 @@ textarea.form-control {
 .post-comment-btn:hover {
     background: #094f92;
 }
+
+
+/* --- FIX: Edit comment Save/Cancel text visibility --- */
+.edit-comment-form .comment-action-btn {
+  color: #111 !important;
+  background: #fff !important;
+}
+
+.edit-comment-form .comment-action-btn:hover {
+  background: #f0f0f0 !important;
+}
+
+/* "Save" primary olsun */
+.edit-comment-form .comment-action-btn.save-btn {
+  background: #0b63b6 !important;
+  border-color: #0b63b6 !important;
+  color: #fff !important;
+}
+
+.edit-comment-form .comment-action-btn.save-btn:hover {
+  background: #094f92 !important;
+}
+
+/* "Cancel" okunur olsun */
+.edit-comment-form .comment-action-btn.cancel-btn {
+  background: rgba(0,0,0,0.06) !important;
+  border-color: #ddd !important;
+  color: #111 !important;
+}

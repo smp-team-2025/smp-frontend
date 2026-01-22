@@ -424,23 +424,42 @@ export default function OrganizerAnnouncements() {
   };
 
   const saveEditComment = async () => {
-    if (!editingComment) return;
-    try {
-      const updated = await announcementsApi.updateComment(editingComment.id, editingComment.body);
-      setAnnouncements((prev) =>
-        prev.map((post) => {
-          if (!post.comments?.some((c) => c.id === editingComment.id)) return post;
-          return {
-            ...post,
-            comments: post.comments.map((c) => (c.id === editingComment.id ? updated : c)),
-          };
-        })
-      );
-      setEditingComment(null);
-    } catch {
-      alert("Failed to update comment");
-    }
-  };
+  if (!editingComment) return;
+
+  try {
+    const updated = await announcementsApi.updateComment(
+      editingComment.id,
+      editingComment.body
+    );
+
+    setAnnouncements((prev) =>
+      prev.map((post) => {
+        if (!post.comments) return post;
+
+        const has = post.comments.some((c) => c.id === editingComment.id);
+        if (!has) return post;
+
+        return {
+          ...post,
+          comments: post.comments.map((c) => {
+            if (c.id !== editingComment.id) return c;
+
+            return {
+              ...c,
+              ...updated,
+              author: (updated as any).author ?? c.author,
+            };
+          }),
+        };
+      })
+    );
+
+    setEditingComment(null);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to update comment");
+  }
+};
 
   const handleDeleteComment = async (announcementId: number, commentId: number) => {
     if (!window.confirm("Are you sure you want to delete this comment?")) return;
@@ -595,27 +614,36 @@ export default function OrganizerAnnouncements() {
             return (
               <div key={post.id} className="announcement-card">
                 <div className="post-header">
-                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <h2 className="post-title" style={{ margin: 0 }}>
-                      {post.title || "Untitled"}
-                    </h2>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                        <h2 className="post-title" style={{ margin: 0 }}>
+                            {post.title || "Untitled"}
+                         </h2>
 
                     {"visibility" in post && (post as any).visibility && (
-                      <span
-                        style={{
-                          fontSize: 12,
-                          padding: "4px 10px",
-                          borderRadius: 999,
-                          background: "rgba(0,0,0,0.06)",
-                          color: "#333",
-                          fontWeight: 600,
-                        }}
+                        <span
+                            style={{
+                            fontSize: 12,
+                            padding: "4px 10px",
+                            borderRadius: 999,
+                            background: "rgba(0,0,0,0.06)",
+                            color: "#333",
+                            fontWeight: 600,
+                     }}
                         title="Visibility"
-                      >
+                        >
                         {(post as any).visibility}
-                      </span>
+                     </span>
                     )}
-                  </div>
+                 </div>
+
+                <div style={{ fontSize: 13, color: "#666" }}>
+                    by <strong>{post.author?.name ?? "Unknown"}</strong>
+                        {post.author?.role ? (
+                    <span style={{ marginLeft: 8, opacity: 0.85 }}>({post.author.role})</span>
+                ) : null}
+                 </div>
+            </div>
 
                   <div className="post-meta">
                     <span className="post-date">{new Date(post.createdAt).toLocaleDateString()}</span>
@@ -805,15 +833,21 @@ export default function OrganizerAnnouncements() {
                                 }
                                 className="edit-comment-input"
                               />
-                              <button onClick={saveEditComment} className="comment-action-btn">
+                                <button
+                                type="button"
+                                onClick={saveEditComment}
+                                className="comment-action-btn save-btn"
+                                >
                                 Save
-                              </button>
-                              <button
+                            </button>
+
+                            <button
+                                type="button"
                                 onClick={() => setEditingComment(null)}
-                                className="comment-action-btn"
-                              >
+                                className="comment-action-btn cancel-btn"
+                            >
                                 Cancel
-                              </button>
+                            </button>
                             </div>
                           ) : (
                             <div className="comment-content">
