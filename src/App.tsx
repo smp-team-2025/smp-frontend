@@ -32,6 +32,8 @@ import DiplomaListPage from "./pages/DiplomaListPage";
 import DiplomaDownloadPage from "./pages/DiplomaDownloadPage";
 import StudentAttendancePage from "./pages/StudentAttendancePage";
 import StudentAnnouncementsPage from "./pages/StudentAnnouncementsPage";
+import OrganizerParticipantsPage from "./pages/OrganizerParticipantsPage";
+
 
 
 export default function App() {
@@ -75,6 +77,7 @@ export default function App() {
         <Route path="/studenthomepage/diplomas" element={<DiplomaDownloadPage/>} />
         <Route path="/studenthomepage/attendance" element={<StudentAttendancePage />} />
         <Route path="/studentannouncements" element={<StudentAnnouncementsPage />} />
+        <Route path="/organizer/participants" element={<OrganizerParticipantsPage />} />
 
 
         {/* optional: catch-all for invalid routes */}
