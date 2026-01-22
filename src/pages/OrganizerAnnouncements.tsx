@@ -140,6 +140,8 @@ export default function OrganizerAnnouncements() {
   const [pickedColor, setPickedColor] = useState<string>("#1d4ed8");
   const contentRef = useRef<HTMLTextAreaElement>(null);
 
+  const [visibility, setVisibility] = useState<Visibility>("HIWI_ORGA");
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -231,6 +233,7 @@ export default function OrganizerAnnouncements() {
         title: title.trim() || undefined,
         body: content,
         eventId: eventId ? Number(eventId) : undefined,
+        visibility,
       });
 
       // Upload image (optional)
@@ -384,6 +387,16 @@ export default function OrganizerAnnouncements() {
               required
             />
 
+            <select
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value as Visibility)}
+                className="form-control"
+                >
+                <option value="ORGA_ONLY">ORGA_ONLY (only Organizers)</option>
+                <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organizers)</option>
+                 <option value="PUBLIC">PUBLIC (Everyone)</option>
+            </select>
+
             <input
               type="text"
               placeholder="Post Title"
@@ -469,7 +482,27 @@ export default function OrganizerAnnouncements() {
             return (
               <div key={post.id} className="announcement-card">
                 <div className="post-header">
-                  <h2 className="post-title">{post.title || "Untitled"}</h2>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                        <h2 className="post-title" style={{ margin: 0 }}>
+                            {post.title || "Untitled"}
+                        </h2>
+
+                        {"visibility" in post && (post as any).visibility && (
+                            <span
+                                style={{
+                                    fontSize: 12,
+                                    padding: "4px 10px",
+                                    borderRadius: 999,
+                                    background: "rgba(0,0,0,0.06)",
+                                    color: "#333",
+                                    fontWeight: 600,
+                                }}
+                            title="Visibility"
+                        >
+                            {(post as any).visibility}
+                            </span>
+                        )}
+                    </div>
                   <div className="post-meta">
                     <span className="post-date">{new Date(post.createdAt).toLocaleDateString()}</span>
                     <button onClick={() => handleDelete(post.id)} className="delete-post-btn">
