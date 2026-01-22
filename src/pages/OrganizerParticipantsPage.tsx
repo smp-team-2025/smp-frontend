@@ -1,40 +1,58 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./OrganizerParticipantsPage.css";
 
 type Participant = {
-  id: number;
-  name?: string | null;
-  email?: string | null;
+  registrationId: number;
+  userId: number | null;
+  email: string;
 
-  // sizde bunlar farklı isimde olabilir:
-  role?: string;
-  createdAt?: string;
+  firstName: string | null;
+  lastName: string | null;
 
-  // registration bilgileri sizde include ediliyorsa:
-  registration?: {
-    firstName?: string | null;
-    lastName?: string | null;
-    salutation?: string | null;
-    city?: string | null;
-    school?: string | null;
-    grade?: string | null;
-  } | null;
+  school: string | null;
+  grade: string | null;
+  city: string | null;
+
+  zipCode: string | null;
+  street: string | null;
+  addressExtra: string | null;
+
+  createdAt: string; // ISO
+  status: string;    // "APPROVED" vs.
 };
 
 function buildDisplayName(p: Participant) {
-  const reg = p.registration;
-  const fn = reg?.firstName?.trim();
-  const ln = reg?.lastName?.trim();
+  const fn = (p.firstName ?? "").trim();
+  const ln = (p.lastName ?? "").trim();
+  const full = `${fn} ${ln}`.trim();
+  return full || "—";
+}
 
-  if (fn || ln) return `${fn ?? ""} ${ln ?? ""}`.trim();
-  if (p.name?.trim()) return p.name.trim();
-  return `User #${p.id}`;
+function formatDateTimeDe(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString("de-DE", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatAddress(p: Participant) {
+  const parts: string[] = [];
+  if (p.street) parts.push(p.street);
+  if (p.addressExtra) parts.push(p.addressExtra);
+
+  const cityLine = [p.zipCode, p.city].filter(Boolean).join(" ");
+  if (cityLine) parts.push(cityLine);
+
+  return parts.length ? parts.join(", ") : "—";
 }
 
 export default function OrganizerParticipantsPage() {
-  const navigate = useNavigate();
-
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -58,14 +76,16 @@ export default function OrganizerParticipantsPage() {
         setLoading(true);
         setError(null);
 
+        // backend route: studentsRouter.get("/") => mounted likely at /api/students
         const res = await fetch("/api/students", { headers });
+
         if (!res.ok) {
           const text = await res.text();
           throw new Error(`Failed to fetch participants (${res.status}): ${text}`);
         }
 
         const json = await res.json();
-        setParticipants(Array.isArray(json) ? json : []);
+        setParticipants(Array.isArray(json) ? (json as Participant[]) : []);
       } catch (e: any) {
         setError(e?.message ?? "Unknown error");
       } finally {
@@ -81,10 +101,22 @@ export default function OrganizerParticipantsPage() {
     if (!q) return participants;
 
     return participants.filter((p) => {
-      const name = buildDisplayName(p).toLowerCase();
-      const email = (p.email ?? "").toLowerCase();
-      const school = (p.registration?.school ?? "").toLowerCase();
-      return name.includes(q) || email.includes(q) || school.includes(q);
+      const haystack = [
+        buildDisplayName(p),
+        p.email,
+        p.school ?? "",
+        p.grade ?? "",
+        p.city ?? "",
+        p.street ?? "",
+        p.zipCode ?? "",
+        p.status ?? "",
+        String(p.registrationId),
+        p.userId != null ? String(p.userId) : "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(q);
     });
   }, [participants, query]);
 
@@ -106,12 +138,11 @@ export default function OrganizerParticipantsPage() {
           className="org-search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Nach Name / E-Mail / Schule suchen…"
+          placeholder="Suchen (Name / E-Mail / Schule / Ort / ID / Status …)"
         />
       </div>
 
       {loading && <div className="org-info">Lade Daten…</div>}
-
       {!loading && error && <div className="org-error">{error}</div>}
 
       {!loading && !error && (
@@ -119,27 +150,38 @@ export default function OrganizerParticipantsPage() {
           <table className="org-table">
             <thead>
               <tr>
+                <th>Registrierung-ID</th>
+                <th>User-ID</th>
                 <th>Name</th>
                 <th>E-Mail</th>
                 <th>Schule</th>
                 <th>Jahrgang</th>
                 <th>Ort</th>
+                <th>Adresse</th>
+                <th>Registriert am</th>
+                <th>Status</th>
               </tr>
             </thead>
+
             <tbody>
               {filtered.map((p) => (
-                <tr key={p.id}>
+                <tr key={p.registrationId}>
+                  <td>{p.registrationId}</td>
+                  <td>{p.userId ?? "—"}</td>
                   <td>{buildDisplayName(p)}</td>
-                  <td>{p.email ?? "—"}</td>
-                  <td>{p.registration?.school ?? "—"}</td>
-                  <td>{p.registration?.grade ?? "—"}</td>
-                  <td>{p.registration?.city ?? "—"}</td>
+                  <td>{p.email}</td>
+                  <td>{p.school ?? "—"}</td>
+                  <td>{p.grade ?? "—"}</td>
+                  <td>{p.city ?? "—"}</td>
+                  <td>{formatAddress(p)}</td>
+                  <td>{formatDateTimeDe(p.createdAt)}</td>
+                  <td>{p.status ?? "—"}</td>
                 </tr>
               ))}
 
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: "center", padding: 16 }}>
+                  <td colSpan={10} style={{ textAlign: "center", padding: 16 }}>
                     Keine passenden Teilnehmenden gefunden.
                   </td>
                 </tr>
