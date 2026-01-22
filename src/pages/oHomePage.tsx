@@ -72,6 +72,11 @@ export default function OHomePage() {
                             <p>New Fermi quiz for session</p>
                     </Link>
 
+                    <Link to="/quiz/manage" className="card">
+                            <h2>Manage Quizzes</h2>
+                            <p>Edit or delete existing quizzes</p>
+                    </Link>
+
                     <Link to="/quizlist" className="card">
                             <h2>Quiz Results</h2>
                             <p>View statistics</p>

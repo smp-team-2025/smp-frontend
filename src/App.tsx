@@ -24,6 +24,7 @@ import QuizSubmissionPage from "./pages/QuizSubmissionPage";
 import QuizResultsPage from "./pages/QuizResultsPage";
 import QuestionManagementPage from "./pages/QuestionManagementPage";
 import QuizCreationPage from "./pages/QuizCreationPage";
+import QuizManagementPage from "./pages/QuizManagementPage";
 import ZoomUploadPage from "./pages/ZoomUploadPage";
 import ZoomCheckPage from "./pages/ZoomCheckPage";
 import HiwiSessions from "./pages/HiwiSessions";
@@ -69,6 +70,7 @@ export default function App() {
         <Route path="/quizlist" element={<QuizListPage/>} />
         <Route path="/questions" element={<QuestionManagementPage/>} />
         <Route path="/quiz/create" element={<QuizCreationPage/>} />
+        <Route path="/quiz/manage" element={<QuizManagementPage/>} />
         <Route path="/ohomepage/zoom" element={<ZoomUploadPage/>} />
         <Route path="/zoom-check" element={<ZoomCheckPage/>} />
         <Route path="/hiwihomepage/sessions" element={<HiwiSessions/>} />

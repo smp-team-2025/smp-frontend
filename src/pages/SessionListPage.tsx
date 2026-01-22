@@ -11,6 +11,34 @@ interface Session {
     endsAt?: string | null;
 }
 
+interface Hiwi {
+    id: number;
+    clothingSize: string | null;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+    };
+}
+
+interface AssignedHiwi {
+    assignmentId: number;
+    sessionId: number;
+    hiwiId: number;
+    assignedAt: string;
+    hiwi: Hiwi;
+}
+
+interface AvailableHiwi {
+    id: number;
+    clothingSize: string | null;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+    };
+}
+
 export default function SessionListPage() {
     const navigate = useNavigate();
     const [sessions, setSessions] = useState<Session[]>([]);
@@ -24,6 +52,11 @@ export default function SessionListPage() {
         startsAt: "",
         endsAt: "",
     });
+    const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+    const [assignedHiwis, setAssignedHiwis] = useState<AssignedHiwi[]>([]);
+    const [availableHiwis, setAvailableHiwis] = useState<AvailableHiwi[]>([]);
+    const [loadingHiwis, setLoadingHiwis] = useState(false);
+    const [expandedSessionId, setExpandedSessionId] = useState<number | null>(null);
 
     useEffect(() => {
         fetchSessions();
@@ -116,6 +149,106 @@ export default function SessionListPage() {
             } else {
                 alert(data.error || "Failed to create session");
             }
+        }
+    };
+
+    const fetchHiwisForSession = async (sessionId: number) => {
+        setLoadingHiwis(true);
+        const token = localStorage.getItem("token");
+
+        try {
+            const [assignedRes, availableRes] = await Promise.all([
+                fetch(`/api/events/1/sessions/${sessionId}/hiwis`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                }),
+                fetch("/api/hiwi", {
+                    headers: { Authorization: `Bearer ${token}` },
+                }),
+            ]);
+
+            if (assignedRes.ok) {
+                const assigned = await assignedRes.json();
+                setAssignedHiwis(assigned);
+            }
+
+            if (availableRes.ok) {
+                const available = await availableRes.json();
+                setAvailableHiwis(available);
+            }
+        } catch (err) {
+            console.error("Failed to fetch HiWis:", err);
+        } finally {
+            setLoadingHiwis(false);
+        }
+    };
+
+    const handleManageHiwis = (sessionId: number) => {
+        if (selectedSessionId === sessionId) {
+            setSelectedSessionId(null);
+            setAssignedHiwis([]);
+            setAvailableHiwis([]);
+        } else {
+            setSelectedSessionId(sessionId);
+            fetchHiwisForSession(sessionId);
+        }
+    };
+
+    const handleSessionClick = (sessionId: number) => {
+        if (expandedSessionId === sessionId) {
+            setExpandedSessionId(null);
+            setAssignedHiwis([]);
+        } else {
+            setExpandedSessionId(sessionId);
+            fetchAssignedHiwisOnly(sessionId);
+        }
+    };
+
+    const fetchAssignedHiwisOnly = async (sessionId: number) => {
+        const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(`/api/events/1/sessions/${sessionId}/hiwis`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+                const assigned = await res.json();
+                setAssignedHiwis(assigned);
+            }
+        } catch (err) {
+            console.error("Failed to fetch HiWis:", err);
+        }
+    };
+
+    const handleAssignHiwi = async (sessionId: number, hiwiId: number) => {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/events/1/sessions/${sessionId}/hiwis`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ hiwiId }),
+        });
+
+        if (res.ok) {
+            fetchHiwisForSession(sessionId);
+        } else {
+            const data = await res.json().catch(() => ({}));
+            alert(data.error || "Failed to assign HiWi");
+        }
+    };
+
+    const handleUnassignHiwi = async (sessionId: number, hiwiId: number) => {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/events/1/sessions/${sessionId}/hiwis/${hiwiId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+            fetchHiwisForSession(sessionId);
+        } else {
+            const data = await res.json().catch(() => ({}));
+            alert(data.error || "Failed to unassign HiWi");
         }
     };
 
@@ -213,18 +346,146 @@ export default function SessionListPage() {
                             key={session.id}
                             className="session-card"
                         >
-                            <h3>{session.title}</h3>
-                            <p>
-                                <strong>Start:</strong>{" "}
-                                {new Date(
-                                    session.startsAt
-                                ).toLocaleString()}
-                            </p>
-                            {session.location && (
+                            <div onClick={() => handleSessionClick(session.id)} style={{ cursor: 'pointer' }}>
+                                <h3>{session.title}</h3>
                                 <p>
-                                    <strong>Location:</strong>{" "}
-                                    {session.location}
+                                    <strong>Start:</strong>{" "}
+                                    {new Date(
+                                        session.startsAt
+                                    ).toLocaleString()}
                                 </p>
+                                {session.location && (
+                                    <p>
+                                        <strong>Location:</strong>{" "}
+                                        {session.location}
+                                    </p>
+                                )}
+                            </div>
+
+                            {expandedSessionId === session.id && (
+                                <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #ddd' }}>
+                                    <h4 style={{ marginBottom: '10px' }}>Assigned HiWis</h4>
+                                    {assignedHiwis.length === 0 ? (
+                                        <p style={{ fontSize: '0.9rem', color: '#666' }}>No HiWis assigned yet</p>
+                                    ) : (
+                                        <ul style={{ paddingLeft: '20px', margin: '0' }}>
+                                            {assignedHiwis.map((assigned) => (
+                                                <li key={assigned.hiwiId} style={{ fontSize: '0.9rem', marginBottom: '4px' }}>
+                                                    {assigned.hiwi.user.name} ({assigned.hiwi.user.email})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            )}
+
+                            <button
+                                className="session-manage-hiwis-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleManageHiwis(session.id);
+                                }}
+                                style={{
+                                    marginTop: '10px',
+                                    padding: '8px 12px',
+                                    backgroundColor: selectedSessionId === session.id ? '#dc3545' : '#007bff',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {selectedSessionId === session.id ? 'Close HiWi Management' : 'Manage HiWis'}
+                            </button>
+
+                            {selectedSessionId === session.id && (
+                                <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+                                    {loadingHiwis ? (
+                                        <p>Loading HiWis...</p>
+                                    ) : (
+                                        <>
+                                            <div style={{ marginBottom: '15px' }}>
+                                                <h4 style={{ marginBottom: '10px' }}>Assigned HiWis</h4>
+                                                {assignedHiwis.length === 0 ? (
+                                                    <p>No HiWis assigned yet.</p>
+                                                ) : (
+                                                    <div>
+                                                        {assignedHiwis.map((assigned) => (
+                                                            <div
+                                                                key={assigned.hiwiId}
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    justifyContent: 'space-between',
+                                                                    alignItems: 'center',
+                                                                    padding: '8px',
+                                                                    marginBottom: '5px',
+                                                                    backgroundColor: 'white',
+                                                                    borderRadius: '4px'
+                                                                }}
+                                                            >
+                                                                <span>{assigned.hiwi.user.name} ({assigned.hiwi.user.email})</span>
+                                                                <button
+                                                                    onClick={() => handleUnassignHiwi(session.id, assigned.hiwiId)}
+                                                                    style={{
+                                                                        padding: '4px 8px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                >
+                                                                    Remove
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <h4 style={{ marginBottom: '10px' }}>Available HiWis</h4>
+                                                {availableHiwis.filter(h => !assignedHiwis.some(a => a.hiwiId === h.id)).length === 0 ? (
+                                                    <p>All HiWis are assigned or no HiWis available.</p>
+                                                ) : (
+                                                    <div>
+                                                        {availableHiwis
+                                                            .filter(h => !assignedHiwis.some(a => a.hiwiId === h.id))
+                                                            .map((hiwi) => (
+                                                                <div
+                                                                    key={hiwi.id}
+                                                                    style={{
+                                                                        display: 'flex',
+                                                                        justifyContent: 'space-between',
+                                                                        alignItems: 'center',
+                                                                        padding: '8px',
+                                                                        marginBottom: '5px',
+                                                                        backgroundColor: 'white',
+                                                                        borderRadius: '4px'
+                                                                    }}
+                                                                >
+                                                                    <span>{hiwi.user.name} ({hiwi.user.email})</span>
+                                                                    <button
+                                                                        onClick={() => handleAssignHiwi(session.id, hiwi.id)}
+                                                                        style={{
+                                                                            padding: '4px 8px',
+                                                                            backgroundColor: '#28a745',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                    >
+                                                                        Assign
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))}

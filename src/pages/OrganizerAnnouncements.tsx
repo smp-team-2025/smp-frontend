@@ -133,6 +133,7 @@ export default function OrganizerAnnouncements() {
   const [content, setContent] = useState("");
   const [eventId, setEventId] = useState<string>("1");
   const [error, setError] = useState("");
+  const [events, setEvents] = useState<Array<{ id: number; title: string }>>([]);
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -160,6 +161,7 @@ export default function OrganizerAnnouncements() {
       return;
     }
     loadAnnouncements();
+    loadEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
@@ -178,6 +180,24 @@ export default function OrganizerAnnouncements() {
     } catch (err) {
       console.error(err);
       setError("Failed to load announcements");
+    }
+  };
+
+  const loadEvents = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/events", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEvents(data);
+        if (data.length > 0 && !eventId) {
+          setEventId(String(data[0].id));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load events:", err);
     }
   };
 
@@ -465,14 +485,19 @@ export default function OrganizerAnnouncements() {
           <h2 className="section-title">Create New Post</h2>
 
           <form onSubmit={handlePost} className="post-form">
-            <input
-              type="number"
-              placeholder="Event ID (Required)"
+            <select
               value={eventId}
               onChange={(e) => setEventId(e.target.value)}
               className="form-control"
               required
-            />
+            >
+              <option value="">Select Event (Required)</option>
+              {events.map((event) => (
+                <option key={event.id} value={String(event.id)}>
+                  {event.title}
+                </option>
+              ))}
+            </select>
 
             <select
               value={visibility}
@@ -615,15 +640,20 @@ export default function OrganizerAnnouncements() {
                 {/*EDIT MODE */}
                 {isEditingThis ? (
                   <div style={{ marginTop: 10 }}>
-                    <input
-                      type="number"
+                    <select
                       className="form-control"
-                      placeholder="Event ID"
                       value={editingPost?.eventId ?? ""}
                       onChange={(e) =>
                         setEditingPost((p) => (p ? { ...p, eventId: e.target.value } : p))
                       }
-                    />
+                    >
+                      <option value="">Select Event</option>
+                      {events.map((event) => (
+                        <option key={event.id} value={String(event.id)}>
+                          {event.title}
+                        </option>
+                      ))}
+                    </select>
 
                     <select
                       value={editingPost?.visibility ?? "HIWI_ORGA"}
