@@ -62,6 +62,11 @@ export const announcementsApi = {
     create: (data: { title?: string; body: string; eventId?: number; visibility?: "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC" }) => 
         request(API_BASE, { method: "POST", body: JSON.stringify(data) }),
     delete: (id: number) => request(`${API_BASE}/${id}`, { method: "DELETE" }),
+    update: (
+    id: number,
+    data: { title?: string | null; body?: string; eventId?: number; visibility?: string }
+  ) => request(`${API_BASE}/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+
     
     getComments: (id: number) => request(`${API_BASE}/${id}/comments`),
     createComment: (announcementId: number, body: string) => 
