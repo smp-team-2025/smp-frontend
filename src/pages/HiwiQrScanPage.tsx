@@ -128,7 +128,7 @@ export default function HiWiQrScanPage() {
             <header className="navbar">
                 <span className="logo">SMP 2026</span>
                 <div className="nav-right">
-                    <Link to="/hiwihomepage" className="back-btn" style={{ color: 'white', marginRight: '15px' }}>
+                    <Link to="/hiwihomepage" className="back-btn">
                         ← Dashboard
                     </Link>
                     <Link to="/login" className="logout-btn">Logout</Link>
@@ -152,10 +152,11 @@ export default function HiWiQrScanPage() {
                             Select Session:
                         </label>
                         <select
-                            value={selectedSessionId?.toString() || ""}
+                            value={selectedSessionId !== null ? selectedSessionId.toString() : ""}
                             onChange={(e) => {
                                 const val = e.target.value;
-                                setSelectedSessionId(val ? Number(val) : null);
+                                const newSessionId = val ? Number(val) : null;
+                                setSelectedSessionId(newSessionId);
                             }}
                             style={{
                                 width: "100%",
@@ -166,7 +167,7 @@ export default function HiWiQrScanPage() {
                                 backgroundColor: "#fff",
                                 cursor: "pointer",
                                 outline: "none",
-                                appearance: "auto"
+                                color: "#333"
                             }}
                         >
                             <option value="">-- Choose a session --</option>

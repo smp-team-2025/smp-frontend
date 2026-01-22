@@ -57,6 +57,14 @@ export default function SessionListPage() {
     const [availableHiwis, setAvailableHiwis] = useState<AvailableHiwi[]>([]);
     const [loadingHiwis, setLoadingHiwis] = useState(false);
     const [expandedSessionId, setExpandedSessionId] = useState<number | null>(null);
+    const [editingSessionId, setEditingSessionId] = useState<number | null>(null);
+    const [editSession, setEditSession] = useState({
+        title: "",
+        description: "",
+        location: "",
+        startsAt: "",
+        endsAt: "",
+    });
 
     useEffect(() => {
         fetchSessions();
@@ -218,6 +226,85 @@ export default function SessionListPage() {
         }
     };
 
+    const handleStartEdit = (session: Session) => {
+        setEditingSessionId(session.id);
+        setEditSession({
+            title: session.title,
+            description: session.description || "",
+            location: session.location || "",
+            startsAt: new Date(session.startsAt).toISOString().slice(0, 16),
+            endsAt: session.endsAt ? new Date(session.endsAt).toISOString().slice(0, 16) : "",
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingSessionId(null);
+        setEditSession({
+            title: "",
+            description: "",
+            location: "",
+            startsAt: "",
+            endsAt: "",
+        });
+    };
+
+    const handleUpdateSession = async (e: React.FormEvent, sessionId: number) => {
+        e.preventDefault();
+        const token = localStorage.getItem("token");
+
+        if (!editSession.startsAt) {
+            alert("Start time is required");
+            return;
+        }
+
+        const res = await fetch(`/api/events/1/sessions/${sessionId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                title: editSession.title,
+                description: editSession.description || null,
+                location: editSession.location || null,
+                startsAt: new Date(editSession.startsAt).toISOString(),
+                endsAt: editSession.endsAt ? new Date(editSession.endsAt).toISOString() : null,
+            }),
+        });
+
+        if (res.ok) {
+            const updated = await res.json();
+            setSessions((prev) =>
+                prev.map((s) => (s.id === sessionId ? updated : s)).sort(
+                    (a, b) =>
+                        new Date(a.startsAt).getTime() -
+                        new Date(b.startsAt).getTime()
+                )
+            );
+            handleCancelEdit();
+        } else {
+            const data = await res.json().catch(() => ({}));
+            alert(data.error || "Failed to update session");
+        }
+    };
+
+    const handleDeleteSession = async (sessionId: number) => {
+        if (!confirm("Are you sure you want to delete this session?")) return;
+
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/events/1/sessions/${sessionId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+            setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+        } else {
+            const data = await res.json().catch(() => ({}));
+            alert(data.error || "Failed to delete session");
+        }
+    };
+
     const handleAssignHiwi = async (sessionId: number, hiwiId: number) => {
         const token = localStorage.getItem("token");
         const res = await fetch(`/api/events/1/sessions/${sessionId}/hiwis`, {
@@ -346,21 +433,115 @@ export default function SessionListPage() {
                             key={session.id}
                             className="session-card"
                         >
-                            <div onClick={() => handleSessionClick(session.id)} style={{ cursor: 'pointer' }}>
-                                <h3>{session.title}</h3>
-                                <p>
-                                    <strong>Start:</strong>{" "}
-                                    {new Date(
-                                        session.startsAt
-                                    ).toLocaleString()}
-                                </p>
-                                {session.location && (
-                                    <p>
-                                        <strong>Location:</strong>{" "}
-                                        {session.location}
-                                    </p>
-                                )}
-                            </div>
+                            {editingSessionId === session.id ? (
+                                <form onSubmit={(e) => handleUpdateSession(e, session.id)} className="session-form" style={{ marginBottom: '15px' }}>
+                                    <input
+                                        name="title"
+                                        placeholder="Title"
+                                        value={editSession.title}
+                                        onChange={(e) => setEditSession({ ...editSession, title: e.target.value })}
+                                        required
+                                        className="form-control"
+                                    />
+                                    <textarea
+                                        name="description"
+                                        placeholder="Description (optional)"
+                                        value={editSession.description}
+                                        onChange={(e) => setEditSession({ ...editSession, description: e.target.value })}
+                                        className="form-control"
+                                    />
+                                    <input
+                                        name="location"
+                                        placeholder="Location (optional)"
+                                        value={editSession.location}
+                                        onChange={(e) => setEditSession({ ...editSession, location: e.target.value })}
+                                        className="form-control"
+                                    />
+                                    <div className="session-form-row">
+                                        <div>
+                                            <label>Start Time</label>
+                                            <input
+                                                type="datetime-local"
+                                                name="startsAt"
+                                                value={editSession.startsAt}
+                                                onChange={(e) => setEditSession({ ...editSession, startsAt: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label>End Time</label>
+                                            <input
+                                                type="datetime-local"
+                                                name="endsAt"
+                                                value={editSession.endsAt}
+                                                onChange={(e) => setEditSession({ ...editSession, endsAt: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button type="submit" className="session-save-btn">
+                                            Save Changes
+                                        </button>
+                                        <button type="button" onClick={handleCancelEdit} style={{
+                                            padding: '10px 20px',
+                                            backgroundColor: '#6c757d',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                        }}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <>
+                                    <div onClick={() => handleSessionClick(session.id)} style={{ cursor: 'pointer' }}>
+                                        <h3>{session.title}</h3>
+                                        <p>
+                                            <strong>Start:</strong>{" "}
+                                            {new Date(
+                                                session.startsAt
+                                            ).toLocaleString()}
+                                        </p>
+                                        {session.location && (
+                                            <p>
+                                                <strong>Location:</strong>{" "}
+                                                {session.location}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div style={{ marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                        <button
+                                            onClick={() => handleStartEdit(session)}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#007bff',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Edit Session
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteSession(session.id)}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#dc3545',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </>
+                            )}
 
                             {expandedSessionId === session.id && (
                                 <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #ddd' }}>
