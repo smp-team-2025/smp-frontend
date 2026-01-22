@@ -34,6 +34,8 @@ import DiplomaDownloadPage from "./pages/DiplomaDownloadPage";
 import StudentAttendancePage from "./pages/StudentAttendancePage";
 import StudentAnnouncementsPage from "./pages/StudentAnnouncementsPage";
 import OrganizerParticipantsPage from "./pages/OrganizerParticipantsPage";
+import HiwiAnnouncements from "./pages/HiwiAnnouncements";
+
 
 
 
@@ -80,6 +82,7 @@ export default function App() {
         <Route path="/studenthomepage/attendance" element={<StudentAttendancePage />} />
         <Route path="/studentannouncements" element={<StudentAnnouncementsPage />} />
         <Route path="/organizer/participants" element={<OrganizerParticipantsPage />} />
+        <Route path="/hiwiannouncements" element={<HiwiAnnouncements />} />
 
 
         {/* optional: catch-all for invalid routes */}
