@@ -11,6 +11,47 @@ function formatDate(value?: string) {
   return d.toLocaleString();
 }
 
+function safeFileName(value: string) {
+  const s = (value || "").trim();
+
+  const mapped = s
+
+   .replace(/Ä/g, "Ae")
+    .replace(/Ö/g, "Oe")
+    .replace(/Ü/g, "Ue")
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss")
+    .replace(/Ğ/g, "G")
+    .replace(/ğ/g, "g")
+    .replace(/Ş/g, "S")
+    .replace(/ş/g, "s")
+    .replace(/Ç/g, "C")
+    .replace(/ç/g, "c")
+    .replace(/İ/g, "I")
+    .replace(/ı/g, "i");
+
+     const noDiacritics = mapped
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+ return (noDiacritics || "")
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
+    .replace(/[^\w\s-]/g, "")              
+    .replace(/\s+/g, "_")                  
+    .replace(/_+/g, "_")                   
+    .replace(/^_+|_+$/g, "")               
+    .trim() || "file";
+}
+
+function extractYear(text?: string, fallbackYear?: number) {
+  const m = (text || "").match(/\b(19|20)\d{2}\b/);
+  if (m?.[0]) return m[0];
+  if (fallbackYear) return String(fallbackYear);
+  return "Year";
+}
+
 function getParticipantIdFromToken(): number | null {
   const token = localStorage.getItem("token");
   if (!token) return null;
@@ -90,19 +131,34 @@ export default function DiplomaDownloadPage() {
     }
 
     try {
-      const blob = await diplomasApi.downloadPdf(participantId, eventId);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `diploma-${participantId}-${eventId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (e: any) {
-      alert(e?.message || "Download failed.");
-    }
-  };
+    const blob = await diplomasApi.downloadPdf(participantId, eventId);
+
+    // Bu event'e ait diploma kaydını bul
+    const d = items.find((x) => x.event.id === eventId) ?? null;
+
+    const program = "Saturday Morning Physics";
+    const year = extractYear(d?.event?.title, d?.issuedAt ? new Date(d.issuedAt).getFullYear() : undefined);
+    const studentName = d?.participant?.name ?? "Participant";
+
+    const filename =
+      [
+        safeFileName(program),
+        safeFileName(year),
+        safeFileName(studentName),
+      ].join("_") + ".pdf";
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e: any) {
+    alert(e?.message || "Download failed.");
+  }
+};
 
   return (
     <div className="page-wrapper">
