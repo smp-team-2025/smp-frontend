@@ -9,25 +9,60 @@ interface UnmatchedParticipant {
     durationMin: number | null;
 }
 
+interface Session {
+    id: number;
+    title: string;
+    startsAt: string;
+    endsAt?: string | null;
+}
+
 export default function ZoomCheckPage() {
     const navigate = useNavigate();
-    const [sessionId, setSessionId] = useState("");
+    const [sessions, setSessions] = useState<Session[]>([]);
+    const [selectedSessionId, setSelectedSessionId] = useState<string>("");
     const [participants, setParticipants] = useState<UnmatchedParticipant[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingSessions, setLoadingSessions] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searched, setSearched] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
-            // navigate("/login");
+            navigate("/login");
+        } else {
+            fetchSessions();
         }
     }, [navigate]);
 
+    const fetchSessions = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch("/api/events/1/sessions", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+                const data: Session[] = await res.json();
+                // Sort sessions by start date
+                const sortedSessions = data.sort(
+                    (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+                );
+                setSessions(sortedSessions);
+            } else {
+                setError("Failed to load sessions.");
+            }
+        } catch (err) {
+            console.error("Failed to fetch sessions:", err);
+            setError("Failed to load sessions.");
+        } finally {
+            setLoadingSessions(false);
+        }
+    };
+
     const handleCheck = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!sessionId) {
-            setError("Please enter a Session ID.");
+        if (!selectedSessionId) {
+            setError("Please select a session.");
             return;
         }
 
@@ -38,7 +73,7 @@ export default function ZoomCheckPage() {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`/api/attendance/sessions/${sessionId}/zoom-unmatched`, {
+            const res = await fetch(`/api/attendance/sessions/${selectedSessionId}/zoom-unmatched`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -59,6 +94,15 @@ export default function ZoomCheckPage() {
         }
     };
 
+    const formatSessionLabel = (session: Session) => {
+        const date = new Date(session.startsAt).toLocaleDateString('de-DE');
+        const time = new Date(session.startsAt).toLocaleTimeString('de-DE', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        return `${session.title} - ${date} ${time}`;
+    };
+
     return (
         <div className="page-wrapper">
             <header className="navbar">
@@ -66,32 +110,50 @@ export default function ZoomCheckPage() {
                     <span className="logo">SMP 2026</span>
                 </div>
                 <button onClick={() => navigate("/ohomepage")} className="logout-btn" style={{border: 'none', cursor: 'pointer'}}>
-                    Back
+                    ← Dashboard
                 </button>
             </header>
 
             <main className="container">
                 <h1>Check Unmatched Zoom Participants</h1>
                 <div className="check-card">
-                    <p>Enter the Session ID to view participants from the Zoom CSV who could not be matched to a registered user.</p>
-                    <form onSubmit={handleCheck} className="check-form">
-                        <div className="form-group">
-                            <label htmlFor="sessionId">Session ID</label>
-                            <div className="input-row">
-                                <input 
-                                    type="number" 
-                                    id="sessionId" 
-                                    value={sessionId} 
-                                    onChange={(e) => setSessionId(e.target.value)}
-                                    placeholder="Enter Session ID"
-                                    required
-                                />
-                                <button type="submit" className="check-btn" disabled={loading}>
-                                    {loading ? "Checking..." : "Check"}
-                                </button>
+                    <p>Select a session to view participants from the Zoom CSV who could not be matched to a registered user.</p>
+                    
+                    {loadingSessions ? (
+                        <p>Loading sessions...</p>
+                    ) : (
+                        <form onSubmit={handleCheck} className="check-form">
+                            <div className="form-group">
+                                <label htmlFor="sessionSelect">Select Session</label>
+                                <div className="input-row">
+                                    <select
+                                        id="sessionSelect"
+                                        value={selectedSessionId}
+                                        onChange={(e) => setSelectedSessionId(e.target.value)}
+                                        required
+                                        style={{
+                                            flex: 1,
+                                            padding: '0.8rem',
+                                            border: '1px solid #ccc',
+                                            borderRadius: '4px',
+                                            fontSize: '1rem',
+                                            backgroundColor: 'white'
+                                        }}
+                                    >
+                                        <option value="">-- Select a session --</option>
+                                        {sessions.map((session) => (
+                                            <option key={session.id} value={session.id}>
+                                                {formatSessionLabel(session)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button type="submit" className="check-btn" disabled={loading || !selectedSessionId}>
+                                        {loading ? "Checking..." : "Check"}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    )}
 
                     {error && <div className="status-message error">{error}</div>}
 
