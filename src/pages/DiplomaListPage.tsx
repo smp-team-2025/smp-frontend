@@ -27,13 +27,17 @@ export default function DiplomaListPage() {
       setError("Please enter a valid eventId.");
       return;
     }
+    
     try {
       setLoading(true);
       setError("");
       const data = await diplomasApi.listIssuedByEvent(id);
-      setItems(data);
+      console.log("Loaded diplomas:", data); // Debug log
+      setItems(Array.isArray(data) ? data : []);
     } catch (e: any) {
+      console.error("Error loading diplomas:", e);
       setError(e?.message || "Failed to load issued diplomas.");
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -52,6 +56,14 @@ export default function DiplomaListPage() {
       URL.revokeObjectURL(url);
     } catch (e: any) {
       alert(e?.message || "Download failed.");
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleString();
+    } catch {
+      return dateStr;
     }
   };
 
@@ -77,32 +89,45 @@ export default function DiplomaListPage() {
               className="search-input"
               value={eventId}
               onChange={(e) => setEventId(e.target.value)}
-              placeholder="Event ID (e.g. 12)"
+              placeholder="Event ID (e.g. 1)"
               style={{ minWidth: 220 }}
             />
             <button className="primary-btn" onClick={loadIssued} disabled={loading}>
               {loading ? "Loading..." : "Load"}
             </button>
 
-            <input
-              className="search-input"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, certificate..."
-            />
+            {items.length > 0 && (
+              <input
+                className="search-input"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by name, certificate..."
+              />
+            )}
           </div>
         </div>
 
-        {error && <p className="error-msg">{error}</p>}
-
-        {!loading && !error && filtered.length === 0 && (
-          <div className="empty-state">
-            <h2>No issued diplomas</h2>
-            <p className="muted">Enter an Event ID and click Load.</p>
+        {error && (
+          <div className="error-msg">
+            <strong>Error:</strong> {error}
           </div>
         )}
 
-        {!error && filtered.length > 0 && (
+        {!loading && !error && items.length === 0 && !eventId && (
+          <div className="empty-state">
+            <h2>No diplomas loaded</h2>
+            <p className="muted">Enter an Event ID and click Load to see issued diplomas.</p>
+          </div>
+        )}
+
+        {!loading && !error && items.length === 0 && eventId && (
+          <div className="empty-state">
+            <h2>No diplomas found for Event #{eventId}</h2>
+            <p className="muted">Either no diplomas have been issued yet, or the event doesn't exist.</p>
+          </div>
+        )}
+
+        {!loading && !error && filtered.length > 0 && (
           <div className="table-card">
             <table className="diplomas-table">
               <thead>
@@ -117,15 +142,15 @@ export default function DiplomaListPage() {
               <tbody>
                 {filtered.map((d) => (
                   <tr key={`${d.participant.id}-${d.event.id}-${d.certificateNumber}`}>
-                    <td>{d.certificateNumber}</td>
+                    <td><strong>{d.certificateNumber}</strong></td>
                     <td>
                       <div className="name-cell">
                         <span className="name">{d.participant.name}</span>
                         {d.participant.email && <span className="muted">{d.participant.email}</span>}
                       </div>
                     </td>
-                    <td>{d.event.title} (#{d.event.id})</td>
-                    <td>{new Date(d.issuedAt).toLocaleString()}</td>
+                    <td>{d.event.title} <span className="muted">(#{d.event.id})</span></td>
+                    <td>{formatDate(d.issuedAt)}</td>
                     <td>
                       <button className="primary-btn" onClick={() => download(d)}>
                         Download
@@ -135,6 +160,13 @@ export default function DiplomaListPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {!loading && !error && items.length > 0 && filtered.length === 0 && (
+          <div className="empty-state">
+            <h2>No matches found</h2>
+            <p className="muted">Try a different search query.</p>
           </div>
         )}
       </main>

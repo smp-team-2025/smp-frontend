@@ -154,49 +154,75 @@ export default function DiplomaDownloadPage() {
         )}
 
         {!loading && !error && items.length > 0 && (
-          <div className="cards" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
-            <div className="card" style={{ cursor: "default" }}>
-              <h2>Latest diploma</h2>
-              <p>
-                Issued: <strong>{formatDate(latest?.issuedAt)}</strong>
-                <br />
-                <span className="muted">
-                  Event: {latest?.event.title} (#{latest?.event.id})
-                </span>
-                <br />
-                <span className="muted">Certificate: {latest?.certificateNumber}</span>
-              </p>
+  <div className="diploma-cards-grid">
+    {/* Latest diploma */}
+    <div className="diploma-card diploma-card-featured" style={{ cursor: "default" }}>
+      <div className="diploma-card-header">
+        <h2>Latest diploma</h2>
+        <p className="diploma-card-subtitle">Your most recent participation certificate</p>
+      </div>
 
-              <div className="card-actions">
-                <button className="primary-btn" onClick={() => latest && download(latest.event.id)}>
-                  Download
-                </button>
+      <div className="diploma-card-body">
+        <div className="diploma-info-row">
+          <span className="diploma-label">Issued</span>
+          <span className="diploma-value">{formatDate(latest?.issuedAt)}</span>
+        </div>
+
+        <div className="diploma-info-row">
+          <span className="diploma-label">Event</span>
+          <span className="diploma-value">
+            {latest?.event.title} (#{latest?.event.id})
+          </span>
+        </div>
+
+        <div className="diploma-info-row">
+          <span className="diploma-label">Certificate</span>
+          <span className="diploma-value diploma-cert-number">{latest?.certificateNumber}</span>
+        </div>
+      </div>
+
+      <div className="diploma-card-footer">
+        <button
+          className="primary-btn diploma-download-btn"
+          onClick={() => latest && download(latest.event.id)}
+          disabled={!latest}
+        >
+          Download
+        </button>
+      </div>
+    </div>
+
+    {/* All diplomas */}
+    <div className="diploma-card" style={{ cursor: "default" }}>
+      <div className="diploma-card-header">
+        <h2>All diplomas</h2>
+        <p className="diploma-card-subtitle">
+          If you participated in multiple Events, you may see more than one certificate.
+        </p>
+      </div>
+
+      <div className="diploma-list-container">
+        {sortedItems.map((d) => (
+          <div key={`${d.participant.id}-${d.event.id}-${d.certificateNumber}`} className="diploma-list-item">
+            <div className="diploma-list-info">
+              <div className="diploma-list-title">{d.event.title}</div>
+              <div className="diploma-list-meta">
+                <span className="diploma-list-date">Issued: {formatDate(d.issuedAt)}</span>
+                <span className="diploma-list-separator">•</span>
+                <span className="diploma-list-cert">Certificate: {d.certificateNumber}</span>
               </div>
             </div>
 
-            <div className="card" style={{ cursor: "default" }}>
-              <h2>All diplomas</h2>
-              <p className="muted">Birden fazla oturuma katıldıysan birden fazla diploma görebilirsin.</p>
-
-              <div className="mini-list">
-                {sortedItems.map((d) => (
-                  <div key={`${d.participant.id}-${d.event.id}-${d.certificateNumber}`} className="mini-row">
-                    <div>
-                      <div className="mini-title">{d.event.title}</div>
-                      <div className="muted">
-                        Issued: {formatDate(d.issuedAt)} • Certificate: {d.certificateNumber}
-                      </div>
-                    </div>
-
-                    <button className="secondary-btn" onClick={() => download(d.event.id)}>
-                      Download
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <button className="secondary-btn diploma-list-btn" onClick={() => download(d.event.id)}>
+              Download
+            </button>
           </div>
-        )}
+        ))}
+      </div>
+    </div>
+  </div>
+)}
+
       </main>
     </div>
   );
