@@ -7,6 +7,12 @@ interface Question {
   id: number;
   text: string;
   correctAnswer: number | null;
+  correctAnswer2: number | null;
+  usedIn?: Array<{
+    quizId: number;
+    sessionId: number;
+    sessionTitle: string;
+  }>;
 }
 
 interface Session {
@@ -64,6 +70,20 @@ export default function QuizCreationPage() {
       }
       setSelectedQuestions([...selectedQuestions, id]);
     }
+  }
+
+  function moveQuestionUp(index: number) {
+    if (index === 0) return;
+    const newOrder = [...selectedQuestions];
+    [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+    setSelectedQuestions(newOrder);
+  }
+
+  function moveQuestionDown(index: number) {
+    if (index === selectedQuestions.length - 1) return;
+    const newOrder = [...selectedQuestions];
+    [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+    setSelectedQuestions(newOrder);
   }
 
   async function handleCreate() {
@@ -163,26 +183,81 @@ export default function QuizCreationPage() {
                 </button>
               </p>
             ) : (
-              <div className="questions-list">
-                {questions.map((q) => (
-                  <div
-                    key={q.id}
-                    className={`question-item ${
-                      selectedQuestions.includes(q.id) ? "selected" : ""
-                    }`}
-                    onClick={() => toggleQuestion(q.id)}
-                  >
-                    <div className="checkbox">
-                      {selectedQuestions.includes(q.id) && "✓"}
-                    </div>
-                    <div className="question-text">{q.text}</div>
-                    {q.correctAnswer !== null && (
-                      <div className="answer-badge">
-                        {q.correctAnswer.toExponential(2)}
-                      </div>
-                    )}
+              <div className="questions-selection">
+                <div className="available-questions">
+                  <h3>Available Questions</h3>
+                  <div className="questions-list">
+                    {questions
+                      .filter((q) => !selectedQuestions.includes(q.id))
+                      .map((q) => (
+                        <div
+                          key={q.id}
+                          className="question-item"
+                          onClick={() => toggleQuestion(q.id)}
+                        >
+                          <div className="checkbox"></div>
+                          <div style={{ flex: 1 }}>
+                            <div className="question-text">{q.text}</div>
+                            {q.usedIn && q.usedIn.length > 0 && (
+                              <div style={{ marginTop: "5px", fontSize: "11px", color: "#ff6b6b" }}>
+                                ⚠️ Used in: {q.usedIn.map(u => u.sessionTitle).join(", ")}
+                              </div>
+                            )}
+                          </div>
+                          {q.correctAnswer !== null && (
+                            <div className="answer-badge">
+                              10^{q.correctAnswer}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                   </div>
-                ))}
+                </div>
+
+                <div className="selected-questions">
+                  <h3>Selected Questions (Order matters!)</h3>
+                  {selectedQuestions.length === 0 ? (
+                    <p className="empty-state">Click questions to select them</p>
+                  ) : (
+                    <div className="ordered-list">
+                      {selectedQuestions.map((qId, index) => {
+                        const question = questions.find((q) => q.id === qId);
+                        if (!question) return null;
+                        return (
+                          <div key={qId} className="ordered-question-item">
+                            <div className="order-number">{index + 1}</div>
+                            <div className="question-text">{question.text}</div>
+                            <div className="controls">
+                              <button
+                                onClick={() => moveQuestionUp(index)}
+                                disabled={index === 0}
+                                className="btn-arrow"
+                                title="Move up"
+                              >
+                                ↑
+                              </button>
+                              <button
+                                onClick={() => moveQuestionDown(index)}
+                                disabled={index === selectedQuestions.length - 1}
+                                className="btn-arrow"
+                                title="Move down"
+                              >
+                                ↓
+                              </button>
+                              <button
+                                onClick={() => toggleQuestion(qId)}
+                                className="btn-remove"
+                                title="Remove"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

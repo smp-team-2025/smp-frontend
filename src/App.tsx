@@ -35,6 +35,8 @@ import StudentAttendancePage from "./pages/StudentAttendancePage";
 import StudentAnnouncementsPage from "./pages/StudentAnnouncementsPage";
 import OrganizerParticipantsPage from "./pages/OrganizerParticipantsPage";
 import HiwiAnnouncements from "./pages/HiwiAnnouncements";
+import QuizLeaderboardPage from "./pages/QuizLeaderboardPage";
+import StudentQuizSessionsPage from "./pages/StudentQuizSessionsPage";
 
 
 
@@ -83,6 +85,8 @@ export default function App() {
         <Route path="/studentannouncements" element={<StudentAnnouncementsPage />} />
         <Route path="/organizer/participants" element={<OrganizerParticipantsPage />} />
         <Route path="/hiwiannouncements" element={<HiwiAnnouncements />} />
+        <Route path="/quiz/:quizId/leaderboard" element={<QuizLeaderboardPage />} />
+        <Route path="/student/quiz-sessions" element={<StudentQuizSessionsPage />} />
 
 
         {/* optional: catch-all for invalid routes */}

@@ -5,6 +5,12 @@ interface Question {
     id: number;
     text: string;
     correctAnswer: number | null;
+    correctAnswer2: number | null;
+    usedIn?: Array<{
+        quizId: number;
+        sessionId: number;
+        sessionTitle: string;
+    }>;
 }
 
 interface QuizQuestion {
@@ -125,6 +131,20 @@ export default function QuizManagementPage() {
         }
     };
 
+    const moveQuestionUp = (index: number) => {
+        if (index === 0) return;
+        const newOrder = [...selectedQuestions];
+        [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+        setSelectedQuestions(newOrder);
+    };
+
+    const moveQuestionDown = (index: number) => {
+        if (index === selectedQuestions.length - 1) return;
+        const newOrder = [...selectedQuestions];
+        [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+        setSelectedQuestions(newOrder);
+    };
+
     const handleSaveEdit = async (quizId: number) => {
         if (selectedQuestions.length !== 10) {
             alert("Please select exactly 10 questions");
@@ -220,43 +240,125 @@ export default function QuizManagementPage() {
 
                                 {editingQuizId === quiz.id ? (
                                     <div>
-                                        <h3 style={{ marginBottom: '10px' }}>Select 10 Questions ({selectedQuestions.length}/10)</h3>
-                                        <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '15px' }}>
-                                            {allQuestions.map((q) => (
-                                                <div
-                                                    key={q.id}
-                                                    style={{
-                                                        padding: '10px',
-                                                        marginBottom: '8px',
-                                                        backgroundColor: selectedQuestions.includes(q.id) ? '#e3f2fd' : '#f8f9fa',
-                                                        border: selectedQuestions.includes(q.id) ? '2px solid #2196f3' : '1px solid #ddd',
-                                                        borderRadius: '4px',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                    onClick={() => handleToggleQuestion(q.id)}
-                                                >
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedQuestions.includes(q.id)}
-                                                            onChange={() => {}}
-                                                            style={{ cursor: 'pointer' }}
-                                                        />
-                                                        <div style={{ flex: 1 }}>
-                                                            <p style={{ margin: 0, fontSize: '0.95rem' }}>{q.text}</p>
-                                                            {q.correctAnswer !== null && (
-                                                                <span style={{
-                                                                    fontSize: '0.8rem',
-                                                                    color: '#9c27b0',
-                                                                    fontWeight: 'bold'
-                                                                }}>
-                                                                    Correct: {q.correctAnswer.toExponential(2)}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
+                                        <h3 style={{ marginBottom: '10px' }}>Edit Questions ({selectedQuestions.length}/10)</h3>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                                            <div>
+                                                <h4 style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#666' }}>Available Questions</h4>
+                                                <div style={{ maxHeight: '400px', overflowY: 'auto', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '6px' }}>
+                                                    {allQuestions
+                                                        .filter(q => !selectedQuestions.includes(q.id))
+                                                        .map((q) => (
+                                                            <div
+                                                                key={q.id}
+                                                                style={{
+                                                                    padding: '8px',
+                                                                    marginBottom: '6px',
+                                                                    backgroundColor: 'white',
+                                                                    border: '1px solid #ddd',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                onClick={() => handleToggleQuestion(q.id)}
+                                                            >
+                                                                <p style={{ margin: 0, fontSize: '0.85rem' }}>{q.text}</p>
+                                                            </div>
+                                                        ))}
                                                 </div>
-                                            ))}
+                                            </div>
+                                            <div>
+                                                <h4 style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#666' }}>Selected Questions (Order matters!)</h4>
+                                                <div style={{ maxHeight: '400px', overflowY: 'auto', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '6px' }}>
+                                                    {selectedQuestions.length === 0 ? (
+                                                        <p style={{ textAlign: 'center', color: '#999', padding: '20px' }}>Click questions to select</p>
+                                                    ) : (
+                                                        selectedQuestions.map((qId, index) => {
+                                                            const question = allQuestions.find(q => q.id === qId);
+                                                            if (!question) return null;
+                                                            return (
+                                                                <div
+                                                                    key={qId}
+                                                                    style={{
+                                                                        padding: '8px',
+                                                                        marginBottom: '6px',
+                                                                        backgroundColor: 'white',
+                                                                        border: '2px solid #2196f3',
+                                                                        borderRadius: '4px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '8px'
+                                                                    }}
+                                                                >
+                                                                    <div style={{
+                                                                        width: '24px',
+                                                                        height: '24px',
+                                                                        backgroundColor: '#2196f3',
+                                                                        color: 'white',
+                                                                        borderRadius: '50%',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        fontSize: '0.8rem',
+                                                                        fontWeight: 'bold',
+                                                                        flexShrink: 0
+                                                                    }}>
+                                                                        {index + 1}
+                                                                    </div>
+                                                                    <p style={{ margin: 0, fontSize: '0.85rem', flex: 1 }}>{question.text}</p>
+                                                                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                                                                        <button
+                                                                            onClick={() => moveQuestionUp(index)}
+                                                                            disabled={index === 0}
+                                                                            style={{
+                                                                                width: '28px',
+                                                                                height: '28px',
+                                                                                backgroundColor: index === 0 ? '#e0e0e0' : '#f0f0f0',
+                                                                                border: '1px solid #ddd',
+                                                                                borderRadius: '4px',
+                                                                                cursor: index === 0 ? 'not-allowed' : 'pointer',
+                                                                                fontSize: '14px',
+                                                                                opacity: index === 0 ? 0.3 : 1
+                                                                            }}
+                                                                        >
+                                                                            ↑
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => moveQuestionDown(index)}
+                                                                            disabled={index === selectedQuestions.length - 1}
+                                                                            style={{
+                                                                                width: '28px',
+                                                                                height: '28px',
+                                                                                backgroundColor: index === selectedQuestions.length - 1 ? '#e0e0e0' : '#f0f0f0',
+                                                                                border: '1px solid #ddd',
+                                                                                borderRadius: '4px',
+                                                                                cursor: index === selectedQuestions.length - 1 ? 'not-allowed' : 'pointer',
+                                                                                fontSize: '14px',
+                                                                                opacity: index === selectedQuestions.length - 1 ? 0.3 : 1
+                                                                            }}
+                                                                        >
+                                                                            ↓
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleToggleQuestion(qId)}
+                                                                            style={{
+                                                                                width: '28px',
+                                                                                height: '28px',
+                                                                                backgroundColor: '#f8d7da',
+                                                                                border: '1px solid #f5c6cb',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '14px',
+                                                                                color: '#721c24'
+                                                                            }}
+                                                                        >
+                                                                            ✕
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                         <div style={{ display: 'flex', gap: '10px' }}>
                                             <button

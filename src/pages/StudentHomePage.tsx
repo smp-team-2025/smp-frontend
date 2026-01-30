@@ -5,29 +5,6 @@ import "./student_homepage.css";
 export default function StudentHomePage(){
     const navigate = useNavigate();
     const username = "User";
-    const [availableQuizSessionId, setAvailableQuizSessionId] = useState<number | null>(null);
-    useEffect(() => {
-        // Fetch available quiz sessions
-        const fetchQuizSessions = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                const res = await fetch("/api/events/1/sessions", {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const sessions = await res.json();
-                    // Find first session with a quiz
-                    const sessionWithQuiz = sessions.find((s: any) => s.fermiQuiz);
-                    if (sessionWithQuiz) {
-                        setAvailableQuizSessionId(sessionWithQuiz.id);
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to fetch quiz sessions:", error);
-            }
-        };
-        fetchQuizSessions();
-    }, []);
 
 
     return(
@@ -55,17 +32,10 @@ export default function StudentHomePage(){
                     <p>View upcoming sessions</p>
                 </Link>
 
-                {availableQuizSessionId ? (
-                    <Link to={`/quiz/session/${availableQuizSessionId}`} className="card">
-                        <h2>Fermi Quiz</h2>
-                        <p>Answer Fermi questions</p>
-                    </Link>
-                ) : (
-                    <div className="card" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-                        <h2>Fermi Quiz</h2>
-                        <p>No quiz available</p>
-                    </div>
-                )}
+                <Link to="/student/quiz-sessions" className="card">
+                    <h2>Fermi Quiz</h2>
+                    <p>Select a quiz session</p>
+                </Link>
 
                 <Link to="/studenthomepage/qr" className="card">
                           <h2>QR Code Check-in</h2>

@@ -7,6 +7,7 @@ interface Question {
   id: number;
   text: string;
   correctAnswer: number | null;
+  correctAnswer2: number | null;
 }
 
 export default function QuestionManagementPage() {
@@ -14,8 +15,8 @@ export default function QuestionManagementPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [newQuestion, setNewQuestion] = useState({ text: "", correctAnswer: "" });
-  const [editQuestion, setEditQuestion] = useState({ text: "", correctAnswer: "" });
+  const [newQuestion, setNewQuestion] = useState({ text: "", correctAnswer: "", correctAnswer2: "" });
+  const [editQuestion, setEditQuestion] = useState({ text: "", correctAnswer: "", correctAnswer2: "" });
 
   useEffect(() => {
     if (checkAuthAndRedirect(navigate)) {
@@ -51,12 +52,13 @@ export default function QuestionManagementPage() {
         },
         body: JSON.stringify({
           text: newQuestion.text,
-          correctAnswer: newQuestion.correctAnswer ? parseFloat(newQuestion.correctAnswer) : null,
+          correctAnswer: newQuestion.correctAnswer ? parseInt(newQuestion.correctAnswer) : null,
+          correctAnswer2: newQuestion.correctAnswer2 ? parseInt(newQuestion.correctAnswer2) : null,
         }),
       });
 
       if (res.ok) {
-        setNewQuestion({ text: "", correctAnswer: "" });
+        setNewQuestion({ text: "", correctAnswer: "", correctAnswer2: "" });
         fetchQuestions();
       } else {
         alert("Error creating question");
@@ -77,7 +79,8 @@ export default function QuestionManagementPage() {
         },
         body: JSON.stringify({
           text: editQuestion.text,
-          correctAnswer: editQuestion.correctAnswer ? parseFloat(editQuestion.correctAnswer) : null,
+          correctAnswer: editQuestion.correctAnswer ? parseInt(editQuestion.correctAnswer) : null,
+          correctAnswer2: editQuestion.correctAnswer2 ? parseInt(editQuestion.correctAnswer2) : null,
         }),
       });
 
@@ -117,6 +120,7 @@ export default function QuestionManagementPage() {
     setEditQuestion({
       text: question.text,
       correctAnswer: question.correctAnswer?.toString() || "",
+      correctAnswer2: question.correctAnswer2?.toString() || "",
     });
   }
 
@@ -153,14 +157,29 @@ export default function QuestionManagementPage() {
               />
             </div>
             <div className="form-group">
-              <label>Correct Answer (optional)</label>
+              <label>Correct Answer (Power of 10: -50 to 50)</label>
               <input
                 type="number"
-                step="any"
                 value={newQuestion.correctAnswer}
                 onChange={(e) => setNewQuestion({ ...newQuestion, correctAnswer: e.target.value })}
-                placeholder="e.g. 1e24"
+                placeholder="e.g. 3 for 10^3 = 1000"
+                min="-50"
+                max="50"
               />
+            </div>
+            <div className="form-group">
+              <label>Second Correct Answer (optional, for range)</label>
+              <input
+                type="number"
+                value={newQuestion.correctAnswer2}
+                onChange={(e) => setNewQuestion({ ...newQuestion, correctAnswer2: e.target.value })}
+                placeholder="e.g. 4 for 10^4 = 10000"
+                min="-50"
+                max="50"
+              />
+              <small style={{ color: "#666", fontSize: "12px" }}>
+                Use this if two neighboring answers are acceptable (e.g., both 3 and 4)
+              </small>
             </div>
             <button type="submit" className="btn-primary">
               Create Question
