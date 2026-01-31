@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = "/api";
 
 export const qrApi = {
     async getMe(): Promise<{ id: number; name: string; email: string; role: string }> {

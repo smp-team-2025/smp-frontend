@@ -1,4 +1,4 @@
-const URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/registrations`;
+const URL = `/api/registrations`;
 
 export interface RegistrationData {
     salutation:string;

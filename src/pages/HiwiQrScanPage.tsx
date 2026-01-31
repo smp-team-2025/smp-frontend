@@ -88,7 +88,7 @@ export default function HiWiQrScanPage() {
                 const qrId = decodedText.replace('smp:', '');
                 const token = localStorage.getItem("token");
 
-                const response = await fetch("http://localhost:3000/api/attendance/scan", {
+                const response = await fetch("/api/attendance/scan", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
