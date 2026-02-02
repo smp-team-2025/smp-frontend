@@ -78,6 +78,34 @@ export default function AdminRegistrationsListPage() {
     navigate("/login");
   }
 
+  const handleApproveAll = async () => {
+    const confirmed = window.confirm(
+      "Mit diesem Button genehmigen Sie alle ausstehenden Anmeldungen.\n\n" +
+      "Sind Sie sicher, dass Sie das tun möchten?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("/api/registrations/approve-all", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed");
+
+      await fetchRegistrations();
+
+      alert("Alle ausstehenden Anmeldungen wurden genehmigt.");
+    } catch (err) {
+      alert("Fehler beim Genehmigen der Anmeldungen.");
+    }
+  };
+
   if (loading) return <div className="admin-container">Laden...</div>;
 
   return (
@@ -87,6 +115,15 @@ export default function AdminRegistrationsListPage() {
       </button>
       <h1>Registrierungen Verwalten</h1>
       <p>Alle Anmeldungen für SMP</p>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+        <button
+          className="approve-all-btn"
+          onClick={handleApproveAll}
+        >
+          Alle ausstehenden Anmeldungen genehmigen
+        </button>
+      </div>
 
       <table className="admin-table">
         <thead>
