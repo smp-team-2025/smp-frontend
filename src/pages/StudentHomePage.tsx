@@ -49,10 +49,6 @@ export default function StudentHomePage(){
                         </div>
                 </Link>
 
-                <Link to="/studenthomepage/diplomas" className="card">
-                            <h2>Diploma</h2>
-                            <p>Download your participation diploma</p>
-                </Link>
 
                 <Link to="/studenthomepage/attendance" className="card">
                             <h2>My Attendance</h2>

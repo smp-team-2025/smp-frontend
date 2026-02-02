@@ -80,7 +80,6 @@ export default function App() {
         <Route path="/hiwihomepage/sessions" element={<HiwiSessions/>} />
         <Route path="/studenthomepage/calendar" element={<StudentSessionsCalendar/>} />
         <Route path="/ohomepage/diplomas" element={<DiplomaListPage/>} />
-        <Route path="/studenthomepage/diplomas" element={<DiplomaDownloadPage/>} />
         <Route path="/studenthomepage/attendance" element={<StudentAttendancePage />} />
         <Route path="/studentannouncements" element={<StudentAnnouncementsPage />} />
         <Route path="/organizer/participants" element={<OrganizerParticipantsPage />} />
