@@ -30,13 +30,14 @@ import ZoomCheckPage from "./pages/ZoomCheckPage";
 import HiwiSessions from "./pages/HiwiSessions";
 import StudentSessionsCalendar from "./pages/StudentSessionsCalendar";
 import DiplomaListPage from "./pages/DiplomaListPage";
-import DiplomaDownloadPage from "./pages/DiplomaDownloadPage";
 import StudentAttendancePage from "./pages/StudentAttendancePage";
 import StudentAnnouncementsPage from "./pages/StudentAnnouncementsPage";
 import OrganizerParticipantsPage from "./pages/OrganizerParticipantsPage";
 import HiwiAnnouncements from "./pages/HiwiAnnouncements";
 import QuizLeaderboardPage from "./pages/QuizLeaderboardPage";
 import StudentQuizSessionsPage from "./pages/StudentQuizSessionsPage";
+import StudentAccountEditPage from "./pages/StudentAccountEditPage";
+
 
 
 
@@ -86,6 +87,7 @@ export default function App() {
         <Route path="/hiwiannouncements" element={<HiwiAnnouncements />} />
         <Route path="/quiz/:quizId/leaderboard" element={<QuizLeaderboardPage />} />
         <Route path="/student/quiz-sessions" element={<StudentQuizSessionsPage />} />
+        <Route path="/student/account" element={<StudentAccountEditPage />} />
 
 
         {/* optional: catch-all for invalid routes */}

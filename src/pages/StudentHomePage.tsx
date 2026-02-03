@@ -60,6 +60,11 @@ export default function StudentHomePage(){
                             <p>Öffentliche Ankündigungen ansehen</p>
                 </Link>
 
+                <Link to="/student/account" className="card">
+                    <h2>Konto bearbeiten</h2>
+                    <p>Name und Adresse ändern</p>
+                </Link>
+
     
 
                 
