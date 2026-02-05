@@ -1,16 +1,43 @@
-import React from "react";
 import "./home.css";
+import { useEffect, useState } from "react";
+import { getActiveEvent } from "../api/event";
 
-export default function HomePage(){
-    return(
-        <div>
+export default function HomePage() {
+  const [hideRegister, setHideRegister] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const headers: HeadersInit = {};
+        const token = localStorage.getItem("token");
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const ev = await getActiveEvent(headers);
+        const deadline = (ev as any).registrationClosesAt;
+
+        if (deadline) {
+          const t = new Date(deadline).getTime();
+          setHideRegister(Date.now() > t);
+        } else {
+          setHideRegister(false);
+        }
+      } catch {
+        setHideRegister(false);
+      }
+    })();
+  }, []);
+
+  return (
+    <div>
       {/* NAVBAR */}
       <header className="navbar">
         <div className="brand">Saturday Morning Physics 2025</div>
 
         <div className="nav-actions">
           <a href="/login" className="btn login">Login</a>
-          <a href="/registration" className="btn register">Register</a>
+          {!hideRegister && (
+            <a className="btn register" href="/register">Register</a>
+          )}
         </div>
       </header>
 
@@ -48,10 +75,10 @@ export default function HomePage(){
           <p>
             SATURDAY MORNING PHYSICS findet im Wintersemester 2025 an 5 Samstagen
             von 9.00 bis 12.00 Uhr im großen Physik-Hörsaal und per Zoom statt.
-          
+
           </p>
         </section>
       </main>
     </div>
-    );
+  );
 }

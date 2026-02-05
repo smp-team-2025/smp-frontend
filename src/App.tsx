@@ -37,6 +37,7 @@ import HiwiAnnouncements from "./pages/HiwiAnnouncements";
 import QuizLeaderboardPage from "./pages/QuizLeaderboardPage";
 import StudentQuizSessionsPage from "./pages/StudentQuizSessionsPage";
 import StudentAccountEditPage from "./pages/StudentAccountEditPage";
+import RegistrationDeadlinePage from "./pages/RegistrationDeadlinePage";
 
 
 
@@ -88,6 +89,7 @@ export default function App() {
         <Route path="/quiz/:quizId/leaderboard" element={<QuizLeaderboardPage />} />
         <Route path="/student/quiz-sessions" element={<StudentQuizSessionsPage />} />
         <Route path="/student/account" element={<StudentAccountEditPage />} />
+        <Route path="/registration-deadline" element={<RegistrationDeadlinePage />} />
 
 
         {/* optional: catch-all for invalid routes */}

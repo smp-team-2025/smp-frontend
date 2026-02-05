@@ -23,7 +23,7 @@ export default function OHomePage() {
     }, [navigate]);
         */}
 
-    
+
 
     return (
         <div className="page-wrapper">
@@ -49,7 +49,7 @@ export default function OHomePage() {
                         <h2>Event Management</h2>
                         <p>Create and manage events</p>
                     </Link>
-                    
+
                     <Link to="/ohomepage/sessionlist" className="card">
                         <h2>Session Management</h2>
                         <p>Create and edit event sessions</p>
@@ -57,29 +57,29 @@ export default function OHomePage() {
 
 
                     <Link to="/ohomepage/hiwilist" className="card">
-                         <h2>HiWi Management</h2>
-                         <p>Approve and manage student assistants</p>
+                        <h2>HiWi Management</h2>
+                        <p>Approve and manage student assistants</p>
                     </Link>
 
 
                     <Link to="/questions" className="card">
-                            <h2>Fermi Questions</h2>
-                            <p>Manage question bank</p>
+                        <h2>Fermi Questions</h2>
+                        <p>Manage question bank</p>
                     </Link>
 
                     <Link to="/quiz/create" className="card">
-                            <h2>Create Quiz</h2>
-                            <p>New Fermi quiz for session</p>
+                        <h2>Create Quiz</h2>
+                        <p>New Fermi quiz for session</p>
                     </Link>
 
                     <Link to="/quiz/manage" className="card">
-                            <h2>Manage Quizzes</h2>
-                            <p>Edit or delete existing quizzes</p>
+                        <h2>Manage Quizzes</h2>
+                        <p>Edit or delete existing quizzes</p>
                     </Link>
 
                     <Link to="/quizlist" className="card">
-                            <h2>Quiz Results</h2>
-                            <p>View statistics</p>
+                        <h2>Quiz Results</h2>
+                        <p>View statistics</p>
                     </Link>
 
                     <Link to="/ohomepage/attendance" className="card">
@@ -92,7 +92,7 @@ export default function OHomePage() {
                         <p>Create and list announcements</p>
                     </Link>
 
-                    <Link to= "/ohomepage/zoom" className="card">
+                    <Link to="/ohomepage/zoom" className="card">
                         <h2>Zoom Upload csv</h2>
                         <p>Upload and get attendance</p>
                     </Link>
@@ -110,6 +110,11 @@ export default function OHomePage() {
                     <Link to="/organizer/participants" className="card">
                         <h2>Teilnehmer</h2>
                         <p>Bestätigte Teilnehmende anzeigen</p>
+                    </Link>
+
+                    <Link to="/registration-deadline" className="card">
+                        <h2>Registrierungsfrist</h2>
+                        <p>Registrierungsfrist festlegen (Register-Button ausblenden)</p>
                     </Link>
 
 
