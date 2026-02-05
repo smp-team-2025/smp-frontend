@@ -59,8 +59,6 @@ export default function DiplomaListPage() {
 
   const filtered = useMemo(() => {
     if (!sessionId) return items;
-    // Eğer backend DiplomaIssued içinde sessionId yoksa bu filtre çalışmaz.
-    // Sizde diploma-issued modelinde session bilgisi varsa burayı uyarlarsın.
     return items;
   }, [items, sessionId]);
 
