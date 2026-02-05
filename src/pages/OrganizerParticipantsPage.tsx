@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { getActiveEvent } from "../api/event";
 import "./OrganizerParticipantsPage.css";
 
 type Participant = {
@@ -19,7 +20,7 @@ type Participant = {
   addressExtra: string | null;
 
   createdAt: string; // ISO
-  status: string;    // "APPROVED" vs.
+  status: string;
 };
 
 function buildDisplayName(p: Participant) {
@@ -76,8 +77,11 @@ export default function OrganizerParticipantsPage() {
         setLoading(true);
         setError(null);
 
-        // backend route: studentsRouter.get("/") => mounted likely at /api/students
-        const res = await fetch("/api/students", { headers });
+        // active event id
+        const ev = await getActiveEvent(headers);
+
+        // only participants for active event
+        const res = await fetch(`/api/students?eventId=${ev.id}`, { headers });
 
         if (!res.ok) {
           const text = await res.text();

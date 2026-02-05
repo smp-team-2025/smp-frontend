@@ -1,173 +1,187 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { diplomasApi } from "../api/diplomas";
-import type { DiplomaIssued } from "../api/diplomas";
-import "./diplomas.css";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./DiplomaListPage.css";
+
+type ActiveEventDto = {
+  id: number;
+  title: string;
+  isActive: boolean;
+};
+
+type Session = {
+  id: number;
+  title: string;
+};
+
+type Diploma = {
+  id: number;
+  createdAt: string;
+  userId: number;
+  fileName: string;
+};
 
 export default function DiplomaListPage() {
-  const [eventId, setEventId] = useState<string>("");
-  const [items, setItems] = useState<DiplomaIssued[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
-  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((d) =>
-      `${d.certificateNumber} ${d.participant.name} ${d.participant.email ?? ""} ${d.event.title}`
-        .toLowerCase()
-        .includes(q)
-    );
-  }, [items, query]);
+  const [activeEvent, setActiveEvent] = useState<ActiveEventDto | null>(null);
 
-  const loadIssued = async () => {
-    const id = Number(eventId);
-    if (!id || Number.isNaN(id)) {
-      setError("Please enter a valid eventId.");
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | "">("");
+
+  const [diplomas, setDiplomas] = useState<Diploma[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
       return;
     }
-    
+    void init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
+
+  async function init() {
     try {
       setLoading(true);
       setError("");
-      const data = await diplomasApi.listIssuedByEvent(id);
-      console.log("Loaded diplomas:", data); // Debug log
-      setItems(Array.isArray(data) ? data : []);
+
+      // active event
+      const evRes = await fetch("/api/events/active", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!evRes.ok) {
+        const txt = await evRes.text().catch(() => "");
+        throw new Error(`Aktives Event konnte nicht geladen werden (${evRes.status}) ${txt}`);
+      }
+      const ev = (await evRes.json()) as ActiveEventDto;
+      setActiveEvent(ev);
+
+      // sessions of active event
+      const sRes = await fetch(`/api/events/${ev.id}/sessions`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!sRes.ok) {
+        const txt = await sRes.text().catch(() => "");
+        throw new Error(`Sessions konnten nicht geladen werden (${sRes.status}) ${txt}`);
+      }
+      const sData = (await sRes.json()) as Session[];
+      setSessions(sData);
+
+      if (sData.length > 0) setSelectedSessionId(sData[0].id);
+
+      // diplomas (by active event)
+      const dRes = await fetch(`/api/diplomas?eventId=${ev.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!dRes.ok) {
+        const txt = await dRes.text().catch(() => "");
+        throw new Error(`Diplome konnten nicht geladen werden (${dRes.status}) ${txt}`);
+      }
+      const dData = (await dRes.json()) as Diploma[];
+      setDiplomas(dData);
     } catch (e: any) {
-      console.error("Error loading diplomas:", e);
-      setError(e?.message || "Failed to load issued diplomas.");
-      setItems([]);
+      setError(e?.message || "Fehler beim Laden");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const download = async (d: DiplomaIssued) => {
+  async function refreshDiplomas() {
+    if (!activeEvent?.id) return;
     try {
-      const blob = await diplomasApi.downloadPdf(d.participant.id, d.event.id);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `diploma-${d.participant.id}-${d.event.id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      setError("");
+      const res = await fetch(`/api/diplomas?eventId=${activeEvent.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Diplome konnten nicht geladen werden (${res.status}) ${txt}`);
+      }
+      setDiplomas((await res.json()) as Diploma[]);
     } catch (e: any) {
-      alert(e?.message || "Download failed.");
+      setError(e?.message || "Fehler beim Laden");
     }
-  };
+  }
 
-  const formatDate = (dateStr: string) => {
-    try {
-      return new Date(dateStr).toLocaleString();
-    } catch {
-      return dateStr;
-    }
-  };
+  const activeTitle = useMemo(() => activeEvent?.title ?? "—", [activeEvent?.title]);
 
   return (
     <div className="page-wrapper">
       <header className="navbar">
         <span className="logo">SMP 2026</span>
         <div className="nav-right">
-          <Link to="/ohomepage" className="back-btn">← Dashboard</Link>
-          <Link to="/login" className="logout-btn">Logout</Link>
+          <Link to="/ohomepage" className="back-btn">
+            ← Dashboard
+          </Link>
+          <Link to="/login" className="logout-btn">
+            Logout
+          </Link>
         </div>
       </header>
 
-      <main className="container">
-        <div className="diplomas-header">
-          <div>
-            <h1>Diplomas</h1>
-            <p className="subtitle">Organizer view — list issued diplomas by event</p>
-          </div>
+      <main className="diploma-container">
+        <h1>Diplomas</h1>
 
-          <div className="diplomas-tools">
-            <input
-              className="search-input"
-              value={eventId}
-              onChange={(e) => setEventId(e.target.value)}
-              placeholder="Event ID (e.g. 1)"
-              style={{ minWidth: 220 }}
-            />
-            <button className="primary-btn" onClick={loadIssued} disabled={loading}>
-              {loading ? "Loading..." : "Load"}
-            </button>
-
-            {items.length > 0 && (
-              <input
-                className="search-input"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by name, certificate..."
-              />
-            )}
-          </div>
+        <div style={{ marginBottom: 12, color: "#666" }}>
+          Aktives Event: <b>{activeTitle}</b>
         </div>
 
-        {error && (
-          <div className="error-msg">
-            <strong>Error:</strong> {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
+        {loading && <div className="muted">Loading…</div>}
 
-        {!loading && !error && items.length === 0 && !eventId && (
-          <div className="empty-state">
-            <h2>No diplomas loaded</h2>
-            <p className="muted">Enter an Event ID and click Load to see issued diplomas.</p>
-          </div>
-        )}
-
-        {!loading && !error && items.length === 0 && eventId && (
-          <div className="empty-state">
-            <h2>No diplomas found for Event #{eventId}</h2>
-            <p className="muted">Either no diplomas have been issued yet, or the event doesn't exist.</p>
-          </div>
-        )}
-
-        {!loading && !error && filtered.length > 0 && (
-          <div className="table-card">
-            <table className="diplomas-table">
-              <thead>
-                <tr>
-                  <th>Certificate</th>
-                  <th>Participant</th>
-                  <th>Event</th>
-                  <th>Issued</th>
-                  <th style={{ width: 160 }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((d) => (
-                  <tr key={`${d.participant.id}-${d.event.id}-${d.certificateNumber}`}>
-                    <td><strong>{d.certificateNumber}</strong></td>
-                    <td>
-                      <div className="name-cell">
-                        <span className="name">{d.participant.name}</span>
-                        {d.participant.email && <span className="muted">{d.participant.email}</span>}
-                      </div>
-                    </td>
-                    <td>{d.event.title} <span className="muted">(#{d.event.id})</span></td>
-                    <td>{formatDate(d.issuedAt)}</td>
-                    <td>
-                      <button className="primary-btn" onClick={() => download(d)}>
-                        Download
-                      </button>
-                    </td>
-                  </tr>
+        {!loading && (
+          <>
+            <div className="controls">
+              <label className="label">Session</label>
+              <select
+                className="select"
+                value={selectedSessionId}
+                onChange={(e) => setSelectedSessionId(e.target.value ? Number(e.target.value) : "")}
+              >
+                <option value="">(optional)</option>
+                {sessions.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title}
+                  </option>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              </select>
 
-        {!loading && !error && items.length > 0 && filtered.length === 0 && (
-          <div className="empty-state">
-            <h2>No matches found</h2>
-            <p className="muted">Try a different search query.</p>
-          </div>
+              <button className="secondary-btn" onClick={refreshDiplomas} disabled={!activeEvent?.id}>
+                Aktualisieren
+              </button>
+            </div>
+
+            <div className="table-wrapper">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Datei</th>
+                    <th>Erstellt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {diplomas.map((d) => (
+                    <tr key={d.id}>
+                      <td>{d.id}</td>
+                      <td>{d.fileName}</td>
+                      <td>{new Date(d.createdAt).toLocaleString("de-DE")}</td>
+                    </tr>
+                  ))}
+
+                  {diplomas.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="muted">
+                        Keine Diplome gefunden.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </main>
     </div>

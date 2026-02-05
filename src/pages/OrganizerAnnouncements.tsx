@@ -5,6 +5,7 @@ import {
   type Announcement,
   type AnnouncementComment,
 } from "../api/announcements";
+import { getActiveEvent } from "../api/event";
 import "./organizerannouncements.css";
 
 interface Attachment {
@@ -23,7 +24,7 @@ type Visibility = "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC";
 
 type EditingPost = {
   id: number;
-  eventId: string; // input için string
+  eventId: string;
   visibility: Visibility;
   title: string;
   body: string;
@@ -54,12 +55,6 @@ function resolveAssetUrl(rawUrl: string | undefined | null) {
 
 /**
  * Parse [color=...]...[/color] tags and also keep line breaks (\n -> <br/>)
- * Supported:
- *   [color=red]text[/color]
- *   [color=#ff00aa]text[/color]
- *   nested colors are supported
- *
- * Everything else is rendered as plain text (no HTML injection).
  */
 function renderColoredText(input: string): ReactNode {
   if (!input) return null;
@@ -91,9 +86,7 @@ function renderColoredText(input: string): ReactNode {
           )
         );
       }
-      if (i < parts.length - 1) {
-        nodes.push(<br key={`br-${key++}`} />);
-      }
+      if (i < parts.length - 1) nodes.push(<br key={`br-${key++}`} />);
     }
   }
 
@@ -131,7 +124,9 @@ export default function OrganizerAnnouncements() {
   const [announcements, setAnnouncements] = useState<AnnouncementWithAttachments[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [eventId, setEventId] = useState<string>("1");
+
+  const [eventId, setEventId] = useState<string>("");
+
   const [error, setError] = useState("");
   const [events, setEvents] = useState<Array<{ id: number; title: string }>>([]);
 
@@ -142,13 +137,11 @@ export default function OrganizerAnnouncements() {
   const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
   const [editingComment, setEditingComment] = useState<{ id: number; body: string } | null>(null);
 
-  // color feature (create)
   const [pickedColor, setPickedColor] = useState<string>("#1d4ed8");
   const contentRef = useRef<HTMLTextAreaElement>(null);
 
   const [visibility, setVisibility] = useState<Visibility>("HIWI_ORGA");
 
-  // Edit Feature
   const [editingPost, setEditingPost] = useState<EditingPost | null>(null);
   const editBodyRef = useRef<HTMLTextAreaElement>(null);
   const [editPickedColor, setEditPickedColor] = useState<string>("#1d4ed8");
@@ -160,23 +153,50 @@ export default function OrganizerAnnouncements() {
       navigate("/login");
       return;
     }
-    loadAnnouncements();
-    loadEvents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    (async () => {
+      try {
+        setError("");
+
+        const headers: HeadersInit = { Authorization: `Bearer ${token}` };
+
+        const ev = await getActiveEvent(headers);
+        setEventId(String(ev.id));
+
+        await loadEvents();
+
+        await loadAnnouncementsForEvent(ev.id, headers);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load announcements");
+      }
+    })();
+
   }, [navigate]);
 
-  // Cleanup preview object URL (avoid memory leak)
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
+  const loadAnnouncementsForEvent = async (evId: number, headers: HeadersInit) => {
+    const res = await fetch(`/api/announcements?eventId=${evId}`, { headers });
+    if (!res.ok) throw new Error("Failed to load announcements");
+    const data = await res.json();
+    setAnnouncements(data as AnnouncementWithAttachments[]);
+  };
+
+  // (eski) loadAnnouncements: artık active event’e göre kullanacağız
   const loadAnnouncements = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    if (!eventId) return;
+
     try {
       setError("");
-      const data = await announcementsApi.list();
-      setAnnouncements(data as AnnouncementWithAttachments[]);
+      const headers: HeadersInit = { Authorization: `Bearer ${token}` };
+      await loadAnnouncementsForEvent(Number(eventId), headers);
     } catch (err) {
       console.error(err);
       setError("Failed to load announcements");
@@ -192,9 +212,6 @@ export default function OrganizerAnnouncements() {
       if (res.ok) {
         const data = await res.json();
         setEvents(data);
-        if (data.length > 0 && !eventId) {
-          setEventId(String(data[0].id));
-        }
       }
     } catch (err) {
       console.error("Failed to load events:", err);
@@ -218,7 +235,6 @@ export default function OrganizerAnnouncements() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Wrap selected text with [color=...][/color] (create)
   const applyColorToSelection = () => {
     const el = contentRef.current;
     if (!el) return;
@@ -250,7 +266,6 @@ export default function OrganizerAnnouncements() {
     });
   };
 
-  // Wrap selected text with [color=...][/color] (edit)
   const applyColorToEditSelection = () => {
     if (!editingPost) return;
     const el = editBodyRef.current;
@@ -291,6 +306,7 @@ export default function OrganizerAnnouncements() {
     try {
       setError("");
 
+      // ✅ eventId aktif event’e setli olacak
       const newPost = await announcementsApi.create({
         title: title.trim() || undefined,
         body: content,
@@ -303,7 +319,6 @@ export default function OrganizerAnnouncements() {
         formData.append("file", selectedImage);
 
         const token = localStorage.getItem("token");
-
         const uploadRes = await fetch(`/api/announcements/${newPost.id}/attachments`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -316,6 +331,7 @@ export default function OrganizerAnnouncements() {
         }
       }
 
+      // ✅ reload only active event posts
       await loadAnnouncements();
 
       setTitle("");
@@ -337,11 +353,10 @@ export default function OrganizerAnnouncements() {
     }
   };
 
-  // open edit mode
   const startEdit = (post: any) => {
     setEditingPost({
       id: post.id,
-      eventId: post.eventId ? String(post.eventId) : "",
+      eventId: post.eventId ? String(post.eventId) : eventId, // ✅ boşsa active
       visibility: getPostVisibility(post),
       title: post.title ?? "",
       body: post.body ?? "",
@@ -350,7 +365,6 @@ export default function OrganizerAnnouncements() {
     requestAnimationFrame(() => editBodyRef.current?.focus());
   };
 
-  // save edit
   const saveEdit = async () => {
     if (!editingPost) return;
 
@@ -366,14 +380,12 @@ export default function OrganizerAnnouncements() {
         title: editingPost.title.trim() ? editingPost.title.trim() : null,
         body: editingPost.body,
         visibility: editingPost.visibility,
-        eventId: editingPost.eventId ? Number(editingPost.eventId) : undefined,
+        eventId: eventId ? Number(eventId) : undefined,
       };
 
       await announcementsApi.update(editingPost.id, payload);
 
-      // safest: reload (keeps attachments/comments consistent)
       await loadAnnouncements();
-
       setEditingPost(null);
     } catch (err: any) {
       alert(err?.message || "Failed to update announcement");
@@ -384,7 +396,9 @@ export default function OrganizerAnnouncements() {
 
   const toggleComments = async (announcementId: number) => {
     setAnnouncements((prev) =>
-      prev.map((p) => (p.id === announcementId ? { ...p, showComments: !p.showComments } : p))
+      prev.map((p) =>
+        p.id === announcementId ? { ...p, showComments: !p.showComments } : p
+      )
     );
 
     const current = announcements.find((a) => a.id === announcementId);
@@ -414,7 +428,9 @@ export default function OrganizerAnnouncements() {
       const newComment = await announcementsApi.createComment(announcementId, body);
       setAnnouncements((prev) =>
         prev.map((a) =>
-          a.id === announcementId ? { ...a, comments: [...(a.comments || []), newComment] } : a
+          a.id === announcementId
+            ? { ...a, comments: [...(a.comments || []), newComment] }
+            : a
         )
       );
       setCommentInputs((prev) => ({ ...prev, [announcementId]: "" }));
@@ -424,42 +440,41 @@ export default function OrganizerAnnouncements() {
   };
 
   const saveEditComment = async () => {
-  if (!editingComment) return;
+    if (!editingComment) return;
 
-  try {
-    const updated = await announcementsApi.updateComment(
-      editingComment.id,
-      editingComment.body
-    );
+    try {
+      const updated = await announcementsApi.updateComment(
+        editingComment.id,
+        editingComment.body
+      );
 
-    setAnnouncements((prev) =>
-      prev.map((post) => {
-        if (!post.comments) return post;
+      setAnnouncements((prev) =>
+        prev.map((post) => {
+          if (!post.comments) return post;
 
-        const has = post.comments.some((c) => c.id === editingComment.id);
-        if (!has) return post;
+          const has = post.comments.some((c) => c.id === editingComment.id);
+          if (!has) return post;
 
-        return {
-          ...post,
-          comments: post.comments.map((c) => {
-            if (c.id !== editingComment.id) return c;
+          return {
+            ...post,
+            comments: post.comments.map((c) => {
+              if (c.id !== editingComment.id) return c;
+              return {
+                ...c,
+                ...updated,
+                author: (updated as any).author ?? c.author,
+              };
+            }),
+          };
+        })
+      );
 
-            return {
-              ...c,
-              ...updated,
-              author: (updated as any).author ?? c.author,
-            };
-          }),
-        };
-      })
-    );
-
-    setEditingComment(null);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to update comment");
-  }
-};
+      setEditingComment(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update comment");
+    }
+  };
 
   const handleDeleteComment = async (announcementId: number, commentId: number) => {
     if (!window.confirm("Are you sure you want to delete this comment?")) return;
@@ -504,12 +519,7 @@ export default function OrganizerAnnouncements() {
           <h2 className="section-title">Create New Post</h2>
 
           <form onSubmit={handlePost} className="post-form">
-            <select
-              value={eventId}
-              onChange={(e) => setEventId(e.target.value)}
-              className="form-control"
-              required
-            >
+            <select value={eventId} className="form-control" required disabled>
               <option value="">Select Event (Required)</option>
               {events.map((event) => (
                 <option key={event.id} value={String(event.id)}>
@@ -536,7 +546,6 @@ export default function OrganizerAnnouncements() {
               className="form-control"
             />
 
-            {/* Simple color toolbar */}
             <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 6 }}>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
@@ -616,39 +625,42 @@ export default function OrganizerAnnouncements() {
                 <div className="post-header">
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        <h2 className="post-title" style={{ margin: 0 }}>
-                            {post.title || "Untitled"}
-                         </h2>
+                      <h2 className="post-title" style={{ margin: 0 }}>
+                        {post.title || "Untitled"}
+                      </h2>
 
-                    {"visibility" in post && (post as any).visibility && (
+                      {"visibility" in post && (post as any).visibility && (
                         <span
-                            style={{
+                          style={{
                             fontSize: 12,
                             padding: "4px 10px",
                             borderRadius: 999,
                             background: "rgba(0,0,0,0.06)",
                             color: "#333",
                             fontWeight: 600,
-                     }}
-                        title="Visibility"
+                          }}
+                          title="Visibility"
                         >
-                        {(post as any).visibility}
-                     </span>
-                    )}
-                 </div>
+                          {(post as any).visibility}
+                        </span>
+                      )}
+                    </div>
 
-                <div style={{ fontSize: 13, color: "#666" }}>
-                    by <strong>{post.author?.name ?? "Unknown"}</strong>
-                        {post.author?.role ? (
-                    <span style={{ marginLeft: 8, opacity: 0.85 }}>({post.author.role})</span>
-                ) : null}
-                 </div>
-            </div>
+                    <div style={{ fontSize: 13, color: "#666" }}>
+                      by <strong>{post.author?.name ?? "Unknown"}</strong>
+                      {(post as any).author?.role ? (
+                        <span style={{ marginLeft: 8, opacity: 0.85 }}>
+                          ({(post as any).author.role})
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
 
                   <div className="post-meta">
-                    <span className="post-date">{new Date(post.createdAt).toLocaleDateString()}</span>
+                    <span className="post-date">
+                      {new Date(post.createdAt).toLocaleDateString()}
+                    </span>
 
-                    {/*EDIT BUTTON */}
                     <button
                       onClick={() => startEdit(post)}
                       className="submit-post-btn"
@@ -659,22 +671,20 @@ export default function OrganizerAnnouncements() {
                       Edit
                     </button>
 
-                    <button onClick={() => handleDelete(post.id)} className="delete-post-btn" disabled={savingEdit}>
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      className="delete-post-btn"
+                      disabled={savingEdit}
+                    >
                       Delete
                     </button>
                   </div>
                 </div>
 
-                {/*EDIT MODE */}
+                {/* EDIT MODE */}
                 {isEditingThis ? (
                   <div style={{ marginTop: 10 }}>
-                    <select
-                      className="form-control"
-                      value={editingPost?.eventId ?? ""}
-                      onChange={(e) =>
-                        setEditingPost((p) => (p ? { ...p, eventId: e.target.value } : p))
-                      }
-                    >
+                    <select className="form-control" value={eventId} disabled>
                       <option value="">Select Event</option>
                       {events.map((event) => (
                         <option key={event.id} value={String(event.id)}>
@@ -708,7 +718,6 @@ export default function OrganizerAnnouncements() {
                       style={{ marginTop: 10 }}
                     />
 
-                    {/* Edit color toolbar */}
                     <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
                       <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
                         <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
@@ -769,7 +778,6 @@ export default function OrganizerAnnouncements() {
                       </button>
                     </div>
 
-                    {/* preview (optional ama faydalı) */}
                     <div
                       style={{
                         marginTop: 12,
@@ -785,7 +793,6 @@ export default function OrganizerAnnouncements() {
                     </div>
                   </div>
                 ) : (
-                  // Normal render
                   <div className="post-body" style={{ whiteSpace: "normal" }}>
                     {renderColoredText(post.body)}
                   </div>
@@ -809,7 +816,6 @@ export default function OrganizerAnnouncements() {
                   </div>
                 )}
 
-                {/* Comments */}
                 <div className="comments-section">
                   <button onClick={() => toggleComments(post.id)} className="toggle-comments-btn">
                     {post.showComments ? "Hide Comments" : "Show Comments"}
@@ -833,21 +839,21 @@ export default function OrganizerAnnouncements() {
                                 }
                                 className="edit-comment-input"
                               />
-                                <button
+                              <button
                                 type="button"
                                 onClick={saveEditComment}
                                 className="comment-action-btn save-btn"
-                                >
+                              >
                                 Save
-                            </button>
+                              </button>
 
-                            <button
+                              <button
                                 type="button"
                                 onClick={() => setEditingComment(null)}
                                 className="comment-action-btn cancel-btn"
-                            >
+                              >
                                 Cancel
-                            </button>
+                              </button>
                             </div>
                           ) : (
                             <div className="comment-content">
@@ -883,10 +889,7 @@ export default function OrganizerAnnouncements() {
                           onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
                           className="add-comment-input"
                         />
-                        <button
-                          onClick={() => submitComment(post.id)}
-                          className="post-comment-btn"
-                        >
+                        <button onClick={() => submitComment(post.id)} className="post-comment-btn">
                           Post
                         </button>
                       </div>

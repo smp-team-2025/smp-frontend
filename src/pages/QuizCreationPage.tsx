@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { checkAuthAndRedirect } from "../utils/auth";
 import "./quiz-creation.css";
+import { getActiveEvent } from "../api/event";
 
 interface Question {
   id: number;
@@ -40,13 +41,14 @@ export default function QuizCreationPage() {
   async function fetchData() {
     try {
       const token = localStorage.getItem("token");
+      const headers: HeadersInit = { Authorization: `Bearer ${token}` };
+
+      //active event
+      const active = await getActiveEvent(headers);
+
       const [sessionsRes, questionsRes] = await Promise.all([
-        fetch("/api/events/1/sessions", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch("/api/quizzes/questions", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        fetch(`/api/events/${active.id}/sessions`, { headers }),
+        fetch("/api/quizzes/questions", { headers }),
       ]);
 
       if (sessionsRes.ok && questionsRes.ok) {
@@ -171,9 +173,7 @@ export default function QuizCreationPage() {
           </div>
 
           <div className="step">
-            <h2>
-              2. Select 10 Questions ({selectedQuestions.length}/10)
-            </h2>
+            <h2>2. Select 10 Questions ({selectedQuestions.length}/10)</h2>
             {questions.length < 10 ? (
               <p className="warning">
                 At least 10 questions required. Current: {questions.length} questions.
@@ -200,14 +200,12 @@ export default function QuizCreationPage() {
                             <div className="question-text">{q.text}</div>
                             {q.usedIn && q.usedIn.length > 0 && (
                               <div style={{ marginTop: "5px", fontSize: "11px", color: "#ff6b6b" }}>
-                                ⚠️ Used in: {q.usedIn.map(u => u.sessionTitle).join(", ")}
+                                ⚠️ Used in: {q.usedIn.map((u) => u.sessionTitle).join(", ")}
                               </div>
                             )}
                           </div>
                           {q.correctAnswer !== null && (
-                            <div className="answer-badge">
-                              10^{q.correctAnswer}
-                            </div>
+                            <div className="answer-badge">10^{q.correctAnswer}</div>
                           )}
                         </div>
                       ))}
@@ -266,11 +264,7 @@ export default function QuizCreationPage() {
             <button
               onClick={handleCreate}
               className="btn-create"
-              disabled={
-                !selectedSession ||
-                selectedQuestions.length !== 10 ||
-                creating
-              }
+              disabled={!selectedSession || selectedQuestions.length !== 10 || creating}
             >
               {creating ? "Creating..." : "Create Quiz"}
             </button>

@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { getActiveEvent } from "../api/event";
 import "./StudentAnnouncementsPage.css";
 
 type Attachment = {
@@ -125,16 +126,28 @@ export default function StudentAnnouncementsPage() {
       return;
     }
 
-    fetch("/api/announcements?eventId=1", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => {
+    const headers: HeadersInit = { Authorization: `Bearer ${token}` };
+
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // active event
+        const ev = await getActiveEvent(headers);
+
+        // announcements for active event
+        const r = await fetch(`/api/announcements?eventId=${ev.id}`, { headers });
         if (!r.ok) throw new Error("Request failed");
-        return r.json();
-      })
-      .then(setItems)
-      .catch(() => setError("Fehler beim Laden"))
-      .finally(() => setLoading(false));
+
+        const data = (await r.json()) as Announcement[];
+        setItems(data);
+      } catch {
+        setError("Fehler beim Laden");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   return (

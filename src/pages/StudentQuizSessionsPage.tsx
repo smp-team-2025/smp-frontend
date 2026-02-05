@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { checkAuthAndRedirect } from "../utils/auth";
+import { getActiveEvent } from "../api/event";
 import "./quizlist.css";
 
 interface Session {
@@ -25,17 +26,34 @@ export default function StudentQuizSessionsPage() {
 
   async function fetchSessions() {
     try {
+      setLoading(true);
+
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/events/1/sessions", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const sessionsWithQuiz = data.filter((s: Session) => s.fermiQuiz);
-        setSessions(sessionsWithQuiz);
+      if (!token) {
+        navigate("/login");
+        return;
       }
+
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // active event
+      const activeEvent = await getActiveEvent(headers);
+
+      // sessions for active event
+      const res = await fetch(`/api/events/${activeEvent.id}/sessions`, { headers });
+
+      if (!res.ok) {
+        console.error("Failed to fetch sessions", res.status);
+        setSessions([]);
+        return;
+      }
+
+      const data: Session[] = await res.json();
+      const sessionsWithQuiz = data.filter((s) => s.fermiQuiz);
+      setSessions(sessionsWithQuiz);
     } catch (error) {
       console.error(error);
+      setSessions([]);
     } finally {
       setLoading(false);
     }
@@ -80,15 +98,18 @@ export default function StudentQuizSessionsPage() {
               >
                 <h2>{session.title}</h2>
                 <p>{new Date(session.startsAt).toLocaleDateString("de-DE")}</p>
-                <p style={{
-                  marginTop: "15px",
-                  padding: "8px 16px",
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  color: "white",
-                  borderRadius: "6px",
-                  textAlign: "center",
-                  fontWeight: "500"
-                }}>
+                <p
+                  style={{
+                    marginTop: "15px",
+                    padding: "8px 16px",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    color: "white",
+                    borderRadius: "6px",
+                    textAlign: "center",
+                    fontWeight: "500",
+                  }}
+                >
                   Start Quiz →
                 </p>
               </Link>

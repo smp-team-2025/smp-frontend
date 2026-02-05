@@ -7,20 +7,25 @@ import {
 } from "../api/announcements";
 import "./organizerannouncements.css";
 
-type Visibility = "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC";
-
 interface Attachment {
   id: number;
   url: string;
   mimeType: string;
 }
 
-interface AnnouncementWithExtras extends Announcement {
+interface AnnouncementWithAttachments extends Announcement {
   attachments?: Attachment[];
   comments?: AnnouncementComment[];
   showComments?: boolean;
-  visibility?: Visibility;
 }
+
+type Visibility = "ORGA_ONLY" | "HIWI_ORGA" | "PUBLIC";
+
+type ActiveEventDto = {
+  id: number;
+  title: string;
+  isActive: boolean;
+};
 
 function resolveAssetUrl(rawUrl: string | undefined | null) {
   if (!rawUrl) return "";
@@ -38,24 +43,18 @@ function resolveAssetUrl(rawUrl: string | undefined | null) {
   }
 }
 
-/**
- * [color=...]...[/color] + \n -> <br/>
- */
 function renderColoredText(input: string): ReactNode {
   if (!input) return null;
-
   const tokenRegex = /\[color=([^\]]+)\]|\[\/color\]/g;
 
   type StyleFrame = { color: string };
   const stack: StyleFrame[] = [];
-
   const nodes: ReactNode[] = [];
   let lastIndex = 0;
   let key = 0;
 
   function pushTextChunk(text: string) {
     if (!text) return;
-
     const parts = text.split("\n");
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
@@ -92,67 +91,38 @@ function renderColoredText(input: string): ReactNode {
 
     lastIndex = tokenRegex.lastIndex;
   }
-
   pushTextChunk(input.slice(lastIndex));
   return nodes;
 }
 
-function getMyUserIdFromToken(): number | null {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-  const parts = token.split(".");
-  if (parts.length < 2) return null;
-
-  try {
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
-    return Number(payload.userId ?? payload.sub ?? payload.id ?? null) || null;
-  } catch {
-    return null;
-  }
-}
-
 export default function HiwiAnnouncements() {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  const [announcements, setAnnouncements] = useState<AnnouncementWithExtras[]>([]);
-  const [error, setError] = useState("");
+  const [activeEvent, setActiveEvent] = useState<ActiveEventDto | null>(null);
 
-  // create
+  const [announcements, setAnnouncements] = useState<AnnouncementWithAttachments[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [eventId, setEventId] = useState<string>("1");
   const [visibility, setVisibility] = useState<Visibility>("HIWI_ORGA");
+  const [error, setError] = useState("");
 
-  // color tool
-  const [pickedColor, setPickedColor] = useState<string>("#1d4ed8");
-  const contentRef = useRef<HTMLTextAreaElement>(null);
-
-  // attachment
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // comments
   const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
   const [editingComment, setEditingComment] = useState<{ id: number; body: string } | null>(null);
 
-  // announcement edit
-  const [editingPost, setEditingPost] = useState<{
-    id: number;
-    title: string;
-    body: string;
-    visibility: Visibility;
-  } | null>(null);
-
-  const myUserId = useMemo(() => getMyUserIdFromToken(), []);
+  const [pickedColor, setPickedColor] = useState<string>("#1d4ed8");
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
-    loadAnnouncements();
+    void init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
@@ -162,28 +132,48 @@ export default function HiwiAnnouncements() {
     };
   }, [previewUrl]);
 
-  const loadAnnouncements = async () => {
+  async function init() {
     try {
       setError("");
-      const data = (await announcementsApi.list()) as AnnouncementWithExtras[];
 
-    const filtered = data.filter((p) => {
-        const v = (p as any).visibility as Visibility | undefined;
-        return v === "HIWI_ORGA" || v === "PUBLIC";
-    }); 
-     setAnnouncements(filtered);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load announcements");
+      const evRes = await fetch("/api/events/active", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!evRes.ok) {
+        const txt = await evRes.text().catch(() => "");
+        throw new Error(`Aktives Event konnte nicht geladen werden (${evRes.status}) ${txt}`);
+      }
+      const ev = (await evRes.json()) as ActiveEventDto;
+      setActiveEvent(ev);
+
+      await loadAnnouncements(ev.id);
+    } catch (e: any) {
+      setError(e?.message || "Init failed");
     }
-  };
+  }
+
+  async function loadAnnouncements(eventId: number) {
+    try {
+      setError("");
+      const res = await fetch(`/api/announcements?eventId=${eventId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Failed to load announcements (${res.status}) ${txt}`);
+      }
+      const data = (await res.json()) as AnnouncementWithAttachments[];
+      setAnnouncements(data);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load announcements");
+    }
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setSelectedImage(file);
-
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
   };
@@ -229,25 +219,25 @@ export default function HiwiAnnouncements() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
+    if (!activeEvent?.id) {
+      setError("Kein aktives Event gefunden.");
+      return;
+    }
 
     try {
       setError("");
 
-      const safeVisibility: Visibility =
-        visibility === "ORGA_ONLY" ? "HIWI_ORGA" : visibility;
-
       const newPost = await announcementsApi.create({
         title: title.trim() || undefined,
         body: content,
-        eventId: eventId ? Number(eventId) : undefined,
-        visibility: safeVisibility,
+        eventId: activeEvent.id,
+        visibility,
       });
 
       if (selectedImage) {
         const formData = new FormData();
         formData.append("file", selectedImage);
 
-        const token = localStorage.getItem("token");
         const uploadRes = await fetch(`/api/announcements/${newPost.id}/attachments`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -260,51 +250,12 @@ export default function HiwiAnnouncements() {
         }
       }
 
+      await loadAnnouncements(activeEvent.id);
       setTitle("");
       setContent("");
       clearImage();
-      await loadAnnouncements();
     } catch (err: any) {
-      setError(err?.message || "Failed to create announcement");
-    }
-  };
-
-  const startEditPost = (post: AnnouncementWithExtras) => {
-    setEditingPost({
-      id: post.id,
-      title: post.title ?? "",
-      body: post.body ?? "",
-      visibility: ((post as any).visibility as Visibility) || "HIWI_ORGA",
-    });
-  };
-
-  const cancelEditPost = () => setEditingPost(null);
-
-  const saveEditPost = async () => {
-    if (!editingPost) return;
-
-    try {
-      setError("");
-      await announcementsApi.update(editingPost.id, {
-        title: editingPost.title.trim() || undefined,
-        body: editingPost.body,
-        visibility: editingPost.visibility,
-      });
-
-      setEditingPost(null);
-      await loadAnnouncements();
-    } catch (err: any) {
-      setError(err?.message || "Failed to update announcement");
-    }
-  };
-
-  const deletePost = async (id: number) => {
-    if (!window.confirm("Delete this announcement?")) return;
-    try {
-      await announcementsApi.delete(id);
-      setAnnouncements((prev) => prev.filter((p) => p.id !== id));
-    } catch {
-      alert("Failed to delete announcement");
+      setError(err?.message || "Failed to post announcement");
     }
   };
 
@@ -350,55 +301,21 @@ export default function HiwiAnnouncements() {
   };
 
   const saveEditComment = async () => {
-  if (!editingComment) return;
-
-  try {
-    const updated = await announcementsApi.updateComment(
-      editingComment.id,
-      editingComment.body
-    );
-
-    setAnnouncements((prev) =>
-      prev.map((post) => {
-        if (!post.comments) return post;
-
-        const has = post.comments.some((c) => c.id === editingComment.id);
-        if (!has) return post;
-
-        return {
-          ...post,
-          comments: post.comments.map((c) => {
-            if (c.id !== editingComment.id) return c;
-
-            return {
-              ...c,
-              ...updated,
-              author: (updated as any).author ?? c.author,
-            };
-          }),
-        };
-      })
-    );
-
-    setEditingComment(null);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to update comment");
-  }
-};
-
-  const deleteComment = async (announcementId: number, commentId: number) => {
-    if (!window.confirm("Delete this comment?")) return;
+    if (!editingComment) return;
     try {
-      await announcementsApi.deleteComment(commentId);
+      const updated = await announcementsApi.updateComment(editingComment.id, editingComment.body);
       setAnnouncements((prev) =>
         prev.map((post) => {
-          if (post.id !== announcementId || !post.comments) return post;
-          return { ...post, comments: post.comments.filter((c) => c.id !== commentId) };
+          if (!post.comments?.some((c) => c.id === editingComment.id)) return post;
+          return {
+            ...post,
+            comments: post.comments.map((c) => (c.id === editingComment.id ? updated : c)),
+          };
         })
       );
+      setEditingComment(null);
     } catch {
-      alert("Failed to delete comment");
+      alert("Failed to update comment");
     }
   };
 
@@ -414,28 +331,27 @@ export default function HiwiAnnouncements() {
           <Link to="/hiwihomepage" className="back-btn">
             ← Dashboard
           </Link>
+          <Link to="/login" className="logout-btn">
+            Logout
+          </Link>
         </div>
       </header>
 
       <main className="announcements-container">
-        <h1>Announcements (Hiwi)</h1>
+        <h1>Announcements</h1>
+
+        {activeEvent && (
+          <div style={{ marginBottom: 12, color: "#666" }}>
+            Aktives Event: <b>{activeEvent.title}</b>
+          </div>
+        )}
 
         {error && <p className="error-message">{error}</p>}
 
-        {/* CREATE */}
         <div className="announcement-card create-post-card">
           <h2 className="section-title">Create New Post</h2>
 
           <form onSubmit={handleCreate} className="post-form">
-            <input
-              type="number"
-              placeholder="Event ID (Required)"
-              value={eventId}
-              onChange={(e) => setEventId(e.target.value)}
-              className="form-control"
-              required
-            />
-
             <select
               value={visibility}
               onChange={(e) => setVisibility(e.target.value as Visibility)}
@@ -453,7 +369,6 @@ export default function HiwiAnnouncements() {
               className="form-control"
             />
 
-            {/* Color toolbar */}
             <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 6 }}>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
@@ -470,14 +385,9 @@ export default function HiwiAnnouncements() {
                 onClick={applyColorToSelection}
                 className="submit-post-btn"
                 style={{ padding: "10px 14px" }}
-                title="Select text in the textarea and click to apply color"
               >
                 Apply to selection
               </button>
-
-              <span style={{ fontSize: 13, color: "#666" }}>
-                (wraps as <code>[color=...]...[/color]</code>)
-              </span>
             </div>
 
             <textarea
@@ -489,7 +399,6 @@ export default function HiwiAnnouncements() {
               className="form-control"
             />
 
-            {/* Attachment */}
             <div className="image-section">
               <div className="file-input-wrapper">
                 <label htmlFor="image-upload" className="add-image-btn">
@@ -514,129 +423,31 @@ export default function HiwiAnnouncements() {
               )}
             </div>
 
-            <button type="submit" className="submit-post-btn">
+            <button type="submit" className="submit-post-btn" disabled={!activeEvent?.id}>
               Post Announcement
             </button>
           </form>
         </div>
 
-        {/* LIST */}
         <div className="announcements-list">
           {postList.length === 0 && <p>No announcements found.</p>}
 
           {postList.map((post) => {
             const firstAttachment = post.attachments?.[0];
             const imgSrc = resolveAssetUrl(firstAttachment?.url);
-            const postVisibility = ((post as any).visibility as Visibility | undefined) ?? undefined;
-
-            const canEditPost = myUserId != null && post.authorId === myUserId;
-            const canDeletePost = canEditPost;
 
             return (
               <div key={post.id} className="announcement-card">
                 <div className="post-header">
-                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <h2 className="post-title" style={{ margin: 0 }}>
-                      {post.title || "Untitled"}
-                    </h2>
-
-                    {postVisibility && (
-                      <span
-                        style={{
-                          fontSize: 12,
-                          padding: "4px 10px",
-                          borderRadius: 999,
-                          background: "rgba(0,0,0,0.06)",
-                          color: "#333",
-                          fontWeight: 600,
-                        }}
-                        title="Visibility"
-                      >
-                        {postVisibility}
-                      </span>
-                    )}
-                  </div>
-
+                  <h2 className="post-title">{post.title || "Untitled"}</h2>
                   <div className="post-meta">
-                    <span className="post-date">{new Date(post.createdAt).toLocaleDateString()}</span>
-
-                    {canEditPost && (
-                      <button
-                        onClick={() => startEditPost(post)}
-                        className="delete-post-btn"
-                        style={{ background: "#2563eb", marginRight: 8 }}
-                        title="Edit"
-                      >
-                        Edit
-                      </button>
-                    )}
-
-                    {canDeletePost && (
-                      <button onClick={() => deletePost(post.id)} className="delete-post-btn" title="Delete">
-                        Delete
-                      </button>
-                    )}
+                    <span className="post-date">{new Date(post.createdAt).toLocaleDateString("de-DE")}</span>
                   </div>
                 </div>
 
-                {/* EDIT MODE */}
-                {editingPost?.id === post.id ? (
-                  <div style={{ marginTop: 10 }}>
-                    <input
-                      className="form-control"
-                      value={editingPost.title}
-                      onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
-                      placeholder="Title"
-                    />
-
-                    <select
-                      className="form-control"
-                      style={{ marginTop: 10 }}
-                      value={editingPost.visibility}
-                      onChange={(e) =>
-                        setEditingPost({ ...editingPost, visibility: e.target.value as Visibility })
-                      }
-                    >
-                      <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organizers)</option>
-                      <option value="PUBLIC">PUBLIC (Everyone)</option>
-                    </select>
-
-                    <textarea
-                      className="form-control"
-                      style={{ marginTop: 10 }}
-                      rows={6}
-                      value={editingPost.body}
-                      onChange={(e) => setEditingPost({ ...editingPost, body: e.target.value })}
-                    />
-
-                    <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                      <button onClick={saveEditPost} className="submit-post-btn" type="button">
-                        Save
-                      </button>
-                      <button onClick={cancelEditPost} className="submit-post-btn" type="button">
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="post-body" style={{ whiteSpace: "normal" }}>
-                    {renderColoredText(post.body)}
-                  </div>
-                )}
-
-                {post.author?.name && (
-                    <div
-                        style={{
-                        marginTop: 8,
-                        fontSize: 13,
-                        color: "#666",
-                        fontStyle: "italic",
-                        textAlign: "right",
-                    }}
-                    >
-                    — {post.author.name}
-                    </div>
-                )}
+                <div className="post-body" style={{ whiteSpace: "normal" }}>
+                  {renderColoredText(post.body)}
+                </div>
 
                 {!!imgSrc && (
                   <div className="post-attachment">
@@ -644,19 +455,11 @@ export default function HiwiAnnouncements() {
                       src={imgSrc}
                       alt="Attachment"
                       className="attachment-img"
-                      style={{
-                        display: "block",
-                        maxWidth: "100%",
-                        height: "auto",
-                        borderRadius: 12,
-                        marginTop: 10,
-                      }}
-                      onError={() => console.error("Image failed to load:", imgSrc)}
+                      style={{ display: "block", maxWidth: "100%", height: "auto", borderRadius: 12, marginTop: 10 }}
                     />
                   </div>
                 )}
 
-                {/* COMMENTS */}
                 <div className="comments-section">
                   <button onClick={() => toggleComments(post.id)} className="toggle-comments-btn">
                     {post.showComments ? "Hide Comments" : "Show Comments"}
@@ -664,72 +467,43 @@ export default function HiwiAnnouncements() {
 
                   {post.showComments && (
                     <div className="comments-list">
-                      {post.comments?.map((comment) => {
-                        const canEditComment = myUserId != null && comment.author.id === myUserId;
-                        const canDeleteComment = canEditComment;
-
-                        return (
-                          <div key={comment.id} className="comment-item">
-                            <div className="comment-meta">
-                              <span>{comment.author.name}</span>
-                              <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
-                            </div>
-
-                            {editingComment?.id === comment.id ? (
-                              <div className="edit-comment-form">
-                                <input
-                                  value={editingComment.body}
-                                  onChange={(e) =>
-                                    setEditingComment({ ...editingComment, body: e.target.value })
-                                  }
-                                  className="edit-comment-input"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={saveEditComment}
-                                    className="comment-action-btn"
-                                    style={{ background: "#2563eb", color: "#fff", border: "none" }}
-                                    >
-                                    Save
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setEditingComment(null)}
-                                    className="comment-action-btn"
-                                    style={{ background: "rgba(0,0,0,0.08)", color: "#111", border: "none" }}
-                                >
-                                    Cancel
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="comment-content">
-                                <p className="comment-text">{comment.body}</p>
-                                <div className="comment-actions">
-                                  {canEditComment && (
-                                    <button
-                                      onClick={() => setEditingComment({ id: comment.id, body: comment.body })}
-                                      className="icon-btn edit"
-                                      title="Edit"
-                                    >
-                                      ✎
-                                    </button>
-                                  )}
-                                  {canDeleteComment && (
-                                    <button
-                                      onClick={() => deleteComment(post.id, comment.id)}
-                                      className="icon-btn delete"
-                                      title="Delete"
-                                    >
-                                      🗑
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                      {post.comments?.map((comment) => (
+                        <div key={comment.id} className="comment-item">
+                          <div className="comment-meta">
+                            <span>{comment.author.name}</span>
+                            <span>{new Date(comment.createdAt).toLocaleDateString("de-DE")}</span>
                           </div>
-                        );
-                      })}
+
+                          {editingComment?.id === comment.id ? (
+                            <div className="edit-comment-form">
+                              <input
+                                value={editingComment.body}
+                                onChange={(e) => setEditingComment({ ...editingComment, body: e.target.value })}
+                                className="edit-comment-input"
+                              />
+                              <button onClick={saveEditComment} className="comment-action-btn">
+                                Save
+                              </button>
+                              <button onClick={() => setEditingComment(null)} className="comment-action-btn">
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="comment-content">
+                              <p className="comment-text">{comment.body}</p>
+                              <div className="comment-actions">
+                                <button
+                                  onClick={() => setEditingComment({ id: comment.id, body: comment.body })}
+                                  className="icon-btn edit"
+                                  title="Edit"
+                                >
+                                  ✎
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
 
                       <div className="add-comment-form">
                         <input

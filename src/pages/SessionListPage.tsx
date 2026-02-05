@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./sessionlist.css";
+import { getActiveEvent } from "../api/event";
 
 interface Session {
     id: number;
@@ -41,6 +42,9 @@ interface AvailableHiwi {
 
 export default function SessionListPage() {
     const navigate = useNavigate();
+
+    const [activeEventId, setActiveEventId] = useState<number | null>(null);
+
     const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -52,10 +56,12 @@ export default function SessionListPage() {
         startsAt: "",
         endsAt: "",
     });
+
     const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
     const [assignedHiwis, setAssignedHiwis] = useState<AssignedHiwi[]>([]);
     const [availableHiwis, setAvailableHiwis] = useState<AvailableHiwi[]>([]);
     const [loadingHiwis, setLoadingHiwis] = useState(false);
+
     const [expandedSessionId, setExpandedSessionId] = useState<number | null>(null);
     const [editingSessionId, setEditingSessionId] = useState<number | null>(null);
     const [editSession, setEditSession] = useState({
@@ -67,58 +73,80 @@ export default function SessionListPage() {
     });
 
     useEffect(() => {
-        fetchSessions();
+        init();
     }, []);
 
-    const fetchSessions = async () => {
+    async function init() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
         try {
+            setLoading(true);
+            setError("");
+
             const token = localStorage.getItem("token");
-            if (!token) {
-                navigate("/login");
-                return;
-            }
+            const headers = { Authorization: `Bearer ${token}` };
+            const ev = await getActiveEvent(headers);
+            setActiveEventId(ev.id);
 
-            const res = await fetch("/api/events/1/sessions", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (res.ok) {
-                const data: Session[] = await res.json();
-                setSessions(
-                    data.sort(
-                        (a, b) =>
-                            new Date(a.startsAt).getTime() -
-                            new Date(b.startsAt).getTime()
-                    )
-                );
-            } else {
-                setError("Failed to load sessions.");
-            }
+            await fetchSessionsForEvent(ev.id);
         } catch (err) {
             console.error(err);
-            setError("Failed to load sessions.");
+            setError("Aktives Event konnte nicht geladen werden.");
         } finally {
             setLoading(false);
         }
+    }
+
+    const fetchSessionsForEvent = async (eventId: number) => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`/api/events/${eventId}/sessions`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!res.ok) {
+                setError("Failed to load sessions.");
+                return;
+            }
+
+            const data: Session[] = await res.json();
+            setSessions(
+                data.sort(
+                    (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+                )
+            );
+        } catch (err) {
+            console.error(err);
+            setError("Failed to load sessions.");
+        }
     };
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setNewSession((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleCreateSession = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!activeEventId) {
+            alert("No active event selected.");
+            return;
+        }
+
         const token = localStorage.getItem("token");
+        if (!token) return;
 
         if (!newSession.startsAt) {
             alert("Start time is required");
             return;
         }
 
-        const res = await fetch("/api/events/1/sessions", {
+        const res = await fetch(`/api/events/${activeEventId}/sessions`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -137,36 +165,26 @@ export default function SessionListPage() {
             const created = await res.json();
             setSessions((prev) =>
                 [...prev, created].sort(
-                    (a, b) =>
-                        new Date(a.startsAt).getTime() -
-                        new Date(b.startsAt).getTime()
+                    (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
                 )
             );
             setShowCreateForm(false);
-            setNewSession({
-                title: "",
-                description: "",
-                location: "",
-                startsAt: "",
-                endsAt: "",
-            });
+            setNewSession({ title: "", description: "", location: "", startsAt: "", endsAt: "" });
         } else {
             const data = await res.json().catch(() => ({}));
-            if (data.error === "EVENT_NOT_FOUND") {
-                alert("Event ID 1 not found in database. Please create the event first.");
-            } else {
-                alert(data.error || "Failed to create session");
-            }
+            alert(data.error || "Failed to create session");
         }
     };
 
     const fetchHiwisForSession = async (sessionId: number) => {
+        if (!activeEventId) return;
+
         setLoadingHiwis(true);
         const token = localStorage.getItem("token");
 
         try {
             const [assignedRes, availableRes] = await Promise.all([
-                fetch(`/api/events/1/sessions/${sessionId}/hiwis`, {
+                fetch(`/api/events/${activeEventId}/sessions/${sessionId}/hiwis`, {
                     headers: { Authorization: `Bearer ${token}` },
                 }),
                 fetch("/api/hiwi", {
@@ -212,9 +230,11 @@ export default function SessionListPage() {
     };
 
     const fetchAssignedHiwisOnly = async (sessionId: number) => {
+        if (!activeEventId) return;
+
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch(`/api/events/1/sessions/${sessionId}/hiwis`, {
+            const res = await fetch(`/api/events/${activeEventId}/sessions/${sessionId}/hiwis`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) {
@@ -239,25 +259,26 @@ export default function SessionListPage() {
 
     const handleCancelEdit = () => {
         setEditingSessionId(null);
-        setEditSession({
-            title: "",
-            description: "",
-            location: "",
-            startsAt: "",
-            endsAt: "",
-        });
+        setEditSession({ title: "", description: "", location: "", startsAt: "", endsAt: "" });
     };
 
     const handleUpdateSession = async (e: React.FormEvent, sessionId: number) => {
         e.preventDefault();
+
+        if (!activeEventId) {
+            alert("No active event selected.");
+            return;
+        }
+
         const token = localStorage.getItem("token");
+        if (!token) return;
 
         if (!editSession.startsAt) {
             alert("Start time is required");
             return;
         }
 
-        const res = await fetch(`/api/events/1/sessions/${sessionId}`, {
+        const res = await fetch(`/api/events/${activeEventId}/sessions/${sessionId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -275,11 +296,11 @@ export default function SessionListPage() {
         if (res.ok) {
             const updated = await res.json();
             setSessions((prev) =>
-                prev.map((s) => (s.id === sessionId ? updated : s)).sort(
-                    (a, b) =>
-                        new Date(a.startsAt).getTime() -
-                        new Date(b.startsAt).getTime()
-                )
+                prev
+                    .map((s) => (s.id === sessionId ? updated : s))
+                    .sort(
+                        (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+                    )
             );
             handleCancelEdit();
         } else {
@@ -289,10 +310,15 @@ export default function SessionListPage() {
     };
 
     const handleDeleteSession = async (sessionId: number) => {
+        if (!activeEventId) {
+            alert("No active event selected.");
+            return;
+        }
+
         if (!confirm("Are you sure you want to delete this session?")) return;
 
         const token = localStorage.getItem("token");
-        const res = await fetch(`/api/events/1/sessions/${sessionId}`, {
+        const res = await fetch(`/api/events/${activeEventId}/sessions/${sessionId}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -306,8 +332,10 @@ export default function SessionListPage() {
     };
 
     const handleAssignHiwi = async (sessionId: number, hiwiId: number) => {
+        if (!activeEventId) return;
+
         const token = localStorage.getItem("token");
-        const res = await fetch(`/api/events/1/sessions/${sessionId}/hiwis`, {
+        const res = await fetch(`/api/events/${activeEventId}/sessions/${sessionId}/hiwis`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -325,11 +353,16 @@ export default function SessionListPage() {
     };
 
     const handleUnassignHiwi = async (sessionId: number, hiwiId: number) => {
+        if (!activeEventId) return;
+
         const token = localStorage.getItem("token");
-        const res = await fetch(`/api/events/1/sessions/${sessionId}/hiwis/${hiwiId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+            `/api/events/${activeEventId}/sessions/${sessionId}/hiwis/${hiwiId}`,
+            {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
 
         if (res.ok) {
             fetchHiwisForSession(sessionId);
@@ -359,6 +392,8 @@ export default function SessionListPage() {
                 <button
                     className="session-create-btn"
                     onClick={() => setShowCreateForm(!showCreateForm)}
+                    disabled={!activeEventId}
+                    title={!activeEventId ? "No active event selected" : ""}
                 >
                     {showCreateForm ? "− Cancel" : "+ Create Session"}
                 </button>
@@ -367,10 +402,7 @@ export default function SessionListPage() {
                     <div className="session-create-wrapper">
                         <div className="session-create-card">
                             <h2>Create New Session</h2>
-                            <form
-                                onSubmit={handleCreateSession}
-                                className="session-form"
-                            >
+                            <form onSubmit={handleCreateSession} className="session-form">
                                 <input
                                     name="title"
                                     placeholder="Title"
@@ -413,10 +445,7 @@ export default function SessionListPage() {
                                     </div>
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    className="session-save-btn"
-                                >
+                                <button type="submit" className="session-save-btn">
                                     Save Session
                                 </button>
                             </form>
@@ -429,12 +458,13 @@ export default function SessionListPage() {
 
                 <div className="session-grid">
                     {sessions.map((session) => (
-                        <div
-                            key={session.id}
-                            className="session-card"
-                        >
+                        <div key={session.id} className="session-card">
                             {editingSessionId === session.id ? (
-                                <form onSubmit={(e) => handleUpdateSession(e, session.id)} className="session-form" style={{ marginBottom: '15px' }}>
+                                <form
+                                    onSubmit={(e) => handleUpdateSession(e, session.id)}
+                                    className="session-form"
+                                    style={{ marginBottom: "15px" }}
+                                >
                                     <input
                                         name="title"
                                         placeholder="Title"
@@ -447,14 +477,18 @@ export default function SessionListPage() {
                                         name="description"
                                         placeholder="Description (optional)"
                                         value={editSession.description}
-                                        onChange={(e) => setEditSession({ ...editSession, description: e.target.value })}
+                                        onChange={(e) =>
+                                            setEditSession({ ...editSession, description: e.target.value })
+                                        }
                                         className="form-control"
                                     />
                                     <input
                                         name="location"
                                         placeholder="Location (optional)"
                                         value={editSession.location}
-                                        onChange={(e) => setEditSession({ ...editSession, location: e.target.value })}
+                                        onChange={(e) =>
+                                            setEditSession({ ...editSession, location: e.target.value })
+                                        }
                                         className="form-control"
                                     />
                                     <div className="session-form-row">
@@ -464,7 +498,9 @@ export default function SessionListPage() {
                                                 type="datetime-local"
                                                 name="startsAt"
                                                 value={editSession.startsAt}
-                                                onChange={(e) => setEditSession({ ...editSession, startsAt: e.target.value })}
+                                                onChange={(e) =>
+                                                    setEditSession({ ...editSession, startsAt: e.target.value })
+                                                }
                                                 required
                                             />
                                         </div>
@@ -474,54 +510,56 @@ export default function SessionListPage() {
                                                 type="datetime-local"
                                                 name="endsAt"
                                                 value={editSession.endsAt}
-                                                onChange={(e) => setEditSession({ ...editSession, endsAt: e.target.value })}
+                                                onChange={(e) =>
+                                                    setEditSession({ ...editSession, endsAt: e.target.value })
+                                                }
                                             />
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                    <div style={{ display: "flex", gap: "10px" }}>
                                         <button type="submit" className="session-save-btn">
                                             Save Changes
                                         </button>
-                                        <button type="button" onClick={handleCancelEdit} style={{
-                                            padding: '10px 20px',
-                                            backgroundColor: '#6c757d',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer'
-                                        }}>
+                                        <button
+                                            type="button"
+                                            onClick={handleCancelEdit}
+                                            style={{
+                                                padding: "10px 20px",
+                                                backgroundColor: "#6c757d",
+                                                color: "white",
+                                                border: "none",
+                                                borderRadius: "4px",
+                                                cursor: "pointer",
+                                            }}
+                                        >
                                             Cancel
                                         </button>
                                     </div>
                                 </form>
                             ) : (
                                 <>
-                                    <div onClick={() => handleSessionClick(session.id)} style={{ cursor: 'pointer' }}>
+                                    <div onClick={() => handleSessionClick(session.id)} style={{ cursor: "pointer" }}>
                                         <h3>{session.title}</h3>
                                         <p>
-                                            <strong>Start:</strong>{" "}
-                                            {new Date(
-                                                session.startsAt
-                                            ).toLocaleString()}
+                                            <strong>Start:</strong> {new Date(session.startsAt).toLocaleString()}
                                         </p>
                                         {session.location && (
                                             <p>
-                                                <strong>Location:</strong>{" "}
-                                                {session.location}
+                                                <strong>Location:</strong> {session.location}
                                             </p>
                                         )}
                                     </div>
 
-                                    <div style={{ marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                    <div style={{ marginTop: "10px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
                                         <button
                                             onClick={() => handleStartEdit(session)}
                                             style={{
-                                                padding: '8px 16px',
-                                                backgroundColor: '#007bff',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer'
+                                                padding: "8px 16px",
+                                                backgroundColor: "#007bff",
+                                                color: "white",
+                                                border: "none",
+                                                borderRadius: "4px",
+                                                cursor: "pointer",
                                             }}
                                         >
                                             Edit Session
@@ -529,12 +567,12 @@ export default function SessionListPage() {
                                         <button
                                             onClick={() => handleDeleteSession(session.id)}
                                             style={{
-                                                padding: '8px 16px',
-                                                backgroundColor: '#dc3545',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer'
+                                                padding: "8px 16px",
+                                                backgroundColor: "#dc3545",
+                                                color: "white",
+                                                border: "none",
+                                                borderRadius: "4px",
+                                                cursor: "pointer",
                                             }}
                                         >
                                             Delete
@@ -544,14 +582,14 @@ export default function SessionListPage() {
                             )}
 
                             {expandedSessionId === session.id && (
-                                <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #ddd' }}>
-                                    <h4 style={{ marginBottom: '10px' }}>Assigned HiWis</h4>
+                                <div style={{ marginTop: "15px", paddingTop: "15px", borderTop: "1px solid #ddd" }}>
+                                    <h4 style={{ marginBottom: "10px" }}>Assigned HiWis</h4>
                                     {assignedHiwis.length === 0 ? (
-                                        <p style={{ fontSize: '0.9rem', color: '#666' }}>No HiWis assigned yet</p>
+                                        <p style={{ fontSize: "0.9rem", color: "#666" }}>No HiWis assigned yet</p>
                                     ) : (
-                                        <ul style={{ paddingLeft: '20px', margin: '0' }}>
+                                        <ul style={{ paddingLeft: "20px", margin: "0" }}>
                                             {assignedHiwis.map((assigned) => (
-                                                <li key={assigned.hiwiId} style={{ fontSize: '0.9rem', marginBottom: '4px' }}>
+                                                <li key={assigned.hiwiId} style={{ fontSize: "0.9rem", marginBottom: "4px" }}>
                                                     {assigned.hiwi.user.name} ({assigned.hiwi.user.email})
                                                 </li>
                                             ))}
@@ -567,26 +605,26 @@ export default function SessionListPage() {
                                     handleManageHiwis(session.id);
                                 }}
                                 style={{
-                                    marginTop: '10px',
-                                    padding: '8px 12px',
-                                    backgroundColor: selectedSessionId === session.id ? '#dc3545' : '#007bff',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
+                                    marginTop: "10px",
+                                    padding: "8px 12px",
+                                    backgroundColor: selectedSessionId === session.id ? "#dc3545" : "#007bff",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
                                 }}
                             >
-                                {selectedSessionId === session.id ? 'Close HiWi Management' : 'Manage HiWis'}
+                                {selectedSessionId === session.id ? "Close HiWi Management" : "Manage HiWis"}
                             </button>
 
                             {selectedSessionId === session.id && (
-                                <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+                                <div style={{ marginTop: "15px", padding: "10px", backgroundColor: "#f8f9fa", borderRadius: "4px" }}>
                                     {loadingHiwis ? (
                                         <p>Loading HiWis...</p>
                                     ) : (
                                         <>
-                                            <div style={{ marginBottom: '15px' }}>
-                                                <h4 style={{ marginBottom: '10px' }}>Assigned HiWis</h4>
+                                            <div style={{ marginBottom: "15px" }}>
+                                                <h4 style={{ marginBottom: "10px" }}>Assigned HiWis</h4>
                                                 {assignedHiwis.length === 0 ? (
                                                     <p>No HiWis assigned yet.</p>
                                                 ) : (
@@ -595,25 +633,27 @@ export default function SessionListPage() {
                                                             <div
                                                                 key={assigned.hiwiId}
                                                                 style={{
-                                                                    display: 'flex',
-                                                                    justifyContent: 'space-between',
-                                                                    alignItems: 'center',
-                                                                    padding: '8px',
-                                                                    marginBottom: '5px',
-                                                                    backgroundColor: 'white',
-                                                                    borderRadius: '4px'
+                                                                    display: "flex",
+                                                                    justifyContent: "space-between",
+                                                                    alignItems: "center",
+                                                                    padding: "8px",
+                                                                    marginBottom: "5px",
+                                                                    backgroundColor: "white",
+                                                                    borderRadius: "4px",
                                                                 }}
                                                             >
-                                                                <span>{assigned.hiwi.user.name} ({assigned.hiwi.user.email})</span>
+                                                                <span>
+                                                                    {assigned.hiwi.user.name} ({assigned.hiwi.user.email})
+                                                                </span>
                                                                 <button
                                                                     onClick={() => handleUnassignHiwi(session.id, assigned.hiwiId)}
                                                                     style={{
-                                                                        padding: '4px 8px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer'
+                                                                        padding: "4px 8px",
+                                                                        backgroundColor: "#dc3545",
+                                                                        color: "white",
+                                                                        border: "none",
+                                                                        borderRadius: "4px",
+                                                                        cursor: "pointer",
                                                                     }}
                                                                 >
                                                                     Remove
@@ -625,36 +665,38 @@ export default function SessionListPage() {
                                             </div>
 
                                             <div>
-                                                <h4 style={{ marginBottom: '10px' }}>Available HiWis</h4>
-                                                {availableHiwis.filter(h => !assignedHiwis.some(a => a.hiwiId === h.id)).length === 0 ? (
+                                                <h4 style={{ marginBottom: "10px" }}>Available HiWis</h4>
+                                                {availableHiwis.filter((h) => !assignedHiwis.some((a) => a.hiwiId === h.id)).length === 0 ? (
                                                     <p>All HiWis are assigned or no HiWis available.</p>
                                                 ) : (
                                                     <div>
                                                         {availableHiwis
-                                                            .filter(h => !assignedHiwis.some(a => a.hiwiId === h.id))
+                                                            .filter((h) => !assignedHiwis.some((a) => a.hiwiId === h.id))
                                                             .map((hiwi) => (
                                                                 <div
                                                                     key={hiwi.id}
                                                                     style={{
-                                                                        display: 'flex',
-                                                                        justifyContent: 'space-between',
-                                                                        alignItems: 'center',
-                                                                        padding: '8px',
-                                                                        marginBottom: '5px',
-                                                                        backgroundColor: 'white',
-                                                                        borderRadius: '4px'
+                                                                        display: "flex",
+                                                                        justifyContent: "space-between",
+                                                                        alignItems: "center",
+                                                                        padding: "8px",
+                                                                        marginBottom: "5px",
+                                                                        backgroundColor: "white",
+                                                                        borderRadius: "4px",
                                                                     }}
                                                                 >
-                                                                    <span>{hiwi.user.name} ({hiwi.user.email})</span>
+                                                                    <span>
+                                                                        {hiwi.user.name} ({hiwi.user.email})
+                                                                    </span>
                                                                     <button
                                                                         onClick={() => handleAssignHiwi(session.id, hiwi.id)}
                                                                         style={{
-                                                                            padding: '4px 8px',
-                                                                            backgroundColor: '#28a745',
-                                                                            color: 'white',
-                                                                            border: 'none',
-                                                                            borderRadius: '4px',
-                                                                            cursor: 'pointer'
+                                                                            padding: "4px 8px",
+                                                                            backgroundColor: "#28a745",
+                                                                            color: "white",
+                                                                            border: "none",
+                                                                            borderRadius: "4px",
+                                                                            cursor: "pointer",
                                                                         }}
                                                                     >
                                                                         Assign
@@ -672,9 +714,7 @@ export default function SessionListPage() {
                     ))}
                 </div>
 
-                {!loading && sessions.length === 0 && (
-                    <p>No sessions found.</p>
-                )}
+                {!loading && sessions.length === 0 && <p>No sessions found.</p>}
             </main>
         </div>
     );

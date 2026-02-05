@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { checkAuthAndRedirect } from "../utils/auth";
 import "./quizlist.css";
+import { getActiveEvent } from "../api/event";
 
 interface Session {
   id: number;
@@ -26,12 +27,14 @@ export default function QuizListPage() {
   async function fetchSessions() {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/events/1/sessions", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const headers: HeadersInit = { Authorization: `Bearer ${token}` };
+
+      const active = await getActiveEvent(headers);
+
+      const res = await fetch(`/api/events/${active.id}/sessions`, { headers });
       if (res.ok) {
-        const data = await res.json();
-        const sessionsWithQuiz = data.filter((s: Session) => s.fermiQuiz);
+        const data = (await res.json()) as Session[];
+        const sessionsWithQuiz = data.filter((s) => s.fermiQuiz);
         setSessions(sessionsWithQuiz);
       }
     } catch (error) {
@@ -72,6 +75,7 @@ export default function QuizListPage() {
               <div key={session.id} className="card" style={{ position: "relative" }}>
                 <h2>{session.title}</h2>
                 <p>{new Date(session.startsAt).toLocaleDateString("de-DE")}</p>
+
                 <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
                   <Link
                     to={`/quiz/${session.fermiQuiz!.id}/results`}
@@ -83,11 +87,12 @@ export default function QuizListPage() {
                       textDecoration: "none",
                       borderRadius: "6px",
                       textAlign: "center",
-                      fontWeight: "500"
+                      fontWeight: "500",
                     }}
                   >
                     Statistics
                   </Link>
+
                   <Link
                     to={`/quiz/${session.fermiQuiz!.id}/leaderboard`}
                     style={{
@@ -98,7 +103,7 @@ export default function QuizListPage() {
                       textDecoration: "none",
                       borderRadius: "6px",
                       textAlign: "center",
-                      fontWeight: "500"
+                      fontWeight: "500",
                     }}
                   >
                     🏆 Leaderboard
