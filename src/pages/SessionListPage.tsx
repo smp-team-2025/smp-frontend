@@ -187,7 +187,7 @@ export default function SessionListPage() {
                 fetch(`/api/events/${activeEventId}/sessions/${sessionId}/hiwis`, {
                     headers: { Authorization: `Bearer ${token}` },
                 }),
-                fetch("/api/hiwi", {
+                fetch("/api/hiwis", {
                     headers: { Authorization: `Bearer ${token}` },
                 }),
             ]);
