@@ -135,50 +135,50 @@ export default function OHomePage() {
 
                 <div className="cards">
                     <Link to="/ohomepage/eventlist" className="card">
-                        <h2>Event Management</h2>
-                        <p>Create and manage events</p>
+                        <h2>Event Verwaltung</h2>
+                        <p>Event erstellen und verwalten</p>
                     </Link>
 
                     <Link to="/ohomepage/sessionlist" className="card">
-                        <h2>Session Management</h2>
-                        <p>Create and edit event sessions</p>
+                        <h2>Session Verwaltung</h2>
+                        <p>Event Sessions erstellen und verwalten</p>
                     </Link>
 
 
                     <Link to="/ohomepage/hiwilist" className="card">
-                        <h2>HiWi Management</h2>
-                        <p>Approve and manage student assistants</p>
+                        <h2>HiWi Verwaltung</h2>
+                        <p>Hiwi's erstellen und verwalten</p>
                     </Link>
 
 
                     <Link to="/questions" className="card">
-                        <h2>Fermi Questions</h2>
-                        <p>Manage question bank</p>
+                        <h2>Fermi Fragen</h2>
+                        <p>Verwaltung von Fermi Fragenbank</p>
                     </Link>
 
                     <Link to="/quiz/create" className="card">
-                        <h2>Create Quiz</h2>
-                        <p>New Fermi quiz for session</p>
+                        <h2>Quiz Erstellen</h2>
+                        <p>Erstelle neue Fermi Fragen</p>
                     </Link>
 
                     <Link to="/quiz/manage" className="card">
-                        <h2>Manage Quizzes</h2>
-                        <p>Edit or delete existing quizzes</p>
+                        <h2>Quiz Verwaltung</h2>
+                        <p>Vorhandene Quizes bearbeiten oder löschen</p>
                     </Link>
 
                     <Link to="/quizlist" className="card">
-                        <h2>Quiz Results</h2>
-                        <p>View statistics</p>
+                        <h2>Quiz-Ergebnisse</h2>
+                        <p>Statistiken anzeigen</p>
                     </Link>
 
                     <Link to="/ohomepage/attendance" className="card">
-                        <h2>Attendance Data</h2>
-                        <p>View attendance logs</p>
+                        <h2>Anwesenheitsdaten</h2>
+                        <p>Anwesenheitsprotokolle anzeigen</p>
                     </Link>
 
                     <Link to="/ohomepage/announcements" className="card">
-                        <h2>Announcements</h2>
-                        <p>Create and list announcements</p>
+                        <h2>Ankündigungen</h2>
+                        <p>Ankündigungen erstellen und auflisten</p>
                     </Link>
 
                     <Link to="/ohomepage/zoom" className="card">
@@ -188,12 +188,12 @@ export default function OHomePage() {
 
                     <Link to="/ohomepage/diplomas" className="card">
                         <h2>Diplomas</h2>
-                        <p>List and download generated diplomas</p>
+                        <p>Erstellte Diplome auflisten und herunterladen</p>
                     </Link>
 
                     <Link to="/admin/registrations" className="card">
-                        <h2>Approve Registrations</h2>
-                        <p>Approve or reject user registrations</p>
+                        <h2>Registrierungen genehmigen</h2>
+                        <p>Benutzerregistrierungen genehmigen oder ablehnen</p>
                     </Link>
 
                     <Link to="/organizer/participants" className="card">

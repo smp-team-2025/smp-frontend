@@ -134,31 +134,31 @@ export default function StudentHomePage() {
                 <div className="cards">
 
                     <Link to="/studenthomepage/calendar" className="card">
-                        <h2>My Calendar</h2>
-                        <p>View upcoming sessions</p>
+                        <h2>Mein Kalender</h2>
+                        <p>Anstehende Sitzungen anzeigen</p>
                     </Link>
 
                     <Link to="/student/quiz-sessions" className="card">
                         <h2>Fermi Quiz</h2>
-                        <p>Select a quiz session</p>
+                        <p>Wählen Sie eine Quiz-Sitzung aus.</p>
                     </Link>
 
                     <Link to="/studenthomepage/qr" className="card">
                         <h2>QR Code Check-in</h2>
-                        <p>Attendance via QR scanning</p>
+                        <p>Anwesenheit per QR-Scan</p>
                     </Link>
 
                     <Link to="/studenthomepage/businesscard" className="card-link">
                         <div className="card">
                             <h2>Business Card</h2>
-                            <p>Print participant QR cards</p>
+                            <p>QR-Karten für Teilnehmer ausdrucken</p>
                         </div>
                     </Link>
 
 
                     <Link to="/studenthomepage/attendance" className="card">
-                        <h2>My Attendance</h2>
-                        <p>View your attendance for all sessions</p>
+                        <h2>Meine Anwesenheit</h2>
+                        <p>Zeige deine Anwesenheit für alle Sitzungen an</p>
                     </Link>
 
                     <Link to="/studentannouncements" className="card">

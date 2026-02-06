@@ -131,25 +131,25 @@ export default function HiwiHomePage() {
 
                     {/* MY SESSIONS */}
                     <Link to="/hiwihomepage/sessions" className="card">
-                        <h2>My Sessions</h2>
-                        <p>View assigned sessions</p>
+                        <h2>Meine Sessions</h2>
+                        <p>Zugewiesene sessions anzeigen</p>
                     </Link>
 
                     {/* QR CODE */}
                     <Link to="/hiwihomepage/scan" className="card">
                         <h2>QR Code Check-in</h2>
-                        <p>Scan participant QR codes</p>
+                        <p>QR-Codes der Teilnehmer scannen</p>
                     </Link>
 
                     {/* ATTENDANCE */}
                     <Link to="/hiwihomepage/statistics" className="card">
-                        <h2>Attendance</h2>
-                        <p>View attendance logs</p>
+                        <h2>Anwesenheit</h2>
+                        <p>Anwesenheitsprotokolle anzeigen</p>
                     </Link>
 
                     <Link to="/hiwiannouncements" className="card">
-                        <h2>Announcements</h2>
-                        <p>View announcements</p>
+                        <h2>Ankkündigungen</h2>
+                        <p>Ankkündigungen anzeigen</p>
                     </Link>
 
 
