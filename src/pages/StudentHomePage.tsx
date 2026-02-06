@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import "./student_homepage.css";
 import { getActiveEvent } from "../api/event";
 import { checkAuthAndRedirect } from "../utils/auth";
+import { getMe } from "../api/auth";
 
 export default function StudentHomePage() {
     const navigate = useNavigate();
-    const username = "User";
 
     type Session = {
         id: number;
@@ -19,6 +19,9 @@ export default function StudentHomePage() {
     const [upcoming, setUpcoming] = useState<Session | null>(null);
     const [upcomingLoading, setUpcomingLoading] = useState(true);
     const [upcomingError, setUpcomingError] = useState<string | null>(null);
+    const [name, setName] = useState<string>("");
+
+
     useEffect(() => {
         // Token check
         const ok = checkAuthAndRedirect(navigate);
@@ -69,6 +72,18 @@ export default function StudentHomePage() {
         })();
     }, []);
 
+    useEffect(() => {
+        const ok = checkAuthAndRedirect(navigate);
+        if (!ok) return;
+
+        const headers = {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+
+        getMe(headers)
+            .then((me) => setName(me.name))
+            .catch(() => setName(""));
+    }, []);
 
     return (
         <div className="page-wrapper">
@@ -85,7 +100,7 @@ export default function StudentHomePage() {
             <main className="container">
                 <h1>Dashboard</h1>
                 <p className="greeting">
-                    Hallo, {username}! <span className="wave">👋</span>
+                    Hallo, {name}! <span className="wave">👋</span>
                 </p>
 
                 <div className="upcoming-card">

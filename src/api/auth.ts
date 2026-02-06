@@ -46,7 +46,7 @@ export async function resetPassword(token: string, newPassword: string, confirmP
 }
 
 export async function getMe(headers: HeadersInit) {
-  const res = await fetch("/api/auth/me", { headers });
+  const res = await fetch("/api/users/me", { headers });
   if (!res.ok) throw new Error("Failed to load user");
   return res.json() as Promise<{
     id: number;

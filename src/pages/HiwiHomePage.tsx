@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import "./hiwihome.css";
 import { getActiveEvent } from "../api/event";
 import { checkAuthAndRedirect } from "../utils/auth";
+import { getMe } from "../api/auth";
 
 export default function HiwiHomePage() {
     const navigate = useNavigate();
-    const username = "Hiwi";
     type Session = {
         id: number;
         title: string;
@@ -18,6 +18,9 @@ export default function HiwiHomePage() {
     const [upcoming, setUpcoming] = useState<Session | null>(null);
     const [upcomingLoading, setUpcomingLoading] = useState(true);
     const [upcomingError, setUpcomingError] = useState<string | null>(null);
+    const [name, setName] = useState<string>("");
+
+
     useEffect(() => {
         // Token check
         const ok = checkAuthAndRedirect(navigate);
@@ -68,6 +71,19 @@ export default function HiwiHomePage() {
         })();
     }, []);
 
+    useEffect(() => {
+        const ok = checkAuthAndRedirect(navigate);
+        if (!ok) return;
+
+        const headers = {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+
+        getMe(headers)
+            .then((me) => setName(me.name))
+            .catch(() => setName(""));
+    }, []);
+
 
     return (
         <div className="page-wrapper">
@@ -81,7 +97,7 @@ export default function HiwiHomePage() {
             <main className="container">
 
                 <h1>Dashboard</h1>
-                <p className="greeting">Hallo, {username}! 👋</p>
+                <p className="greeting">Hallo, {name}! 👋</p>
 
                 <div className="upcoming-card">
                     <div className="upcoming-title">Upcoming session</div>
