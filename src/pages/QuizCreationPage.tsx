@@ -13,6 +13,7 @@ interface Question {
     quizId: number;
     sessionId: number;
     sessionTitle: string;
+    sessionStartsAt: string;
   }>;
 }
 
@@ -200,7 +201,10 @@ export default function QuizCreationPage() {
                             <div className="question-text">{q.text}</div>
                             {q.usedIn && q.usedIn.length > 0 && (
                               <div style={{ marginTop: "5px", fontSize: "11px", color: "#ff6b6b" }}>
-                                ⚠️ Used in: {q.usedIn.map((u) => u.sessionTitle).join(", ")}
+                                ⚠️ Used in: {q.usedIn.map(u => {
+                                  const year = new Date(u.sessionStartsAt).getFullYear();
+                                  return `${u.sessionTitle} (${year})`;
+                                }).join(", ")}
                               </div>
                             )}
                           </div>

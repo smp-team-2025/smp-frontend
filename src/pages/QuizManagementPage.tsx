@@ -3,15 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { getActiveEvent } from "../api/event";
 
 interface Question {
-  id: number;
-  text: string;
-  correctAnswer: number | null;
-  correctAnswer2: number | null;
-  usedIn?: Array<{
-    quizId: number;
-    sessionId: number;
-    sessionTitle: string;
-  }>;
+    id: number;
+    text: string;
+    correctAnswer: number | null;
+    correctAnswer2: number | null;
+    usedIn?: Array<{
+        quizId: number;
+        sessionId: number;
+        sessionTitle: string;
+        sessionStartsAt: string;
+    }>;
 }
 
 interface QuizQuestion {
