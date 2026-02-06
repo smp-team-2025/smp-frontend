@@ -162,3 +162,55 @@ html, body, #root {
     border-color: #999;
 }
 
+.upcoming-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  padding: 22px 24px;
+  margin-bottom: 26px;
+  position: relative;
+  overflow: hidden;
+}
+
+.upcoming-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background-color: #0b63b6;
+}
+
+.upcoming-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0b63b6;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.upcoming-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.upcoming-meta {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.upcoming-muted {
+  color: #666;
+}
+
+.upcoming-error {
+  color: #b00020;
+  font-weight: 600;
+}

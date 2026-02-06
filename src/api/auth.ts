@@ -44,3 +44,14 @@ export async function resetPassword(token: string, newPassword: string, confirmP
     }
     return response.json();
 }
+
+export async function getMe(headers: HeadersInit) {
+  const res = await fetch("/api/auth/me", { headers });
+  if (!res.ok) throw new Error("Failed to load user");
+  return res.json() as Promise<{
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+  }>;
+}
