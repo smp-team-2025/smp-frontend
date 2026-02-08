@@ -38,6 +38,8 @@ import QuizLeaderboardPage from "./pages/QuizLeaderboardPage";
 import StudentQuizSessionsPage from "./pages/StudentQuizSessionsPage";
 import StudentAccountEditPage from "./pages/StudentAccountEditPage";
 import RegistrationDeadlinePage from "./pages/RegistrationDeadlinePage";
+import ArchiveEventsPage from "./pages/ArchiveEventsPage";
+import ArchiveParticipantsPage from "./pages/ArchiveParticipantsPage";
 
 
 
@@ -90,9 +92,11 @@ export default function App() {
         <Route path="/student/quiz-sessions" element={<StudentQuizSessionsPage />} />
         <Route path="/student/account" element={<StudentAccountEditPage />} />
         <Route path="/registration-deadline" element={<RegistrationDeadlinePage />} />
+        <Route path="/archive" element={<ArchiveEventsPage />} />
+        <Route path="/archive/participants" element={<ArchiveParticipantsPage />} />
 
 
-        {/* optional: catch-all for invalid routes */}
+        {/*catch-all for invalid routes */}
         <Route path="*" element={<h1>404 - Seite nicht gefunden</h1>} />
       </Routes>
     </BrowserRouter>

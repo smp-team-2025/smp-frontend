@@ -206,6 +206,10 @@ export default function OHomePage() {
                         <p>Registrierungsfrist festlegen (Register-Button ausblenden)</p>
                     </Link>
 
+                    <Link to="/archive" className="card">
+                        <h2>Archive</h2>
+                        <p>Vergangene Events anzeigen</p>
+                    </Link>
 
                 </div>
             </main>
