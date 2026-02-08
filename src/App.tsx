@@ -42,6 +42,7 @@ import ArchiveEventsPage from "./pages/ArchiveEventsPage";
 import ArchiveParticipantsPage from "./pages/ArchiveParticipantsPage";
 import ArchiveOrganizerAnnouncementsPage from "./pages/ArchiveOrganizerAnnouncementsPage";
 import ArchiveAttendanceDataPage from "./pages/ArchiveAttendanceDataPage";
+import ArchiveDiplomaListPage from "./pages/ArchiveDiplomaListPage";
 
 
 
@@ -99,6 +100,7 @@ export default function App() {
         <Route path="/archive/participants" element={<ArchiveParticipantsPage />} />
         <Route path="/archive/announcements" element={<ArchiveOrganizerAnnouncementsPage />} />
         <Route path="/archive/attendance" element={<ArchiveAttendanceDataPage />} />
+        <Route path="/archive/diplomas" element={<ArchiveDiplomaListPage />} />
 
 
 
