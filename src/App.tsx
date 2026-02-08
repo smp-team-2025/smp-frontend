@@ -41,6 +41,7 @@ import RegistrationDeadlinePage from "./pages/RegistrationDeadlinePage";
 import ArchiveEventsPage from "./pages/ArchiveEventsPage";
 import ArchiveParticipantsPage from "./pages/ArchiveParticipantsPage";
 import ArchiveOrganizerAnnouncementsPage from "./pages/ArchiveOrganizerAnnouncementsPage";
+import ArchiveAttendanceDataPage from "./pages/ArchiveAttendanceDataPage";
 
 
 
@@ -97,7 +98,7 @@ export default function App() {
         <Route path="/archive" element={<ArchiveEventsPage />} />
         <Route path="/archive/participants" element={<ArchiveParticipantsPage />} />
         <Route path="/archive/announcements" element={<ArchiveOrganizerAnnouncementsPage />} />
-        <Route path="/archive/attendance" element={<ArchiveOrganizerAnnouncementsPage />} />
+        <Route path="/archive/attendance" element={<ArchiveAttendanceDataPage />} />
 
 
 

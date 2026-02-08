@@ -202,7 +202,7 @@ export default function ArchiveEventsPage() {
                                         >
                                             <ActionButton
                                                 label="Anwesenheitsdaten"
-                                                to={`/archive/participants?eventId=${ev.id}`}
+                                                to={`/archive/attendance?eventId=${ev.id}`}
                                             />
                                             <ActionButton
                                                 label="Ankündigungen"
