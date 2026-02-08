@@ -216,10 +216,7 @@ export default function ArchiveEventsPage() {
                                                 label="Teilnehmer"
                                                 to={`/archive/participants?eventId=${ev.id}`}
                                             />
-                                            <ActionButton
-                                                label="Quiz-Ergebnisse"
-                                                to={`/archive/quiz?eventId=${ev.id}`}
-                                            />
+
                                         </div>
                                     )}
                                 </div>

@@ -104,6 +104,7 @@ export default function App() {
 
 
 
+
         {/*catch-all for invalid routes */}
         <Route path="*" element={<h1>404 - Seite nicht gefunden</h1>} />
       </Routes>
