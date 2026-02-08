@@ -202,15 +202,15 @@ export default function ArchiveEventsPage() {
                                         >
                                             <ActionButton
                                                 label="Anwesenheitsdaten"
-                                                to={`/archive/event/${ev.id}/attendance`}
+                                                to={`/archive/participants?eventId=${ev.id}`}
                                             />
                                             <ActionButton
                                                 label="Ankündigungen"
-                                                to={`/archive/event/${ev.id}/announcements`}
+                                                to={`/archive/announcements?eventId=${ev.id}`}
                                             />
                                             <ActionButton
                                                 label="Diplomas"
-                                                to={`/archive/event/${ev.id}/diplomas`}
+                                                to={`/archive/diplomas?eventId=${ev.id}`}
                                             />
                                             <ActionButton
                                                 label="Teilnehmer"
@@ -218,7 +218,7 @@ export default function ArchiveEventsPage() {
                                             />
                                             <ActionButton
                                                 label="Quiz-Ergebnisse"
-                                                to={`/archive/event/${ev.id}/quiz-results`}
+                                                to={`/archive/quiz?eventId=${ev.id}`}
                                             />
                                         </div>
                                     )}

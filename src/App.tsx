@@ -40,6 +40,7 @@ import StudentAccountEditPage from "./pages/StudentAccountEditPage";
 import RegistrationDeadlinePage from "./pages/RegistrationDeadlinePage";
 import ArchiveEventsPage from "./pages/ArchiveEventsPage";
 import ArchiveParticipantsPage from "./pages/ArchiveParticipantsPage";
+import ArchiveOrganizerAnnouncementsPage from "./pages/ArchiveOrganizerAnnouncementsPage";
 
 
 
@@ -58,32 +59,32 @@ export default function App() {
         <Route path="/admin/registrations" element={<AdminRegistrationsListPage />} />
         <Route path="/admin/registrations/:id" element={<AdminRegistrationDetailPage />} />
         <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage/>} />
-        <Route path="/ohomepage" element={<OHomePage/>} />
-        <Route path="/ohomepage/eventlist" element={<EventListPage/>} />
-        <Route path= "/ohomepage/eventdetail" element={<EventDetailPage/>} />
-        <Route path="/ohomepage/sessionlist" element={<SessionListPage/>} />
-        <Route path="/ohomepage/hiwilist" element={<HiWiListPage/>} />
-        <Route path="/studenthomepage/businesscard" element={<BusinessCardPage/>} />
-        <Route path="/ohomepage/quizlist" element={<QuizListPage/>} />
-        <Route path="/studenthomepage" element={<StudentHomePage/>} />
-        <Route path="/hiwihomepage" element={<HiwiHomePage/>} />
-        <Route path="/hiwihomepage/statistics" element={<HiWiStatisticsPage/>} />
-        <Route path="/studenthomepage/qr" element={<StudentQrPage/>} />
-        <Route path="/ohomepage/announcements" element={<OrganizerAnnouncements/>} />
-        <Route path="/hiwihomepage/scan" element={<HiWiQrScanPage/>} />
-        <Route path="/ohomepage/attendance" element={<AttendanceData/>} />
-        <Route path="/quiz/session/:sessionId" element={<QuizSubmissionPage/>} />
-        <Route path="/quiz/:quizId/results" element={<QuizResultsPage/>} />
-        <Route path="/quizlist" element={<QuizListPage/>} />
-        <Route path="/questions" element={<QuestionManagementPage/>} />
-        <Route path="/quiz/create" element={<QuizCreationPage/>} />
-        <Route path="/quiz/manage" element={<QuizManagementPage/>} />
-        <Route path="/ohomepage/zoom" element={<ZoomUploadPage/>} />
-        <Route path="/zoom-check" element={<ZoomCheckPage/>} />
-        <Route path="/hiwihomepage/sessions" element={<HiwiSessions/>} />
-        <Route path="/studenthomepage/calendar" element={<StudentSessionsCalendar/>} />
-        <Route path="/ohomepage/diplomas" element={<DiplomaListPage/>} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/ohomepage" element={<OHomePage />} />
+        <Route path="/ohomepage/eventlist" element={<EventListPage />} />
+        <Route path="/ohomepage/eventdetail" element={<EventDetailPage />} />
+        <Route path="/ohomepage/sessionlist" element={<SessionListPage />} />
+        <Route path="/ohomepage/hiwilist" element={<HiWiListPage />} />
+        <Route path="/studenthomepage/businesscard" element={<BusinessCardPage />} />
+        <Route path="/ohomepage/quizlist" element={<QuizListPage />} />
+        <Route path="/studenthomepage" element={<StudentHomePage />} />
+        <Route path="/hiwihomepage" element={<HiwiHomePage />} />
+        <Route path="/hiwihomepage/statistics" element={<HiWiStatisticsPage />} />
+        <Route path="/studenthomepage/qr" element={<StudentQrPage />} />
+        <Route path="/ohomepage/announcements" element={<OrganizerAnnouncements />} />
+        <Route path="/hiwihomepage/scan" element={<HiWiQrScanPage />} />
+        <Route path="/ohomepage/attendance" element={<AttendanceData />} />
+        <Route path="/quiz/session/:sessionId" element={<QuizSubmissionPage />} />
+        <Route path="/quiz/:quizId/results" element={<QuizResultsPage />} />
+        <Route path="/quizlist" element={<QuizListPage />} />
+        <Route path="/questions" element={<QuestionManagementPage />} />
+        <Route path="/quiz/create" element={<QuizCreationPage />} />
+        <Route path="/quiz/manage" element={<QuizManagementPage />} />
+        <Route path="/ohomepage/zoom" element={<ZoomUploadPage />} />
+        <Route path="/zoom-check" element={<ZoomCheckPage />} />
+        <Route path="/hiwihomepage/sessions" element={<HiwiSessions />} />
+        <Route path="/studenthomepage/calendar" element={<StudentSessionsCalendar />} />
+        <Route path="/ohomepage/diplomas" element={<DiplomaListPage />} />
         <Route path="/studenthomepage/attendance" element={<StudentAttendancePage />} />
         <Route path="/studentannouncements" element={<StudentAnnouncementsPage />} />
         <Route path="/organizer/participants" element={<OrganizerParticipantsPage />} />
@@ -92,8 +93,12 @@ export default function App() {
         <Route path="/student/quiz-sessions" element={<StudentQuizSessionsPage />} />
         <Route path="/student/account" element={<StudentAccountEditPage />} />
         <Route path="/registration-deadline" element={<RegistrationDeadlinePage />} />
+
         <Route path="/archive" element={<ArchiveEventsPage />} />
         <Route path="/archive/participants" element={<ArchiveParticipantsPage />} />
+        <Route path="/archive/announcements" element={<ArchiveOrganizerAnnouncementsPage />} />
+        <Route path="/archive/attendance" element={<ArchiveOrganizerAnnouncementsPage />} />
+
 
 
         {/*catch-all for invalid routes */}
