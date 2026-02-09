@@ -81,7 +81,7 @@ export default function QuizResultsPage() {
                     <h4>Mean</h4>
                     <div className="value">
                       {stat.mean !== null
-                        ? stat.mean.toExponential(2)
+                        ? Math.round(stat.mean)
                         : "N/A"}
                     </div>
                   </div>
@@ -89,27 +89,27 @@ export default function QuizResultsPage() {
                     <h4>Median</h4>
                     <div className="value">
                       {stat.median !== null
-                        ? stat.median.toExponential(2)
+                        ? Math.round(stat.median)
                         : "N/A"}
                     </div>
                   </div>
                   <div className="stat-item">
                     <h4>Min</h4>
                     <div className="value">
-                      {stat.min !== null ? stat.min.toExponential(2) : "N/A"}
+                      {stat.min !== null ? Math.round(stat.min) : "N/A"}
                     </div>
                   </div>
                   <div className="stat-item">
                     <h4>Max</h4>
                     <div className="value">
-                      {stat.max !== null ? stat.max.toExponential(2) : "N/A"}
+                      {stat.max !== null ? Math.round(stat.max) : "N/A"}
                     </div>
                   </div>
                   {stat.correctAnswer !== null && (
                     <div className="stat-item correct-answer">
                       <h4>Correct Answer</h4>
                       <div className="value">
-                        {stat.correctAnswer.toExponential(2)}
+                        {stat.correctAnswer}
                       </div>
                     </div>
                   )}
