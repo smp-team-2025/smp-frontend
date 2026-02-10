@@ -191,6 +191,12 @@ export default function OHomePage() {
                         <p>Erstellte Diplome auflisten und herunterladen</p>
                     </Link>
 
+                    <Link to="/ohomepage/hiwi-attendance" className="card">
+                        <h2>HiWi Verfügbarkeit</h2>
+                        <p>HiWi Anwesenheit für Sessions anzeigen</p>
+                    </Link>
+
+
                     <Link to="/admin/registrations" className="card">
                         <h2>Registrierungen genehmigen</h2>
                         <p>Benutzerregistrierungen genehmigen oder ablehnen</p>

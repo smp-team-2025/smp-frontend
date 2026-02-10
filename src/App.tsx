@@ -11,6 +11,7 @@ import EventListPage from "./pages/EventListPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import SessionListPage from "./pages/SessionListPage";
 import HiWiListPage from "./pages/HiwiListPage";
+import HiwiAttendancePage from "./pages/HiwiAttendancePage";
 import BusinessCardPage from "./pages/BusinessCardPage";
 import QuizListPage from "./pages/QuizListPage";
 import StudentHomePage from "./pages/StudentHomePage";
@@ -18,6 +19,7 @@ import HiwiHomePage from "./pages/HiwiHomePage";
 import HiWiStatisticsPage from "./pages/HiwiStatisticsPage";
 import StudentQrPage from "./pages/StudentQrPage";
 import OrganizerAnnouncements from "./pages/OrganizerAnnouncements";
+import OrganizerHiwiAttendancePage from "./pages/OrganizerHiwiAttendancePage";
 import HiWiQrScanPage from "./pages/HiwiQrScanPage";
 import AttendanceData from "./pages/AttendanceData";
 import QuizSubmissionPage from "./pages/QuizSubmissionPage";
@@ -75,7 +77,9 @@ export default function App() {
         <Route path="/studenthomepage/qr" element={<StudentQrPage />} />
         <Route path="/ohomepage/announcements" element={<OrganizerAnnouncements />} />
         <Route path="/hiwihomepage/scan" element={<HiWiQrScanPage />} />
+        <Route path="/hiwihomepage/availability" element={<HiwiAttendancePage />} />
         <Route path="/ohomepage/attendance" element={<AttendanceData />} />
+        <Route path="/ohomepage/hiwi-attendance" element={<OrganizerHiwiAttendancePage />} />
         <Route path="/quiz/session/:sessionId" element={<QuizSubmissionPage />} />
         <Route path="/quiz/:quizId/results" element={<QuizResultsPage />} />
         <Route path="/quizlist" element={<QuizListPage />} />
