@@ -1,0 +1,44 @@
+.org-hiwiatt-page { min-height: 100vh; background: #f3f5f7; }
+.org-hiwiatt-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+.org-hiwiatt-subtitle { color: #666; margin-top: 8px; }
+
+.org-hiwiatt-summary {
+  margin-top: 14px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+}
+
+.org-hiwiatt-info, .org-hiwiatt-error, .org-hiwiatt-empty { margin-top: 18px; }
+.org-hiwiatt-error { color: #b00020; }
+
+.org-hiwiatt-session {
+  margin-top: 14px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.org-hiwiatt-session-head {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.org-hiwiatt-session-title { font-size: 16px; font-weight: 800; color: #222; }
+.org-hiwiatt-session-meta { margin-top: 6px; color: #666; font-size: 13px; }
+
+.org-hiwiatt-session-body { padding: 0 16px 16px; }
+
+.org-hiwiatt-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.org-hiwiatt-table th, .org-hiwiatt-table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+.org-hiwiatt-table th { font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: .04em; }
+.org-hiwiatt-empty2 { margin-top: 10px; color: #666; }

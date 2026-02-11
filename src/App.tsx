@@ -11,7 +11,7 @@ import EventListPage from "./pages/EventListPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import SessionListPage from "./pages/SessionListPage";
 import HiWiListPage from "./pages/HiwiListPage";
-import HiwiAttendancePage from "./pages/HiwiAttendancePage";
+import HiwiAttendancePage from "./pages/HiwiAvailabilityPage";
 import BusinessCardPage from "./pages/BusinessCardPage";
 import QuizListPage from "./pages/QuizListPage";
 import StudentHomePage from "./pages/StudentHomePage";
@@ -19,7 +19,6 @@ import HiwiHomePage from "./pages/HiwiHomePage";
 import HiWiStatisticsPage from "./pages/HiwiStatisticsPage";
 import StudentQrPage from "./pages/StudentQrPage";
 import OrganizerAnnouncements from "./pages/OrganizerAnnouncements";
-import OrganizerHiwiAttendancePage from "./pages/OrganizerHiwiAttendancePage";
 import HiWiQrScanPage from "./pages/HiwiQrScanPage";
 import AttendanceData from "./pages/AttendanceData";
 import QuizSubmissionPage from "./pages/QuizSubmissionPage";
@@ -45,6 +44,8 @@ import ArchiveParticipantsPage from "./pages/ArchiveParticipantsPage";
 import ArchiveOrganizerAnnouncementsPage from "./pages/ArchiveOrganizerAnnouncementsPage";
 import ArchiveAttendanceDataPage from "./pages/ArchiveAttendanceDataPage";
 import ArchiveDiplomaListPage from "./pages/ArchiveDiplomaListPage";
+import HiwiAvailabilityPage from "./pages/HiwiAvailabilityPage";
+import OrganizerHiwiAttendanceOverviewPage from "./pages/OrganizerHiwiAttendanceOverviewPage";
 
 
 
@@ -79,7 +80,6 @@ export default function App() {
         <Route path="/hiwihomepage/scan" element={<HiWiQrScanPage />} />
         <Route path="/hiwihomepage/availability" element={<HiwiAttendancePage />} />
         <Route path="/ohomepage/attendance" element={<AttendanceData />} />
-        <Route path="/ohomepage/hiwi-attendance" element={<OrganizerHiwiAttendancePage />} />
         <Route path="/quiz/session/:sessionId" element={<QuizSubmissionPage />} />
         <Route path="/quiz/:quizId/results" element={<QuizResultsPage />} />
         <Route path="/quizlist" element={<QuizListPage />} />
@@ -99,12 +99,14 @@ export default function App() {
         <Route path="/student/quiz-sessions" element={<StudentQuizSessionsPage />} />
         <Route path="/student/account" element={<StudentAccountEditPage />} />
         <Route path="/registration-deadline" element={<RegistrationDeadlinePage />} />
+        <Route path="hiwi/availability" element={<HiwiAvailabilityPage />} />
 
         <Route path="/archive" element={<ArchiveEventsPage />} />
         <Route path="/archive/participants" element={<ArchiveParticipantsPage />} />
         <Route path="/archive/announcements" element={<ArchiveOrganizerAnnouncementsPage />} />
         <Route path="/archive/attendance" element={<ArchiveAttendanceDataPage />} />
         <Route path="/archive/diplomas" element={<ArchiveDiplomaListPage />} />
+        <Route path="ohomepage/hiwi-attendance" element={<OrganizerHiwiAttendanceOverviewPage />} />
 
 
 
