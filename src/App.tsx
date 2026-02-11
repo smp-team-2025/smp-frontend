@@ -45,7 +45,7 @@ import ArchiveOrganizerAnnouncementsPage from "./pages/ArchiveOrganizerAnnouncem
 import ArchiveAttendanceDataPage from "./pages/ArchiveAttendanceDataPage";
 import ArchiveDiplomaListPage from "./pages/ArchiveDiplomaListPage";
 import HiwiAvailabilityPage from "./pages/HiwiAvailabilityPage";
-import OrganizerHiwiAttendanceOverviewPage from "./pages/OrganizerHiwiAttendanceOverviewPage";
+import OrganizerHiwiAttendanceOverviewPage from "./pages/organizerHiwiAttendanceOverviewPage";
 
 
 
