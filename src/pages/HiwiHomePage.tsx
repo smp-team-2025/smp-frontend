@@ -148,7 +148,7 @@ export default function HiwiHomePage() {
           </Link>
 
           <Link to="/hiwiannouncements" className="card">
-            <h2>Ankkündigungen</h2>
+            <h2>Ankündigungen</h2>
             <p>Ankkündigungen anzeigen</p>
           </Link>
 
