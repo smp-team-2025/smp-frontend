@@ -16,6 +16,8 @@ interface Question {
 interface Quiz {
   id: number;
   sessionId: number;
+  timerStartedAt: string | null;
+  timerDurationMinutes: number | null;
   questions: Question[];
 }
 
@@ -25,30 +27,117 @@ export default function QuizSubmissionPage() {
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<{ questionId: number; answer: number }[]>([]);
+  const [answers, setAnswers] = useState<{ questionId: number; answer: number | null }[]>([]);
   const [currentAnswer, setCurrentAnswer] = useState<number | null>(null);
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes total
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [participantType, setParticipantType] = useState<string | null>(null);
+  const [showTypeSelection, setShowTypeSelection] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
+  const [alertShown, setAlertShown] = useState(false);
 
   useEffect(() => {
     if (checkAuthAndRedirect(navigate)) {
-      fetchQuiz();
+      checkParticipantType();
     }
   }, [sessionId]);
 
+  async function checkParticipantType() {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        const user = await res.json();
+        if (user.participantType) {
+          setParticipantType(user.participantType);
+          fetchQuiz();
+        } else {
+          setShowTypeSelection(true);
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking participant type:", error);
+      fetchQuiz();
+    }
+  }
+
+  async function saveParticipantType(type: string) {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/users/me/participant-type", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ participantType: type }),
+      });
+
+      if (res.ok) {
+        setParticipantType(type);
+        setShowTypeSelection(false);
+        setLoading(true);
+        fetchQuiz();
+      } else {
+        alert("Error saving participant type");
+      }
+    } catch (error) {
+      alert("Error: " + error);
+    }
+  }
+
+  // Polling to check timer status every 5 seconds
   useEffect(() => {
     if (!quiz || submitting) return;
 
+    const pollInterval = setInterval(async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/quizzes/session/${sessionId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          updateTimerFromQuiz(data);
+        }
+      } catch (error) {
+        console.error("Error polling quiz:", error);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [quiz, submitting, sessionId]);
+
+  // Countdown timer (runs every second)
+  useEffect(() => {
+    if (!quiz || submitting || timeLeft === null) return;
+
     if (timeLeft <= 0) {
-      // Time's up - auto submit
-      submitQuiz(answers);
+      // Time's up - auto submit with all answers (fill missing with null for 8 points penalty)
+      setSubmitting(true); // Set this BEFORE alert to prevent loop
+
+      const allAnswers = quiz.questions.map((q) => {
+        const existingAnswer = answers.find(a => a.questionId === q.question.id);
+        return {
+          questionId: q.question.id,
+          answer: existingAnswer ? existingAnswer.answer : null
+        };
+      });
+
+      alert("Time's up! Submitting your quiz...");
+      submitQuiz(allAnswers);
       return;
     }
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
+        if (prev === null || prev <= 1) {
           return 0;
         }
         return prev - 1;
@@ -56,7 +145,7 @@ export default function QuizSubmissionPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [quiz, submitting, timeLeft]);
+  }, [quiz, submitting, timeLeft, answers]);
 
   async function fetchQuiz() {
     try {
@@ -68,6 +157,7 @@ export default function QuizSubmissionPage() {
       if (res.ok) {
         const data = await res.json();
         setQuiz(data);
+        updateTimerFromQuiz(data);
       } else {
         alert("Quiz not found");
         navigate("/studenthomepage");
@@ -77,6 +167,41 @@ export default function QuizSubmissionPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function updateTimerFromQuiz(quizData: Quiz) {
+    if (!quizData.timerStartedAt || !quizData.timerDurationMinutes) {
+      // Timer not started yet
+      setTimeLeft(null);
+      setTimerStarted(false);
+      return;
+    }
+
+    // Calculate remaining time
+    const startedAt = new Date(quizData.timerStartedAt).getTime();
+    const durationMs = quizData.timerDurationMinutes * 60 * 1000;
+    const endTime = startedAt + durationMs;
+    const now = Date.now();
+    const remainingMs = endTime - now;
+    const remainingSeconds = Math.max(0, Math.floor(remainingMs / 1000));
+
+    // Check if alert already shown for this quiz
+    const alertKey = `timer-alert-shown-${quizData.id}`;
+    const alreadyShown = localStorage.getItem(alertKey) === 'true';
+
+    // Show alert ONLY once when timer first starts
+    if (!timerStarted && !alreadyShown && remainingSeconds > 0) {
+      alert(`Timer started! You have ${quizData.timerDurationMinutes} minutes to complete the quiz.`);
+      setTimerStarted(true);
+      setAlertShown(true);
+      localStorage.setItem(alertKey, 'true');
+    } else if (!timerStarted && remainingSeconds > 0) {
+      // Timer started but alert already shown
+      setTimerStarted(true);
+      setAlertShown(true);
+    }
+
+    setTimeLeft(remainingSeconds);
   }
 
   function saveCurrentAnswer() {
@@ -130,7 +255,7 @@ export default function QuizSubmissionPage() {
     setCurrentAnswer(existingAnswer ? existingAnswer.answer : null);
   }
 
-  async function submitQuiz(finalAnswers: { questionId: number; answer: number }[]) {
+  async function submitQuiz(finalAnswers: { questionId: number; answer: number | null }[]) {
     if (!quiz) return;
 
     setSubmitting(true);
@@ -159,6 +284,61 @@ export default function QuizSubmissionPage() {
     }
   }
 
+  if (showTypeSelection) {
+    return (
+      <div className="quiz-container">
+        <h1>Fermi Quiz - Participant Type</h1>
+        <p style={{ textAlign: "center", marginBottom: "30px", color: "#666" }}>
+          Please select your role before starting the quiz:
+        </p>
+        <div style={{ maxWidth: "400px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "15px" }}>
+          <button
+            onClick={() => saveParticipantType("STUDENT")}
+            style={{
+              padding: "20px",
+              fontSize: "18px",
+              backgroundColor: "#1976d2",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            🎓 Student (Schüler)
+          </button>
+          <button
+            onClick={() => saveParticipantType("TEACHER")}
+            style={{
+              padding: "20px",
+              fontSize: "18px",
+              backgroundColor: "#388e3c",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            👨‍🏫 Teacher (Lehrer)
+          </button>
+          <button
+            onClick={() => saveParticipantType("GUEST")}
+            style={{
+              padding: "20px",
+              fontSize: "18px",
+              backgroundColor: "#f57c00",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            👥 Guest (Gast)
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return <div className="quiz-container">Loading...</div>;
   }
@@ -174,8 +354,14 @@ export default function QuizSubmissionPage() {
 
   const currentQ = quiz.questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
+
+  // Handle timer display
+  let minutes = 0;
+  let seconds = 0;
+  if (timeLeft !== null) {
+    minutes = Math.floor(timeLeft / 60);
+    seconds = timeLeft % 60;
+  }
 
   return (
     <div className="quiz-container">
@@ -189,14 +375,16 @@ export default function QuizSubmissionPage() {
         </p>
       </div>
 
-      <div className="timer">
-        <div className={`timer-circle ${timeLeft <= 60 ? "warning" : ""}`}>
-          {minutes}:{seconds.toString().padStart(2, '0')}
+      {timeLeft !== null && (
+        <div className="timer">
+          <div className={`timer-circle ${timeLeft <= 60 ? "warning" : ""}`}>
+            {minutes}:{seconds.toString().padStart(2, '0')}
+          </div>
+          <p style={{ textAlign: "center", marginTop: "10px", color: "#666", fontSize: "14px" }}>
+            Time remaining
+          </p>
         </div>
-        <p style={{ textAlign: "center", marginTop: "10px", color: "#666", fontSize: "14px" }}>
-          Time remaining
-        </p>
-      </div>
+      )}
 
       <div className="question-card">
         <h2 style={{ fontSize: "20px", marginBottom: "20px", color: "#333", lineHeight: "1.5" }}>
@@ -233,7 +421,7 @@ export default function QuizSubmissionPage() {
             <option value="">-- Select exponent --</option>
             {Array.from({ length: 101 }, (_, i) => i - 50).map((n) => (
               <option key={n} value={n}>
-                10^{n} {n === 0 ? "(= 1)" : n === 1 ? "(= 10)" : n === 2 ? "(= 100)" : n === 3 ? "(= 1000)" : n === -1 ? "(= 0.1)" : n === -2 ? "(= 0.01)" : ""}
+                {n}
               </option>
             ))}
           </select>
