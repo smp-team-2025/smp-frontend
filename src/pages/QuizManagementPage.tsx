@@ -25,6 +25,8 @@ interface Quiz {
   id: number;
   sessionId: number;
   createdAt: string;
+  timerStartedAt: string | null;
+  timerDurationMinutes: number | null;
   session: {
     id: number;
     title: string;
@@ -40,6 +42,8 @@ export default function QuizManagementPage() {
   const [editingQuizId, setEditingQuizId] = useState<number | null>(null);
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
+  const [timerDuration, setTimerDuration] = useState<number>(5);
+  const [startingTimer, setStartingTimer] = useState<number | null>(null);
 
   useEffect(() => {
     fetchQuizzes();
@@ -179,6 +183,38 @@ export default function QuizManagementPage() {
     }
   };
 
+  const handleStartTimer = async (quizId: number) => {
+    if (timerDuration < 1 || timerDuration > 15) {
+      alert("Duration must be between 1 and 15 minutes");
+      return;
+    }
+
+    setStartingTimer(quizId);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/quizzes/${quizId}/start-timer`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ durationMinutes: timerDuration }),
+      });
+
+      if (res.ok) {
+        alert(`Timer started! ${timerDuration} minutes.`);
+        fetchQuizzes();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Error starting timer");
+      }
+    } catch (error) {
+      alert("Error: " + error);
+    } finally {
+      setStartingTimer(null);
+    }
+  };
+
   return (
     <div className="page-wrapper">
       <header className="navbar">
@@ -228,11 +264,17 @@ export default function QuizManagementPage() {
                     marginBottom: "15px",
                   }}
                 >
-                  <div>
+                  <div style={{ flex: 1 }}>
                     <h2 style={{ margin: "0 0 8px 0" }}>{quiz.session.title}</h2>
-                    <p style={{ margin: 0, color: "#666", fontSize: "0.9rem" }}>
+                    <p style={{ margin: "0 0 8px 0", color: "#666", fontSize: "0.9rem" }}>
                       {new Date(quiz.session.startsAt).toLocaleString()}
                     </p>
+                    {quiz.timerStartedAt && (
+                      <p style={{ margin: 0, color: "#28a745", fontSize: "0.85rem", fontWeight: "500" }}>
+                        ⏱️ Timer: {quiz.timerDurationMinutes} min (started at{" "}
+                        {new Date(quiz.timerStartedAt).toLocaleTimeString()})
+                      </p>
+                    )}
                   </div>
 
                   {editingQuizId !== quiz.id && (
@@ -468,7 +510,7 @@ export default function QuizManagementPage() {
                 ) : (
                   <div>
                     <h3 style={{ marginBottom: "10px" }}>Questions ({quiz.questions.length})</h3>
-                    <ol style={{ paddingLeft: "20px" }}>
+                    <ol style={{ paddingLeft: "20px", marginBottom: "20px" }}>
                       {quiz.questions
                         .sort((a, b) => a.order - b.order)
                         .map((q) => (
@@ -477,6 +519,56 @@ export default function QuizManagementPage() {
                           </li>
                         ))}
                     </ol>
+
+                    <div
+                      style={{
+                        borderTop: "1px solid #e0e0e0",
+                        paddingTop: "15px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
+                      <label style={{ fontSize: "0.9rem", fontWeight: "500" }}>
+                        Start Timer:
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="15"
+                        value={timerDuration}
+                        onChange={(e) => setTimerDuration(parseInt(e.target.value) || 1)}
+                        disabled={!!quiz.timerStartedAt || startingTimer === quiz.id}
+                        style={{
+                          width: "70px",
+                          padding: "6px 10px",
+                          fontSize: "0.9rem",
+                          border: "1px solid #ddd",
+                          borderRadius: "4px",
+                        }}
+                      />
+                      <span style={{ fontSize: "0.9rem", color: "#666" }}>minutes (max 15)</span>
+                      <button
+                        onClick={() => handleStartTimer(quiz.id)}
+                        disabled={!!quiz.timerStartedAt || startingTimer === quiz.id}
+                        style={{
+                          padding: "6px 16px",
+                          backgroundColor: quiz.timerStartedAt ? "#6c757d" : "#28a745",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: quiz.timerStartedAt ? "not-allowed" : "pointer",
+                          fontSize: "0.9rem",
+                          opacity: startingTimer === quiz.id ? 0.6 : 1,
+                        }}
+                      >
+                        {quiz.timerStartedAt
+                          ? "Timer Already Started"
+                          : startingTimer === quiz.id
+                          ? "Starting..."
+                          : "⏱️ Start Timer"}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

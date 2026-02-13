@@ -44,6 +44,7 @@ export default function QuizListPage() {
     }
   }
 
+
   return (
     <div className="page-wrapper">
       <header className="navbar">
