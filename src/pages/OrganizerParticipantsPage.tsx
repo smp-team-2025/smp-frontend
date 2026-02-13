@@ -58,6 +58,8 @@ export default function OrganizerParticipantsPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [activeEventId, setActiveEventId] = useState<number | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -79,6 +81,8 @@ export default function OrganizerParticipantsPage() {
 
         // active event id
         const ev = await getActiveEvent(headers);
+
+        setActiveEventId(ev.id);
 
         // only participants for active event
         const res = await fetch(`/api/students?eventId=${ev.id}`, { headers });
@@ -124,6 +128,37 @@ export default function OrganizerParticipantsPage() {
     });
   }, [participants, query]);
 
+  async function downloadParticipantsCsv(eventId: number) {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Nicht eingeloggt.");
+
+  setDownloading(true);
+  try {
+    const res = await fetch(`/api/students/export.csv?eventId=${eventId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const t = await res.text().catch(() => "");
+      throw new Error(`CSV download failed (${res.status}): ${t}`);
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `participants_event-${eventId}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  } finally {
+    setDownloading(false);
+  }
+}
+
   return (
     <div className="org-participants-page">
       <div className="org-header">
@@ -137,13 +172,30 @@ export default function OrganizerParticipantsPage() {
         </Link>
       </div>
 
-      <div className="org-toolbar">
+            <div className="org-toolbar" style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <input
           className="org-search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Suchen (Name / E-Mail / Schule / Ort / ID / Status …)"
         />
+      
+        <button
+        onClick={() => activeEventId && downloadParticipantsCsv(activeEventId)}
+        disabled={!activeEventId || downloading}
+        style={{
+          padding: "10px 12px",
+          borderRadius: 10,
+          border: "1px solid rgba(0,0,0,0.12)",
+          background: "rgba(0,0,0,0.04)",
+          color: "#111",
+          cursor: !activeEventId || downloading ? "not-allowed" : "pointer",
+          whiteSpace: "nowrap",
+          fontWeight: 600,
+        }}
+      >
+        {downloading ? "CSV wird geladen…" : "CSV herunterladen"}
+      </button>
       </div>
 
       {loading && <div className="org-info">Lade Daten…</div>}

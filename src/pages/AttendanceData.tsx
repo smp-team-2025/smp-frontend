@@ -49,6 +49,8 @@ export default function AttendanceData() {
   const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
+  const [downloadingCsv, setDownloadingCsv] = useState(false);
+
   const token = localStorage.getItem("token");
 
   const headers = useMemo(() => {
@@ -185,6 +187,65 @@ export default function AttendanceData() {
     alert(data.error || "Failed to remove attendance");
   };
 
+  async function downloadAttendanceCsv(url: string, filename: string) {
+  if (!token) throw new Error("Nicht eingeloggt.");
+
+  setDownloadingCsv(true);
+  try {
+    const res = await fetch(url, { headers });
+
+    if (!res.ok) {
+      const t = await res.text().catch(() => "");
+      throw new Error(`CSV download failed (${res.status}): ${t}`);
+    }
+
+    const blob = await res.blob();
+    const objectUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(objectUrl);
+  } finally {
+    setDownloadingCsv(false);
+  }
+}
+
+ async function downloadAttendanceCsvByEvent() {
+    if (!token) return;
+
+    const active = await getActiveEvent(headers);
+    await downloadAttendanceCsv(
+      `/api/attendance/export.csv?eventId=${active.id}`,
+      `attendance_event-${active.id}.csv`
+    );
+  }
+
+  async function downloadAttendanceCsvBySession(sessionId: number) {
+    if (!token) return;
+
+    await downloadAttendanceCsv(
+      `/api/attendance/export.csv?sessionId=${sessionId}`,
+      `attendance_session-${sessionId}.csv`
+    );
+  }
+
+  const actionButtonStyle: React.CSSProperties = {
+  minWidth: 170,
+  height: 42,
+  padding: "0 18px",
+  borderRadius: 8,
+  border: "none",
+  background: "#111",
+  color: "#fff",
+  fontWeight: 600,
+  cursor: "pointer",
+};
+
   return (
     <div className="page-wrapper">
       <header className="navbar">
@@ -270,6 +331,21 @@ export default function AttendanceData() {
                             }}
                           >
                             {showAddForm ? "Cancel" : "+ Add Manual"}
+                          </button>
+                          <button
+                            style={actionButtonStyle}
+                            onClick={downloadAttendanceCsvByEvent}
+                            disabled={downloadingCsv}
+                          > 
+                            {downloadingCsv ? "CSV wird erstellt..." : "CSV (Event) herunterladen"}
+                          </button>
+                                                    
+                          <button
+                            style={actionButtonStyle}
+                            onClick={() => selectedSessionId && downloadAttendanceCsvBySession(selectedSessionId)}
+                            disabled={!selectedSessionId || downloadingCsv}
+                          >
+                            {downloadingCsv ? "CSV wird erstellt..." : "CSV (Session) herunterladen"}
                           </button>
                         </div>
 

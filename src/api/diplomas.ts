@@ -64,4 +64,16 @@ export const diplomasApi = {
     }
     return await res.blob();
   },
+
+async downloadIssuedCsvByEvent(eventId: number): Promise<Blob> {
+  const res = await authedFetch(`/diplomas/event/${eventId}/issued.csv`, { method: "GET" });
+
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(t || `Download failed (${res.status})`);
+  }
+
+  return await res.blob();
+},
+
 };

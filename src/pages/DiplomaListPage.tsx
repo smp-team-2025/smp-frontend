@@ -17,6 +17,7 @@ export default function DiplomaListPage() {
   const [items, setItems] = useState<DiplomaIssued[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [downloadingCsv, setDownloadingCsv] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -61,6 +62,43 @@ export default function DiplomaListPage() {
     if (!sessionId) return items;
     return items;
   }, [items, sessionId]);
+
+  async function downloadDiplomaListCsv() {
+  if (!activeEvent) return;
+
+  setDownloadingCsv(true);
+  setError(null);
+
+  try {
+    const blob = await diplomasApi.downloadIssuedCsvByEvent(activeEvent.id);
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `diplomas_event-${activeEvent.id}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (e: any) {
+    setError(e?.message || "CSV konnte nicht heruntergeladen werden");
+  } finally {
+    setDownloadingCsv(false);
+  }
+}
+
+const actionButtonStyle: React.CSSProperties = {
+  minWidth: 170,
+  height: 55,
+  padding: "0 18px",
+  borderRadius: 8,
+  border: "none",
+  background: "#111",
+  color: "#fff",
+  fontWeight: 600,
+  cursor: "pointer",
+};
 
   return (
     <div className="page-wrapper">
@@ -107,6 +145,7 @@ export default function DiplomaListPage() {
           </select>
 
           <button
+            style={actionButtonStyle}
             onClick={async () => {
               if (!activeEvent) return;
               setLoading(true);
@@ -122,6 +161,14 @@ export default function DiplomaListPage() {
             }}
           >
             Aktualisieren
+          </button>
+
+          <button
+            style={actionButtonStyle}
+            onClick={downloadDiplomaListCsv}
+            disabled={!activeEvent || downloadingCsv}
+          >
+            {downloadingCsv ? "CSV wird erstellt..." : "CSV herunterladen"}
           </button>
         </div>
 
