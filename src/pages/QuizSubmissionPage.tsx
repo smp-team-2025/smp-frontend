@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { checkAuthAndRedirect } from "../utils/auth";
 import "./quiz.css";
@@ -32,64 +32,14 @@ export default function QuizSubmissionPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [participantType, setParticipantType] = useState<string | null>(null);
-  const [showTypeSelection, setShowTypeSelection] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
   const [alertShown, setAlertShown] = useState(false);
 
   useEffect(() => {
     if (checkAuthAndRedirect(navigate)) {
-      checkParticipantType();
-    }
-  }, [sessionId]);
-
-  async function checkParticipantType() {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (res.ok) {
-        const user = await res.json();
-        if (user.participantType) {
-          setParticipantType(user.participantType);
-          fetchQuiz();
-        } else {
-          setShowTypeSelection(true);
-          setLoading(false);
-        }
-      }
-    } catch (error) {
-      console.error("Error checking participant type:", error);
       fetchQuiz();
     }
-  }
-
-  async function saveParticipantType(type: string) {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("/api/users/me/participant-type", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ participantType: type }),
-      });
-
-      if (res.ok) {
-        setParticipantType(type);
-        setShowTypeSelection(false);
-        setLoading(true);
-        fetchQuiz();
-      } else {
-        alert("Error saving participant type");
-      }
-    } catch (error) {
-      alert("Error: " + error);
-    }
-  }
+  }, [sessionId]);
 
   // Polling to check timer status every 5 seconds
   useEffect(() => {
@@ -276,67 +226,22 @@ export default function QuizSubmissionPage() {
       } else {
         const data = await res.json();
         alert(data.error || "Error submitting quiz");
-        setSubmitting(false);
+        // If time is up and submit failed, redirect to home to avoid loop
+        if (timeLeft !== null && timeLeft <= 0) {
+          navigate("/studenthomepage");
+        } else {
+          setSubmitting(false);
+        }
       }
     } catch (error) {
       alert("Error: " + error);
-      setSubmitting(false);
+      // If time is up and submit failed, redirect to home to avoid loop
+      if (timeLeft !== null && timeLeft <= 0) {
+        navigate("/studenthomepage");
+      } else {
+        setSubmitting(false);
+      }
     }
-  }
-
-  if (showTypeSelection) {
-    return (
-      <div className="quiz-container">
-        <h1>Fermi Quiz - Participant Type</h1>
-        <p style={{ textAlign: "center", marginBottom: "30px", color: "#666" }}>
-          Please select your role before starting the quiz:
-        </p>
-        <div style={{ maxWidth: "400px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "15px" }}>
-          <button
-            onClick={() => saveParticipantType("STUDENT")}
-            style={{
-              padding: "20px",
-              fontSize: "18px",
-              backgroundColor: "#1976d2",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            🎓 Student (Schüler)
-          </button>
-          <button
-            onClick={() => saveParticipantType("TEACHER")}
-            style={{
-              padding: "20px",
-              fontSize: "18px",
-              backgroundColor: "#388e3c",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            👨‍🏫 Teacher (Lehrer)
-          </button>
-          <button
-            onClick={() => saveParticipantType("GUEST")}
-            style={{
-              padding: "20px",
-              fontSize: "18px",
-              backgroundColor: "#f57c00",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            👥 Guest (Gast)
-          </button>
-        </div>
-      </div>
-    );
   }
 
   if (loading) {
