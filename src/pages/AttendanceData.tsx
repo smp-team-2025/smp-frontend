@@ -167,11 +167,11 @@ export default function AttendanceData() {
     }
 
     const data = await res.json().catch(() => ({}));
-    alert(data.error || "Failed to add attendance");
+    alert(data.error || "Anwesenheit konnte nicht hinzugefügt werden.");
   };
 
   const handleRemoveAttendance = async (attendanceId: number) => {
-    if (!confirm("Are you sure you want to remove this attendance record?")) return;
+    if (!confirm("Möchten Sie diesen Anwesenheitseintrag wirklich entfernen?")) return;
 
     const res = await fetch(`/api/attendance/${attendanceId}`, {
       method: "DELETE",
@@ -184,7 +184,7 @@ export default function AttendanceData() {
     }
 
     const data = await res.json().catch(() => ({}));
-    alert(data.error || "Failed to remove attendance");
+    alert(data.error || "Anwesenheit konnte nicht entfernt werden.");
   };
 
   async function downloadAttendanceCsv(url: string, filename: string) {
@@ -262,12 +262,12 @@ export default function AttendanceData() {
       </header>
 
       <main className="container">
-        <h1>Attendance Data</h1>
+        <h1>Anwesenheitsdaten</h1>
 
         {!token ? (
           <p>Bitte zuerst einloggen.</p>
         ) : loading ? (
-          <p>Loading sessions...</p>
+          <p>Sessions werden geladen...</p>
         ) : (
           <div
             className="sessions-container"
@@ -307,7 +307,7 @@ export default function AttendanceData() {
                     }}
                   >
                     {loadingAttendance ? (
-                      <p>Loading attendance...</p>
+                      <p>Anwesenheit wird geladen...</p>
                     ) : (
                       <>
                         <div
@@ -318,7 +318,7 @@ export default function AttendanceData() {
                             marginBottom: "10px",
                           }}
                         >
-                          <h4>Attendance Records ({attendances.length})</h4>
+                          <h4>Anwesenheitseinträge ({attendances.length})</h4>
                           <button
                             onClick={() => setShowAddForm(!showAddForm)}
                             style={{
@@ -330,7 +330,7 @@ export default function AttendanceData() {
                               cursor: "pointer",
                             }}
                           >
-                            {showAddForm ? "Cancel" : "+ Add Manual"}
+                            {showAddForm ? "Abbrechen" : "+ Manuell hinzufügen"}
                           </button>
                           <button
                             style={actionButtonStyle}
@@ -369,7 +369,7 @@ export default function AttendanceData() {
                                 border: "1px solid #ccc",
                               }}
                             >
-                              <option value="">Select participant...</option>
+                              <option value="">Teilnehmer auswählen...</option>
                               {participants
                                 .filter((p) => !attendances.some((a) => a.participantId === p.id))
                                 .map((p) => (
@@ -391,13 +391,13 @@ export default function AttendanceData() {
                                 cursor: selectedParticipantId ? "pointer" : "not-allowed",
                               }}
                             >
-                              Add Attendance
+                              Anwesenheit hinzufügen
                             </button>
                           </div>
                         )}
 
                         {attendances.length === 0 ? (
-                          <p>No attendance records yet.</p>
+                          <p>Noch keine Anwesenheitseinträge.</p>
                         ) : (
                           <div style={{ maxHeight: "300px", overflowY: "auto" }}>
                             {attendances.map((att) => (
@@ -434,7 +434,7 @@ export default function AttendanceData() {
                                     fontSize: "0.85rem",
                                   }}
                                 >
-                                  Remove
+                                  Entfernen
                                 </button>
                               </div>
                             ))}

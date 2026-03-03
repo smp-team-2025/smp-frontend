@@ -34,7 +34,7 @@ export default function QuestionManagementPage() {
         setQuestions(await res.json());
       }
     } catch (error) {
-      alert("Error loading: " + error);
+      alert("Fehler beim Laden: " + error);
     } finally {
       setLoading(false);
     }
@@ -61,10 +61,10 @@ export default function QuestionManagementPage() {
         setNewQuestion({ text: "", correctAnswer: "", correctAnswer2: "" });
         fetchQuestions();
       } else {
-        alert("Error creating question");
+        alert("Fehler beim Erstellen der Frage");
       }
     } catch (error) {
-      alert("Error: " + error);
+      alert("Fehler: " + error);
     }
   }
 
@@ -88,15 +88,15 @@ export default function QuestionManagementPage() {
         setEditingId(null);
         fetchQuestions();
       } else {
-        alert("Error updating question");
+        alert("Fehler beim Aktualisieren der Frage");
       }
     } catch (error) {
-      alert("Error: " + error);
+      alert("Fehler: " + error);
     }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this question?")) return;
+    if (!confirm("Möchten Sie diese Frage wirklich löschen?")) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -108,10 +108,10 @@ export default function QuestionManagementPage() {
       if (res.ok) {
         fetchQuestions();
       } else {
-        alert("Error deleting question");
+        alert("Fehler beim Löschen der Frage");
       }
     } catch (error) {
-      alert("Error: " + error);
+      alert("Fehler: " + error);
     }
   }
 
@@ -124,7 +124,7 @@ export default function QuestionManagementPage() {
     });
   }
 
-  if (loading) return <div className="container">Loading...</div>;
+  if (loading) return <div className="container">Lädt...</div>;
 
   return (
     <div className="page-wrapper">
@@ -141,56 +141,56 @@ export default function QuestionManagementPage() {
       </header>
 
       <main className="container">
-        <h1>Fermi Question Management</h1>
+        <h1>Fermi Fragenverwaltung</h1>
 
         <div className="create-section">
-          <h2>Create New Question</h2>
+          <h2>Neue Frage erstellen</h2>
           <form onSubmit={handleCreate} className="question-form">
             <div className="form-group">
-              <label>Question Text</label>
+              <label>Fragetext</label>
               <textarea
                 value={newQuestion.text}
                 onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
-                placeholder="e.g. How many stars are in the universe?"
+                placeholder="z.B. Wie viele Sterne gibt es im Universum?"
                 required
                 rows={3}
               />
             </div>
             <div className="form-group">
-              <label>Correct Answer (Power of 10: -50 to 50)</label>
+              <label>Richtige Antwort (Zehnerpotenz: -50 bis 50)</label>
               <input
                 type="number"
                 value={newQuestion.correctAnswer}
                 onChange={(e) => setNewQuestion({ ...newQuestion, correctAnswer: e.target.value })}
-                placeholder="e.g. 3 for 10^3 = 1000"
+                placeholder="z.B. 3 für 10^3 = 1000"
                 min="-50"
                 max="50"
               />
             </div>
             <div className="form-group">
-              <label>Second Correct Answer (optional, for range)</label>
+              <label>Zweite richtige Antwort (optional, für Bereich)</label>
               <input
                 type="number"
                 value={newQuestion.correctAnswer2}
                 onChange={(e) => setNewQuestion({ ...newQuestion, correctAnswer2: e.target.value })}
-                placeholder="e.g. 4 for 10^4 = 10000"
+                placeholder="z.B. 4 für 10^4 = 10000"
                 min="-50"
                 max="50"
               />
               <small style={{ color: "#666", fontSize: "12px" }}>
-                Use this if two neighboring answers are acceptable (e.g., both 3 and 4)
+                Verwenden Sie dies, wenn zwei benachbarte Antworten akzeptabel sind (z.B. sowohl 3 als auch 4)
               </small>
             </div>
             <button type="submit" className="btn-primary">
-              Create Question
+              Frage erstellen
             </button>
           </form>
         </div>
 
         <div className="questions-list">
-          <h2>Question Bank ({questions.length} Questions)</h2>
+          <h2>Fragenbank ({questions.length} Fragen)</h2>
           {questions.length === 0 ? (
-            <p className="empty-state">No questions available</p>
+            <p className="empty-state">Keine Fragen verfügbar</p>
           ) : (
             <div className="questions-grid">
               {questions.map((q) => (
@@ -207,14 +207,14 @@ export default function QuestionManagementPage() {
                         step="any"
                         value={editQuestion.correctAnswer}
                         onChange={(e) => setEditQuestion({ ...editQuestion, correctAnswer: e.target.value })}
-                        placeholder="Correct Answer"
+                        placeholder="Richtige Antwort"
                       />
                       <div className="btn-group">
                         <button onClick={() => handleUpdate(q.id)} className="btn-save">
-                          Save
+                          Speichern
                         </button>
                         <button onClick={() => setEditingId(null)} className="btn-cancel">
-                          Cancel
+                          Abbrechen
                         </button>
                       </div>
                     </div>
@@ -223,15 +223,15 @@ export default function QuestionManagementPage() {
                       <div className="question-text">{q.text}</div>
                       {q.correctAnswer !== null && (
                         <div className="correct-answer-badge">
-                          Answer: {q.correctAnswer.toExponential(2)}
+                          Antwort: {q.correctAnswer.toExponential(2)}
                         </div>
                       )}
                       <div className="btn-group">
                         <button onClick={() => startEdit(q)} className="btn-edit">
-                          Edit
+                          Bearbeiten
                         </button>
                         <button onClick={() => handleDelete(q.id)} className="btn-delete">
-                          Delete
+                          Löschen
                         </button>
                       </div>
                     </>

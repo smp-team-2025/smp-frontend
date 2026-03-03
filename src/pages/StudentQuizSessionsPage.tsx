@@ -78,14 +78,14 @@ export default function StudentQuizSessionsPage() {
       <main className="container">
         <h1>Fermi Quiz Sessions</h1>
         <p style={{ textAlign: "center", color: "#666", marginBottom: "30px" }}>
-          Select a session to participate in the quiz
+          Wählen Sie eine Session aus, um am Quiz teilzunehmen
         </p>
 
         {loading ? (
-          <p style={{ textAlign: "center", marginTop: "40px" }}>Loading...</p>
+          <p style={{ textAlign: "center", marginTop: "40px" }}>Lädt...</p>
         ) : sessions.length === 0 ? (
           <p style={{ textAlign: "center", marginTop: "20px", color: "#666" }}>
-            No quiz sessions available
+            Keine Quiz-Sessions verfügbar
           </p>
         ) : (
           <div className="cards">
@@ -110,7 +110,7 @@ export default function StudentQuizSessionsPage() {
                     fontWeight: "500",
                   }}
                 >
-                  Start Quiz →
+                  Quiz starten →
                 </p>
               </Link>
             ))}

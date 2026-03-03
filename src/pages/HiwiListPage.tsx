@@ -67,7 +67,7 @@ export default function HiWiListPage() {
         const data = await hiwiRes.json();
         setHiwis(data);
       } else {
-        setError("Failed to load HiWis.");
+        setError("HiWis konnten nicht geladen werden.");
       }
 
       if (sessionRes.ok) {
@@ -76,7 +76,7 @@ export default function HiWiListPage() {
       }
     } catch (err) {
       console.error(err);
-      setError("Failed to load data.");
+      setError("Daten konnten nicht geladen werden.");
     } finally {
       setLoading(false);
     }
@@ -236,7 +236,7 @@ export default function HiWiListPage() {
       </header>
 
       <main className="container">
-        <h1>HiWi Management</h1>
+        <h1>HiWi Verwaltung</h1>
 
         {/* CREATE BOX */}
         <div style={{ background: "white", padding: 16, borderRadius: 12, marginBottom: 18 }}>
@@ -252,7 +252,7 @@ export default function HiWiListPage() {
             <input
               value={createClothingSize}
               onChange={(e) => setCreateClothingSize(e.target.value)}
-              placeholder="Clothing Size (optional)"
+              placeholder="Kleidergröße (optional)"
               style={{ padding: 10 }}
             />
             <input
@@ -278,7 +278,7 @@ export default function HiWiListPage() {
           </button>
         </div>
 
-        {loading && <p>Loading...</p>}
+        {loading && <p>Lädt...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         {!loading && !error && (
@@ -287,8 +287,8 @@ export default function HiWiListPage() {
               <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Clothing Size</th>
-                <th>Actions</th>
+                <th>Kleidergröße</th>
+                <th>Aktionen</th>
               </tr>
             </thead>
 
@@ -336,22 +336,22 @@ export default function HiWiListPage() {
                             disabled={savingEdit}
                             style={{ padding: "6px 10px" }}
                           >
-                            {savingEdit ? "Saving..." : "Save"}
+                            {savingEdit ? "Speichern..." : "Speichern"}
                           </button>
                           <button onClick={cancelEdit} style={{ padding: "6px 10px" }}>
-                            Cancel
+                            Abbrechen
                           </button>
                         </div>
                       ) : (
                         <div style={{ display: "flex", gap: 8 }}>
                           <button onClick={() => startEdit(hiwi)} style={{ padding: "6px 10px" }}>
-                            Edit
+                            Bearbeiten
                           </button>
                           <button
                             onClick={() => handleDeleteHiwi(hiwi.id)}
                             style={{ padding: "6px 10px", background: "#dc3545", color: "white", border: "none" }}
                           >
-                            Delete
+                            Löschen
                           </button>
                         </div>
                       )}
@@ -363,7 +363,7 @@ export default function HiWiListPage() {
               {hiwis.length === 0 && (
                 <tr>
                   <td colSpan={5} style={{ textAlign: "center", padding: 16 }}>
-                    No HiWis found.
+                    Keine HiWis gefunden.
                   </td>
                 </tr>
               )}

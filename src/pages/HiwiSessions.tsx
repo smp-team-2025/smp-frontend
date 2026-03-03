@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { hiwiApi, type HiwiSession } from "../api/hiwi";
 import "./hiwisessions.css";
 
@@ -46,19 +46,24 @@ export default function HiwiSessions() {
                 <div className="nav-left">
                     <span className="logo">SMP 2026</span>
                 </div>
-                <button onClick={() => navigate("/hiwihomepage")} className="logout-btn" style={{ border: 'none', cursor: 'pointer' }}>
-                    Back
-                </button>
+                <div className="nav-right">
+                    <Link to="/hiwihomepage" className="back-btn">
+                        ← Dashboard
+                    </Link>
+                    <Link to="/login" className="logout-btn">
+                        Logout
+                    </Link>
+                </div>
             </header>
 
             <main className="container">
-                <h1>My Assigned Sessions</h1>
+                <h1>Meine zugewiesenen Sessions</h1>
 
-                {loading && <p>Loading sessions...</p>}
+                {loading && <p>Sessions werden geladen...</p>}
                 {error && <p className="error-msg">{error}</p>}
 
                 {!loading && !error && sessions.length === 0 && (
-                    <p>You have no assigned sessions yet.</p>
+                    <p>Sie haben noch keine zugewiesenen Sessions.</p>
                 )}
 
                 <div className="sessions-list">

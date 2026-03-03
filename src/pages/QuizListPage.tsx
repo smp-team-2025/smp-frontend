@@ -62,13 +62,13 @@ export default function QuizListPage() {
       </header>
 
       <main className="container">
-        <h1>Fermi Quiz Results</h1>
+        <h1>Fermi Quiz Ergebnisse</h1>
 
         {loading ? (
-          <p style={{ textAlign: "center", marginTop: "40px" }}>Loading...</p>
+          <p style={{ textAlign: "center", marginTop: "40px" }}>Lädt...</p>
         ) : sessions.length === 0 ? (
           <p style={{ textAlign: "center", marginTop: "20px", color: "#666" }}>
-            No quiz sessions available
+            Keine Quiz-Sessions verfügbar
           </p>
         ) : (
           <div className="cards">
@@ -91,7 +91,7 @@ export default function QuizListPage() {
                       fontWeight: "500",
                     }}
                   >
-                    Statistics
+                    Statistiken
                   </Link>
 
                   <Link

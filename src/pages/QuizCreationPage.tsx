@@ -57,7 +57,7 @@ export default function QuizCreationPage() {
         setQuestions(await questionsRes.json());
       }
     } catch (error) {
-      alert("Error loading: " + error);
+      alert("Fehler beim Laden: " + error);
     } finally {
       setLoading(false);
     }
@@ -68,7 +68,7 @@ export default function QuizCreationPage() {
       setSelectedQuestions(selectedQuestions.filter((q) => q !== id));
     } else {
       if (selectedQuestions.length >= 10) {
-        alert("Maximum 10 questions allowed!");
+        alert("Maximal 10 Fragen erlaubt!");
         return;
       }
       setSelectedQuestions([...selectedQuestions, id]);
@@ -91,12 +91,12 @@ export default function QuizCreationPage() {
 
   async function handleCreate() {
     if (!selectedSession) {
-      alert("Please select a session");
+      alert("Bitte wählen Sie eine Session aus");
       return;
     }
 
     if (selectedQuestions.length !== 10) {
-      alert("Exactly 10 questions must be selected!");
+      alert("Es müssen genau 10 Fragen ausgewählt werden!");
       return;
     }
 
@@ -116,20 +116,20 @@ export default function QuizCreationPage() {
       });
 
       if (res.ok) {
-        alert("Quiz created successfully!");
+        alert("Quiz erfolgreich erstellt!");
         navigate("/quizlist");
       } else {
         const data = await res.json();
-        alert(data.error || "Error creating quiz");
+        alert(data.error || "Fehler beim Erstellen des Quiz");
       }
     } catch (error) {
-      alert("Error: " + error);
+      alert("Fehler: " + error);
     } finally {
       setCreating(false);
     }
   }
 
-  if (loading) return <div className="container">Loading...</div>;
+  if (loading) return <div className="container">Lädt...</div>;
 
   const availableSessions = sessions.filter((s) => !s.fermiQuiz);
 
@@ -148,14 +148,14 @@ export default function QuizCreationPage() {
       </header>
 
       <main className="container">
-        <h1>Create Fermi Quiz</h1>
+        <h1>Fermi Quiz erstellen</h1>
 
         <div className="creation-steps">
           <div className="step">
-            <h2>1. Select Session</h2>
+            <h2>1. Session auswählen</h2>
             {availableSessions.length === 0 ? (
               <p className="empty-state">
-                All sessions already have a quiz. Please create a new session.
+                Alle Sessions haben bereits ein Quiz. Bitte erstellen Sie eine neue Session.
               </p>
             ) : (
               <div className="sessions-list">
@@ -174,19 +174,19 @@ export default function QuizCreationPage() {
           </div>
 
           <div className="step">
-            <h2>2. Select 10 Questions ({selectedQuestions.length}/10)</h2>
+            <h2>2. 10 Fragen auswählen ({selectedQuestions.length}/10)</h2>
             {questions.length < 10 ? (
               <p className="warning">
-                At least 10 questions required. Current: {questions.length} questions.
+                Mindestens 10 Fragen erforderlich. Aktuell: {questions.length} Fragen.
                 <br />
                 <button onClick={() => navigate("/questions")} className="btn-link">
-                  → Go to Question Management
+                  → Zur Fragenverwaltung
                 </button>
               </p>
             ) : (
               <div className="questions-selection">
                 <div className="available-questions">
-                  <h3>Available Questions</h3>
+                  <h3>Verfügbare Fragen</h3>
                   <div className="questions-list">
                     {questions
                       .filter((q) => !selectedQuestions.includes(q.id))
@@ -201,7 +201,7 @@ export default function QuizCreationPage() {
                             <div className="question-text">{q.text}</div>
                             {q.usedIn && q.usedIn.length > 0 && (
                               <div style={{ marginTop: "5px", fontSize: "11px", color: "#ff6b6b" }}>
-                                ⚠️ Used in: {q.usedIn.map(u => {
+                                ⚠️ Verwendet in: {q.usedIn.map(u => {
                                   const year = new Date(u.sessionStartsAt).getFullYear();
                                   return `${u.sessionTitle} (${year})`;
                                 }).join(", ")}
@@ -217,9 +217,9 @@ export default function QuizCreationPage() {
                 </div>
 
                 <div className="selected-questions">
-                  <h3>Selected Questions (Order matters!)</h3>
+                  <h3>Ausgewählte Fragen (Reihenfolge wichtig!)</h3>
                   {selectedQuestions.length === 0 ? (
-                    <p className="empty-state">Click questions to select them</p>
+                    <p className="empty-state">Klicken Sie auf Fragen, um sie auszuwählen</p>
                   ) : (
                     <div className="ordered-list">
                       {selectedQuestions.map((qId, index) => {
@@ -234,7 +234,7 @@ export default function QuizCreationPage() {
                                 onClick={() => moveQuestionUp(index)}
                                 disabled={index === 0}
                                 className="btn-arrow"
-                                title="Move up"
+                                title="Nach oben"
                               >
                                 ↑
                               </button>
@@ -242,14 +242,14 @@ export default function QuizCreationPage() {
                                 onClick={() => moveQuestionDown(index)}
                                 disabled={index === selectedQuestions.length - 1}
                                 className="btn-arrow"
-                                title="Move down"
+                                title="Nach unten"
                               >
                                 ↓
                               </button>
                               <button
                                 onClick={() => toggleQuestion(qId)}
                                 className="btn-remove"
-                                title="Remove"
+                                title="Entfernen"
                               >
                                 ✕
                               </button>
@@ -270,7 +270,7 @@ export default function QuizCreationPage() {
               className="btn-create"
               disabled={!selectedSession || selectedQuestions.length !== 10 || creating}
             >
-              {creating ? "Creating..." : "Create Quiz"}
+              {creating ? "Wird erstellt..." : "Quiz erstellen"}
             </button>
           </div>
         </div>

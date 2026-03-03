@@ -296,7 +296,7 @@ export default function HiwiAnnouncements() {
       );
       setCommentInputs((prev) => ({ ...prev, [announcementId]: "" }));
     } catch {
-      alert("Failed to add comment");
+      alert("Kommentar konnte nicht hinzugefügt werden");
     }
   };
 
@@ -315,7 +315,7 @@ export default function HiwiAnnouncements() {
       );
       setEditingComment(null);
     } catch {
-      alert("Failed to update comment");
+      alert("Kommentar konnte nicht aktualisiert werden");
     }
   };
 
@@ -338,7 +338,7 @@ export default function HiwiAnnouncements() {
       </header>
 
       <main className="announcements-container">
-        <h1>Announcements</h1>
+        <h1>Ankündigungen</h1>
 
         {activeEvent && (
           <div style={{ marginBottom: 12, color: "#666" }}>
@@ -349,7 +349,7 @@ export default function HiwiAnnouncements() {
         {error && <p className="error-message">{error}</p>}
 
         <div className="announcement-card create-post-card">
-          <h2 className="section-title">Create New Post</h2>
+          <h2 className="section-title">Neuen Beitrag erstellen</h2>
 
           <form onSubmit={handleCreate} className="post-form">
             <select
@@ -357,13 +357,13 @@ export default function HiwiAnnouncements() {
               onChange={(e) => setVisibility(e.target.value as Visibility)}
               className="form-control"
             >
-              <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organizers)</option>
-              <option value="PUBLIC">PUBLIC (Everyone)</option>
+              <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organisatoren)</option>
+              <option value="PUBLIC">PUBLIC (Alle)</option>
             </select>
 
             <input
               type="text"
-              placeholder="Post Title"
+              placeholder="Titel"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="form-control"
@@ -371,7 +371,7 @@ export default function HiwiAnnouncements() {
 
             <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 6 }}>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
+                <span style={{ fontSize: 14, color: "#444" }}>Textfarbe</span>
                 <input
                   type="color"
                   value={pickedColor}
@@ -386,13 +386,13 @@ export default function HiwiAnnouncements() {
                 className="submit-post-btn"
                 style={{ padding: "10px 14px" }}
               >
-                Apply to selection
+                Auf Auswahl anwenden
               </button>
             </div>
 
             <textarea
               ref={contentRef}
-              placeholder="Write your announcement here..."
+              placeholder="Schreiben Sie hier Ihre Ankündigung..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={6}
@@ -402,7 +402,7 @@ export default function HiwiAnnouncements() {
             <div className="image-section">
               <div className="file-input-wrapper">
                 <label htmlFor="image-upload" className="add-image-btn">
-                  📷 Add Image
+                  📷 Bild hinzufügen
                 </label>
                 <input
                   id="image-upload"
@@ -424,13 +424,13 @@ export default function HiwiAnnouncements() {
             </div>
 
             <button type="submit" className="submit-post-btn" disabled={!activeEvent?.id}>
-              Post Announcement
+              Ankündigung veröffentlichen
             </button>
           </form>
         </div>
 
         <div className="announcements-list">
-          {postList.length === 0 && <p>No announcements found.</p>}
+          {postList.length === 0 && <p>Keine Ankündigungen gefunden.</p>}
 
           {postList.map((post) => {
             const firstAttachment = post.attachments?.[0];
@@ -462,7 +462,7 @@ export default function HiwiAnnouncements() {
 
                 <div className="comments-section">
                   <button onClick={() => toggleComments(post.id)} className="toggle-comments-btn">
-                    {post.showComments ? "Hide Comments" : "Show Comments"}
+                    {post.showComments ? "Kommentare ausblenden" : "Kommentare anzeigen"}
                   </button>
 
                   {post.showComments && (
@@ -482,10 +482,10 @@ export default function HiwiAnnouncements() {
                                 className="edit-comment-input"
                               />
                               <button onClick={saveEditComment} className="comment-action-btn">
-                                Save
+                                Speichern
                               </button>
                               <button onClick={() => setEditingComment(null)} className="comment-action-btn">
-                                Cancel
+                                Abbrechen
                               </button>
                             </div>
                           ) : (
@@ -495,7 +495,7 @@ export default function HiwiAnnouncements() {
                                 <button
                                   onClick={() => setEditingComment({ id: comment.id, body: comment.body })}
                                   className="icon-btn edit"
-                                  title="Edit"
+                                  title="Bearbeiten"
                                 >
                                   ✎
                                 </button>
@@ -508,13 +508,13 @@ export default function HiwiAnnouncements() {
                       <div className="add-comment-form">
                         <input
                           type="text"
-                          placeholder="Write a comment..."
+                          placeholder="Kommentar schreiben..."
                           value={commentInputs[post.id] || ""}
                           onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
                           className="add-comment-input"
                         />
                         <button onClick={() => submitComment(post.id)} className="post-comment-btn">
-                          Post
+                          Senden
                         </button>
                       </div>
                     </div>

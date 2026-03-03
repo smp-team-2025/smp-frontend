@@ -101,7 +101,7 @@ export default function HiwiHomePage() {
         <p className="greeting">Hallo, {name}! 👋</p>
 
         <div className="upcoming-card">
-          <div className="upcoming-title">Upcoming session</div>
+          <div className="upcoming-title">Nächste Session</div>
 
           {upcomingLoading ? (
             <div className="upcoming-muted">Lädt…</div>

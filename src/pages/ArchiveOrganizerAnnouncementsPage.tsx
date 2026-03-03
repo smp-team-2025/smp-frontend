@@ -181,7 +181,7 @@ export default function ArchiveOrganizerAnnouncementsPage() {
                 </div>
                 <div className="nav-right">
                     <Link to="/archive" className="back-btn">
-                        ← Archive
+                        ← Archiv
                     </Link>
                     <Link to="/ohomepage" className="back-btn">
                         ← Dashboard
@@ -193,18 +193,18 @@ export default function ArchiveOrganizerAnnouncementsPage() {
             </header>
 
             <main className="announcements-container">
-                <h1>Announcements (Archiv)</h1>
+                <h1>Ankündigungen (Archiv)</h1>
                 <p style={{ marginTop: 6, color: "#666" }}>
                     Event:{" "}
                     <strong>{eventTitle ? eventTitle : `#${Number.isNaN(eventId) ? "—" : eventId}`}</strong>
                 </p>
 
-                {loading && <p style={{ marginTop: 20 }}>Loading…</p>}
+                {loading && <p style={{ marginTop: 20 }}>Lädt…</p>}
                 {error && <p className="error-message">{error}</p>}
 
                 {!loading && !error && (
                     <div className="announcements-list">
-                        {postList.length === 0 && <p>No announcements found.</p>}
+                        {postList.length === 0 && <p>Keine Ankündigungen gefunden.</p>}
 
                         {postList.map((post) => {
                             const firstAttachment = post.attachments?.[0];
@@ -216,7 +216,7 @@ export default function ArchiveOrganizerAnnouncementsPage() {
                                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                                                 <h2 className="post-title" style={{ margin: 0 }}>
-                                                    {post.title || "Untitled"}
+                                                    {post.title || "Ohne Titel"}
                                                 </h2>
 
                                                 {post.visibility && (
@@ -237,7 +237,7 @@ export default function ArchiveOrganizerAnnouncementsPage() {
                                             </div>
 
                                             <div style={{ fontSize: 13, color: "#666" }}>
-                                                by <strong>{post.author?.name ?? "Unknown"}</strong>
+                                                von <strong>{post.author?.name ?? "Unbekannt"}</strong>
                                                 {post.author?.role ? (
                                                     <span style={{ marginLeft: 8, opacity: 0.85 }}>
                                                         ({post.author.role})

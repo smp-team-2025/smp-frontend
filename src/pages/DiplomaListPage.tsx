@@ -173,7 +173,7 @@ const actionButtonStyle: React.CSSProperties = {
         </div>
 
         {loading ? (
-          <p style={{ marginTop: 20 }}>Loading...</p>
+          <p style={{ marginTop: 20 }}>Lädt...</p>
         ) : filtered.length === 0 ? (
           <p style={{ marginTop: 20 }}>Keine Diplome gefunden.</p>
         ) : (

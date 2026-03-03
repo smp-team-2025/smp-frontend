@@ -62,12 +62,12 @@ export default function ZoomCheckPage() {
         );
         setSessions(sortedSessions);
       } else {
-        setError("Failed to load sessions.");
+        setError("Sessions konnten nicht geladen werden.");
         setSessions([]);
       }
     } catch (err) {
       console.error("Failed to fetch sessions:", err);
-      setError("Failed to load sessions.");
+      setError("Sessions konnten nicht geladen werden.");
       setSessions([]);
     } finally {
       setLoadingSessions(false);
@@ -78,7 +78,7 @@ export default function ZoomCheckPage() {
     e.preventDefault();
 
     if (!selectedSessionId) {
-      setError("Please select a session.");
+      setError("Bitte wählen Sie eine Session aus.");
       return;
     }
 
@@ -107,10 +107,10 @@ export default function ZoomCheckPage() {
         setSearched(true);
       } else {
         const errData = await res.json().catch(() => ({}));
-        setError(errData.error || "Failed to fetch data.");
+        setError(errData.error || "Daten konnten nicht abgerufen werden.");
       }
     } catch (err) {
-      setError("An error occurred while fetching data.");
+      setError("Beim Abrufen der Daten ist ein Fehler aufgetreten.");
     } finally {
       setLoading(false);
     }
@@ -141,19 +141,19 @@ export default function ZoomCheckPage() {
       </header>
 
       <main className="container">
-        <h1>Check Unmatched Zoom Participants</h1>
+        <h1>Nicht zugeordnete Zoom-Teilnehmer prüfen</h1>
         <div className="check-card">
           <p>
-            Select a session to view participants from the Zoom CSV who could not
-            be matched to a registered user.
+            Wählen Sie eine Session aus, um Teilnehmer aus der Zoom-CSV anzuzeigen,
+            die keinem registrierten Benutzer zugeordnet werden konnten.
           </p>
 
           {loadingSessions ? (
-            <p>Loading sessions...</p>
+            <p>Sessions werden geladen...</p>
           ) : (
             <form onSubmit={handleCheck} className="check-form">
               <div className="form-group">
-                <label htmlFor="sessionSelect">Select Session</label>
+                <label htmlFor="sessionSelect">Session auswählen</label>
                 <div className="input-row">
                   <select
                     id="sessionSelect"
@@ -169,7 +169,7 @@ export default function ZoomCheckPage() {
                       backgroundColor: "white",
                     }}
                   >
-                    <option value="">-- Select a session --</option>
+                    <option value="">-- Session auswählen --</option>
                     {sessions.map((session) => (
                       <option key={session.id} value={session.id}>
                         {formatSessionLabel(session)}
@@ -181,7 +181,7 @@ export default function ZoomCheckPage() {
                     className="check-btn"
                     disabled={loading || !selectedSessionId}
                   >
-                    {loading ? "Checking..." : "Check"}
+                    {loading ? "Prüfe..." : "Prüfen"}
                   </button>
                 </div>
               </div>
@@ -192,7 +192,7 @@ export default function ZoomCheckPage() {
 
           {searched && participants.length === 0 && !error && (
             <div className="status-message success">
-              No unmatched participants found for this session.
+              Keine nicht zugeordneten Teilnehmer für diese Session gefunden.
             </div>
           )}
 
@@ -201,9 +201,9 @@ export default function ZoomCheckPage() {
               <table className="results-table">
                 <thead>
                   <tr>
-                    <th>Display Name</th>
-                    <th>Email</th>
-                    <th>Duration (min)</th>
+                    <th>Anzeigename</th>
+                    <th>E-Mail</th>
+                    <th>Dauer (Min.)</th>
                   </tr>
                 </thead>
                 <tbody>

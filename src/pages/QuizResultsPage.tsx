@@ -38,47 +38,47 @@ export default function QuizResultsPage() {
       if (res.ok) {
         setStats(await res.json());
       } else {
-        alert("Error loading statistics");
+        alert("Fehler beim Laden der Statistiken");
       }
     } catch (error) {
-      alert("Error: " + error);
+      alert("Fehler: " + error);
     } finally {
       setLoading(false);
     }
   }
 
-  if (loading) return <div className="quiz-container">Loading...</div>;
+  if (loading) return <div className="quiz-container">Lädt...</div>;
 
   return (
     <div className="quiz-container">
       <button className="btn-back" onClick={() => navigate("/quizlist")}>
-        ← Back
+        ← Zurück
       </button>
 
-      <h1>Fermi Quiz Results</h1>
+      <h1>Fermi Quiz Ergebnisse</h1>
 
       {stats.length === 0 ? (
         <p style={{ textAlign: "center", color: "#666", marginTop: "40px" }}>
-          No responses yet
+          Noch keine Antworten
         </p>
       ) : (
         <div className="questions-stats">
           {stats.map((stat, index) => (
             <div key={stat.questionId} className="question-stat-card">
               <h3>
-                Question {index + 1}: {stat.questionText}
+                Frage {index + 1}: {stat.questionText}
               </h3>
 
               {stat.count === 0 ? (
-                <p className="no-answers">No answers</p>
+                <p className="no-answers">Keine Antworten</p>
               ) : (
                 <div className="stats-grid">
                   <div className="stat-item">
-                    <h4>Participants</h4>
+                    <h4>Teilnehmer</h4>
                     <div className="value">{stat.count}</div>
                   </div>
                   <div className="stat-item">
-                    <h4>Mean</h4>
+                    <h4>Mittelwert</h4>
                     <div className="value">
                       {stat.mean !== null
                         ? Math.round(stat.mean)
@@ -107,7 +107,7 @@ export default function QuizResultsPage() {
                   </div>
                   {stat.correctAnswer !== null && (
                     <div className="stat-item correct-answer">
-                      <h4>Correct Answer</h4>
+                      <h4>Richtige Antwort</h4>
                       <div className="value">
                         {stat.correctAnswer}
                       </div>

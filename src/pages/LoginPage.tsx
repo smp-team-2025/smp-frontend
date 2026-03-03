@@ -29,7 +29,7 @@ export default function LoginPage(){
             localStorage.setItem("token", data.token);
             localStorage.setItem("role", data.user.role);
             localStorage.setItem("userId", data.user.id);
-            alert("Login successful!");
+            alert("Login erfolgreich!");
 
             // Organizer ise admin paneline, değilse başka yere yönlendir
             if(data.user.role === "ORGANIZER" || data.user.role === "Organizer") {
@@ -79,9 +79,9 @@ export default function LoginPage(){
 
                         <div className="remember-forgot">
                             <label>
-                                <input type="checkbox" /> Remember me
+                                <input type="checkbox" /> Angemeldet bleiben
                             </label>
-                            <a href="/login/forgot-password">Forgot Password?</a>
+                            <a href="/login/forgot-password">Passwort vergessen?</a>
                         </div>
 
                     </div>
@@ -91,7 +91,7 @@ export default function LoginPage(){
                     <div className="register-link">
                         <p>
                             Noch nicht registriert?{" "}
-                            <a href="/registration">Register</a>
+                            <a href="/registration">Registrieren</a>
                         </p>
                     </div>
 

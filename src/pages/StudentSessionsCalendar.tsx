@@ -48,7 +48,7 @@ export default function StudentSessionsCalendar() {
       const res = await fetch(`/api/events/${ev.id}/sessions`, { headers });
 
       if (!res.ok) {
-        setError("Failed to load sessions.");
+        setError("Sessions konnten nicht geladen werden.");
         setGroupedSessions([]);
         return;
       }
@@ -58,7 +58,7 @@ export default function StudentSessionsCalendar() {
       setGroupedSessions(groups);
     } catch (err) {
       console.error(err);
-      setError("Failed to load sessions.");
+      setError("Sessions konnten nicht geladen werden.");
       setGroupedSessions([]);
     } finally {
       setLoading(false);
@@ -116,11 +116,11 @@ export default function StudentSessionsCalendar() {
       </header>
 
       <main className="container">
-        <h1>Session Calendar</h1>
+        <h1>Session Kalender</h1>
 
-        {loading && <p>Loading calendar...</p>}
+        {loading && <p>Kalender wird geladen...</p>}
         {error && <p className="error-msg">{error}</p>}
-        {!loading && !error && groupedSessions.length === 0 && <p>No sessions found</p>}
+        {!loading && !error && groupedSessions.length === 0 && <p>Keine Sessions gefunden</p>}
 
         <div className="calendar-list">
           {groupedSessions.map((group) => (

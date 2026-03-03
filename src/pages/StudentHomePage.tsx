@@ -105,7 +105,7 @@ export default function StudentHomePage() {
                 </p>
 
                 <div className="upcoming-card">
-                    <div className="upcoming-title">Upcoming session</div>
+                    <div className="upcoming-title">Kommende Session</div>
 
                     {upcomingLoading ? (
                         <div className="upcoming-muted">Lädt…</div>
@@ -136,12 +136,12 @@ export default function StudentHomePage() {
 
                     <Link to="/studenthomepage/calendar" className="card">
                         <h2>Mein Kalender</h2>
-                        <p>Anstehende Sitzungen anzeigen</p>
+                        <p>Anstehende Sessions anzeigen</p>
                     </Link>
 
                     <Link to="/student/quiz-sessions" className="card">
                         <h2>Fermi Quiz</h2>
-                        <p>Wählen Sie eine Quiz-Sitzung aus.</p>
+                        <p>Wählen Sie eine Quiz-Session aus.</p>
                     </Link>
 
                     <Link to="/studenthomepage/qr" className="card">
@@ -151,7 +151,7 @@ export default function StudentHomePage() {
 
                     <Link to="/studenthomepage/businesscard" className="card-link">
                         <div className="card">
-                            <h2>Business Card</h2>
+                            <h2>Visitenkarte</h2>
                             <p>QR-Karten für Teilnehmer ausdrucken</p>
                         </div>
                     </Link>
@@ -159,7 +159,7 @@ export default function StudentHomePage() {
 
                     <Link to="/studenthomepage/attendance" className="card">
                         <h2>Meine Anwesenheit</h2>
-                        <p>Zeige deine Anwesenheit für alle Sitzungen an</p>
+                        <p>Zeige deine Anwesenheit für alle Sessions an</p>
                     </Link>
 
                     <Link to="/studentannouncements" className="card">

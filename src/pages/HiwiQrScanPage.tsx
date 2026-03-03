@@ -20,7 +20,7 @@ export default function HiWiQrScanPage() {
 
                 // Otomatik session seçimi
                 if (data.length === 0) {
-                    setStatus({ type: 'error', msg: 'You have no assigned sessions' });
+                    setStatus({ type: 'error', msg: 'Keine zugewiesenen Sessions' });
                     return;
                 }
 
@@ -38,24 +38,24 @@ export default function HiWiQrScanPage() {
                 // Eğer bugün bir session varsa otomatik seç
                 if (todaySessions.length === 1) {
                     setSelectedSessionId(todaySessions[0].session.id);
-                    setStatus({ type: 'info', msg: `Auto-selected today's session: ${todaySessions[0].session.title}` });
+                    setStatus({ type: 'info', msg: `Heutige Session automatisch ausgewählt: ${todaySessions[0].session.title}` });
                     setTimeout(() => setStatus(null), 3000);
                 } else if (todaySessions.length > 1) {
                     // Birden fazla varsa ilkini seç
                     setSelectedSessionId(todaySessions[0].session.id);
-                    setStatus({ type: 'info', msg: `Multiple sessions today. Selected: ${todaySessions[0].session.title}` });
+                    setStatus({ type: 'info', msg: `Mehrere Sessions heute. Ausgewählt: ${todaySessions[0].session.title}` });
                     setTimeout(() => setStatus(null), 3000);
                 } else if (data.length === 1) {
                     // Bugün yok ama tek session varsa onu seç
                     setSelectedSessionId(data[0].session.id);
-                    setStatus({ type: 'info', msg: `Auto-selected session: ${data[0].session.title}` });
+                    setStatus({ type: 'info', msg: `Session automatisch ausgewählt: ${data[0].session.title}` });
                     setTimeout(() => setStatus(null), 3000);
                 }
                 // Birden fazla session var ve bugün değillerse dropdown göster
             })
             .catch((err) => {
                 console.error("Failed to load sessions:", err);
-                setStatus({ type: 'error', msg: 'Failed to load sessions: ' + err.message });
+                setStatus({ type: 'error', msg: 'Sessions konnten nicht geladen werden: ' + err.message });
             });
     }, []);
 
@@ -82,7 +82,7 @@ export default function HiWiQrScanPage() {
             if (isProcessing.current) return;
             isProcessing.current = true;
 
-            setStatus({ type: 'info', msg: 'Processing...' });
+            setStatus({ type: 'info', msg: 'Wird verarbeitet...' });
 
             try {
                 const qrId = decodedText.replace('smp:', '');
@@ -105,7 +105,7 @@ export default function HiWiQrScanPage() {
                     throw new Error(data.error || "Scan failed");
                 }
 
-                setStatus({ type: 'success', msg: `Success! Attendance recorded.` });
+                setStatus({ type: 'success', msg: `Erfolg! Anwesenheit erfasst.` });
             } catch (err: any) {
                 setStatus({ type: 'error', msg: err.message || "Scan failed" });
             } finally {
@@ -137,7 +137,7 @@ export default function HiWiQrScanPage() {
 
             <main className="container">
                 <h1>QR Check-in</h1>
-                <p className="greeting">Select a session and scan student QR code.</p>
+                <p className="greeting">Session auswählen und Teilnehmer-QR-Code scannen.</p>
 
                 <div style={{
                     maxWidth: "600px",
@@ -149,7 +149,7 @@ export default function HiWiQrScanPage() {
                 }}>
                     <div style={{ marginBottom: "30px" }}>
                         <label style={{ display: "block", marginBottom: "10px", fontWeight: "600", fontSize: "14px", color: "#333" }}>
-                            Select Session:
+                            Session auswählen:
                         </label>
                         <select
                             value={selectedSessionId !== null ? selectedSessionId.toString() : ""}
@@ -170,7 +170,7 @@ export default function HiWiQrScanPage() {
                                 color: "#333"
                             }}
                         >
-                            <option value="">-- Choose a session --</option>
+                            <option value="">-- Session auswählen --</option>
                             {sessions.map((item) => (
                                 <option key={item.id} value={item.session.id.toString()}>
                                     {item.session.title} - {new Date(item.session.startsAt).toLocaleDateString("de-DE")}
@@ -183,7 +183,7 @@ export default function HiWiQrScanPage() {
                         <div id="reader"></div>
                     ) : (
                         <p style={{ textAlign: "center", color: "#999", padding: "40px 20px", fontSize: "15px" }}>
-                            Please select a session to start scanning
+                            Bitte wählen Sie eine Session aus, um mit dem Scannen zu beginnen
                         </p>
                     )}
 

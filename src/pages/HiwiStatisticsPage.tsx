@@ -34,7 +34,7 @@ export default function HiwiStatisticsPage() {
 
 
             } catch (e: any) {
-                setError(e?.message || "Failed to load data.");
+                setError(e?.message || "Daten konnten nicht geladen werden.");
             } finally {
                 setLoading(false);
             }
@@ -56,12 +56,12 @@ export default function HiwiStatisticsPage() {
             </header>
 
             <main className="container">
-                <h1>HiWi Statistics</h1>
+                <h1>HiWi Statistiken</h1>
 
-                {loading && <p>Loading...</p>}
+                {loading && <p>Lädt...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
 
-                {!loading && !error && sessions.length === 0 && <p>No sessions found for the active event.</p>}
+                {!loading && !error && sessions.length === 0 && <p>Keine Sessions für das aktive Event gefunden.</p>}
 
                 {!loading && !error && sessions.length > 0 && (
                     <div className="cards">

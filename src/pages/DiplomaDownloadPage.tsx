@@ -94,7 +94,7 @@ export default function DiplomaDownloadPage() {
       const data = await diplomasApi.listByParticipant(pid);
       setItems(Array.isArray(data) ? data : []);
     } catch (e: any) {
-      setError(e?.message || "Failed to load diplomas.");
+      setError(e?.message || "Diplome konnten nicht geladen werden.");
     } finally {
       setLoading(false);
     }
@@ -106,7 +106,7 @@ export default function DiplomaDownloadPage() {
 
     if (!pid) {
       setLoading(false);
-      setError("Could not determine participant id from token. Please login again.");
+      setError("Teilnehmer-ID konnte nicht ermittelt werden. Bitte erneut anmelden.");
       return;
     }
 
@@ -126,7 +126,7 @@ export default function DiplomaDownloadPage() {
 
   const download = async (eventId: number) => {
     if (!participantId) {
-      alert("Missing participant id. Please login again.");
+      alert("Fehlende Teilnehmer-ID. Bitte erneut anmelden.");
       return;
     }
 
@@ -156,7 +156,7 @@ export default function DiplomaDownloadPage() {
     a.remove();
     URL.revokeObjectURL(url);
   } catch (e: any) {
-    alert(e?.message || "Download failed.");
+    alert(e?.message || "Download fehlgeschlagen.");
   }
 };
 
@@ -178,8 +178,8 @@ export default function DiplomaDownloadPage() {
       <main className="container">
         <div className="diplomas-header">
           <div>
-            <h1>My Diploma</h1>
-            <p className="subtitle">Download your SMP participation diploma</p>
+            <h1>Mein Diplom</h1>
+            <p className="subtitle">Laden Sie Ihr SMP-Teilnahmediplom herunter</p>
           </div>
 
           <div className="diplomas-tools">
@@ -188,24 +188,24 @@ export default function DiplomaDownloadPage() {
               onClick={() => participantId && refresh(participantId)}
               disabled={loading || !participantId}
             >
-              Refresh
+              Aktualisieren
             </button>
           </div>
         </div>
 
-        {loading && <p>Loading…</p>}
+        {loading && <p>Lädt…</p>}
 
         {!loading && error && (
           <div className="empty-state">
-            <h2>Could not load diplomas</h2>
+            <h2>Diplome konnten nicht geladen werden</h2>
             <p className="muted">{error}</p>
           </div>
         )}
 
         {!loading && !error && items.length === 0 && (
           <div className="empty-state">
-            <h2>No diploma available yet</h2>
-            <p className="muted">Organizer diplomas ürettiğinde burada görünecek.</p>
+            <h2>Noch kein Diplom verfügbar</h2>
+            <p className="muted">Sobald die Organisatoren die Diplome erstellt haben, werden sie hier angezeigt.</p>
           </div>
         )}
 
@@ -214,13 +214,13 @@ export default function DiplomaDownloadPage() {
     {/* Latest diploma */}
     <div className="diploma-card diploma-card-featured" style={{ cursor: "default" }}>
       <div className="diploma-card-header">
-        <h2>Latest diploma</h2>
-        <p className="diploma-card-subtitle">Your most recent participation certificate</p>
+        <h2>Aktuelles Diplom</h2>
+        <p className="diploma-card-subtitle">Ihr neuestes Teilnahmezertifikat</p>
       </div>
 
       <div className="diploma-card-body">
         <div className="diploma-info-row">
-          <span className="diploma-label">Issued</span>
+          <span className="diploma-label">Ausgestellt</span>
           <span className="diploma-value">{formatDate(latest?.issuedAt)}</span>
         </div>
 
@@ -232,7 +232,7 @@ export default function DiplomaDownloadPage() {
         </div>
 
         <div className="diploma-info-row">
-          <span className="diploma-label">Certificate</span>
+          <span className="diploma-label">Zertifikat</span>
           <span className="diploma-value diploma-cert-number">{latest?.certificateNumber}</span>
         </div>
       </div>
@@ -251,9 +251,9 @@ export default function DiplomaDownloadPage() {
     {/* All diplomas */}
     <div className="diploma-card" style={{ cursor: "default" }}>
       <div className="diploma-card-header">
-        <h2>All diplomas</h2>
+        <h2>Alle Diplome</h2>
         <p className="diploma-card-subtitle">
-          If you participated in multiple Events, you may see more than one certificate.
+          Wenn Sie an mehreren Events teilgenommen haben, sehen Sie möglicherweise mehr als ein Zertifikat.
         </p>
       </div>
 
@@ -263,9 +263,9 @@ export default function DiplomaDownloadPage() {
             <div className="diploma-list-info">
               <div className="diploma-list-title">{d.event.title}</div>
               <div className="diploma-list-meta">
-                <span className="diploma-list-date">Issued: {formatDate(d.issuedAt)}</span>
+                <span className="diploma-list-date">Ausgestellt: {formatDate(d.issuedAt)}</span>
                 <span className="diploma-list-separator">•</span>
-                <span className="diploma-list-cert">Certificate: {d.certificateNumber}</span>
+                <span className="diploma-list-cert">Zertifikat: {d.certificateNumber}</span>
               </div>
             </div>
 
