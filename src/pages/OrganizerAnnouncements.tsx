@@ -168,7 +168,7 @@ export default function OrganizerAnnouncements() {
         await loadAnnouncementsForEvent(ev.id, headers);
       } catch (err) {
         console.error(err);
-        setError("Failed to load announcements");
+        setError("Ankündigungen konnten nicht geladen werden");
       }
     })();
 
@@ -199,7 +199,7 @@ export default function OrganizerAnnouncements() {
       await loadAnnouncementsForEvent(Number(eventId), headers);
     } catch (err) {
       console.error(err);
-      setError("Failed to load announcements");
+      setError("Ankündigungen konnten nicht geladen werden");
     }
   };
 
@@ -338,18 +338,18 @@ export default function OrganizerAnnouncements() {
       setContent("");
       clearImage();
     } catch (err: any) {
-      setError(err?.message || "Failed to post announcement");
+      setError(err?.message || "Ankündigung konnte nicht veröffentlicht werden");
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this announcement?")) return;
+    if (!window.confirm("Möchten Sie diese Ankündigung wirklich löschen?")) return;
     try {
       await announcementsApi.delete(id);
       setAnnouncements((prev) => prev.filter((a) => a.id !== id));
       if (editingPost?.id === id) setEditingPost(null);
     } catch {
-      alert("Failed to delete announcement");
+      alert("Ankündigung konnte nicht gelöscht werden");
     }
   };
 
@@ -369,7 +369,7 @@ export default function OrganizerAnnouncements() {
     if (!editingPost) return;
 
     if (!editingPost.body.trim()) {
-      alert("Body cannot be empty.");
+      alert("Der Inhalt darf nicht leer sein.");
       return;
     }
 
@@ -388,7 +388,7 @@ export default function OrganizerAnnouncements() {
       await loadAnnouncements();
       setEditingPost(null);
     } catch (err: any) {
-      alert(err?.message || "Failed to update announcement");
+      alert(err?.message || "Ankündigung konnte nicht aktualisiert werden");
     } finally {
       setSavingEdit(false);
     }
@@ -435,7 +435,7 @@ export default function OrganizerAnnouncements() {
       );
       setCommentInputs((prev) => ({ ...prev, [announcementId]: "" }));
     } catch {
-      alert("Failed to add comment");
+      alert("Kommentar konnte nicht hinzugefügt werden");
     }
   };
 
@@ -472,12 +472,12 @@ export default function OrganizerAnnouncements() {
       setEditingComment(null);
     } catch (err) {
       console.error(err);
-      alert("Failed to update comment");
+      alert("Kommentar konnte nicht aktualisiert werden");
     }
   };
 
   const handleDeleteComment = async (announcementId: number, commentId: number) => {
-    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+    if (!window.confirm("Möchten Sie diesen Kommentar wirklich löschen?")) return;
     try {
       await announcementsApi.deleteComment(commentId);
       setAnnouncements((prev) =>
@@ -487,7 +487,7 @@ export default function OrganizerAnnouncements() {
         })
       );
     } catch {
-      alert("Failed to delete comment");
+      alert("Kommentar konnte nicht gelöscht werden");
     }
   };
 
@@ -510,17 +510,17 @@ export default function OrganizerAnnouncements() {
       </header>
 
       <main className="announcements-container">
-        <h1>Announcements</h1>
+        <h1>Ankündigungen</h1>
 
         {error && <p className="error-message">{error}</p>}
 
         {/* Create Post */}
         <div className="announcement-card create-post-card">
-          <h2 className="section-title">Create New Post</h2>
+          <h2 className="section-title">Neuen Beitrag erstellen</h2>
 
           <form onSubmit={handlePost} className="post-form">
             <select value={eventId} className="form-control" required disabled>
-              <option value="">Select Event (Required)</option>
+              <option value="">Event auswählen (Pflichtfeld)</option>
               {events.map((event) => (
                 <option key={event.id} value={String(event.id)}>
                   {event.title}
@@ -533,14 +533,14 @@ export default function OrganizerAnnouncements() {
               onChange={(e) => setVisibility(e.target.value as Visibility)}
               className="form-control"
             >
-              <option value="ORGA_ONLY">ORGA_ONLY (only Organizers)</option>
-              <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organizers)</option>
-              <option value="PUBLIC">PUBLIC (Everyone)</option>
+              <option value="ORGA_ONLY">ORGA_ONLY (nur Organisatoren)</option>
+              <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organisatoren)</option>
+              <option value="PUBLIC">PUBLIC (Alle)</option>
             </select>
 
             <input
               type="text"
-              placeholder="Post Title"
+              placeholder="Titel"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="form-control"
@@ -548,7 +548,7 @@ export default function OrganizerAnnouncements() {
 
             <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 6 }}>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
+                <span style={{ fontSize: 14, color: "#444" }}>Textfarbe</span>
                 <input
                   type="color"
                   value={pickedColor}
@@ -562,9 +562,9 @@ export default function OrganizerAnnouncements() {
                 onClick={applyColorToSelection}
                 className="submit-post-btn"
                 style={{ padding: "10px 14px" }}
-                title="Select text in the textarea and click to apply color"
+                title="Text markieren und klicken, um Farbe anzuwenden"
               >
-                Apply to selection
+                Auf Auswahl anwenden
               </button>
 
               <span style={{ fontSize: 13, color: "#666" }}>
@@ -574,7 +574,7 @@ export default function OrganizerAnnouncements() {
 
             <textarea
               ref={contentRef}
-              placeholder="Write your announcement here..."
+              placeholder="Schreiben Sie hier Ihre Ankündigung..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={6}
@@ -584,7 +584,7 @@ export default function OrganizerAnnouncements() {
             <div className="image-section">
               <div className="file-input-wrapper">
                 <label htmlFor="image-upload" className="add-image-btn">
-                  📷 Add Image
+                  📷 Bild hinzufügen
                 </label>
                 <input
                   id="image-upload"
@@ -606,14 +606,14 @@ export default function OrganizerAnnouncements() {
             </div>
 
             <button type="submit" className="submit-post-btn">
-              Post Announcement
+              Ankündigung veröffentlichen
             </button>
           </form>
         </div>
 
         {/* List */}
         <div className="announcements-list">
-          {postList.length === 0 && <p>No announcements found.</p>}
+          {postList.length === 0 && <p>Keine Ankündigungen gefunden.</p>}
 
           {postList.map((post) => {
             const firstAttachment = post.attachments?.[0];
@@ -626,7 +626,7 @@ export default function OrganizerAnnouncements() {
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                       <h2 className="post-title" style={{ margin: 0 }}>
-                        {post.title || "Untitled"}
+                        {post.title || "Ohne Titel"}
                       </h2>
 
                       {"visibility" in post && (post as any).visibility && (
@@ -647,7 +647,7 @@ export default function OrganizerAnnouncements() {
                     </div>
 
                     <div style={{ fontSize: 13, color: "#666" }}>
-                      by <strong>{post.author?.name ?? "Unknown"}</strong>
+                      von <strong>{post.author?.name ?? "Unbekannt"}</strong>
                       {(post as any).author?.role ? (
                         <span style={{ marginLeft: 8, opacity: 0.85 }}>
                           ({(post as any).author.role})
@@ -666,9 +666,9 @@ export default function OrganizerAnnouncements() {
                       className="submit-post-btn"
                       style={{ padding: "10px 14px", marginRight: 10 }}
                       disabled={savingEdit}
-                      title="Edit this announcement"
+                      title="Diese Ankündigung bearbeiten"
                     >
-                      Edit
+                      Bearbeiten
                     </button>
 
                     <button
@@ -676,7 +676,7 @@ export default function OrganizerAnnouncements() {
                       className="delete-post-btn"
                       disabled={savingEdit}
                     >
-                      Delete
+                      Löschen
                     </button>
                   </div>
                 </div>
@@ -685,7 +685,7 @@ export default function OrganizerAnnouncements() {
                 {isEditingThis ? (
                   <div style={{ marginTop: 10 }}>
                     <select className="form-control" value={eventId} disabled>
-                      <option value="">Select Event</option>
+                      <option value="">Event auswählen</option>
                       {events.map((event) => (
                         <option key={event.id} value={String(event.id)}>
                           {event.title}
@@ -703,14 +703,14 @@ export default function OrganizerAnnouncements() {
                       className="form-control"
                       style={{ marginTop: 10 }}
                     >
-                      <option value="ORGA_ONLY">ORGA_ONLY (only Organizers)</option>
-                      <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organizers)</option>
-                      <option value="PUBLIC">PUBLIC (Everyone)</option>
+                      <option value="ORGA_ONLY">ORGA_ONLY (nur Organisatoren)</option>
+                      <option value="HIWI_ORGA">HIWI_ORGA (HiWis + Organisatoren)</option>
+                      <option value="PUBLIC">PUBLIC (Alle)</option>
                     </select>
 
                     <input
                       className="form-control"
-                      placeholder="Post Title"
+                      placeholder="Titel"
                       value={editingPost?.title ?? ""}
                       onChange={(e) =>
                         setEditingPost((p) => (p ? { ...p, title: e.target.value } : p))
@@ -720,7 +720,7 @@ export default function OrganizerAnnouncements() {
 
                     <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
                       <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        <span style={{ fontSize: 14, color: "#444" }}>Text color</span>
+                        <span style={{ fontSize: 14, color: "#444" }}>Textfarbe</span>
                         <input
                           type="color"
                           value={editPickedColor}
@@ -734,10 +734,10 @@ export default function OrganizerAnnouncements() {
                         onClick={applyColorToEditSelection}
                         className="submit-post-btn"
                         style={{ padding: "10px 14px" }}
-                        title="Select text and apply color"
+                        title="Text markieren und Farbe anwenden"
                         disabled={savingEdit}
                       >
-                        Apply to selection
+                        Auf Auswahl anwenden
                       </button>
 
                       <span style={{ fontSize: 13, color: "#666" }}>
@@ -749,7 +749,7 @@ export default function OrganizerAnnouncements() {
                       ref={editBodyRef}
                       className="form-control"
                       rows={6}
-                      placeholder="Body"
+                      placeholder="Inhalt"
                       value={editingPost?.body ?? ""}
                       onChange={(e) =>
                         setEditingPost((p) => (p ? { ...p, body: e.target.value } : p))
@@ -765,7 +765,7 @@ export default function OrganizerAnnouncements() {
                         onClick={saveEdit}
                         disabled={savingEdit}
                       >
-                        {savingEdit ? "Saving..." : "Save"}
+                        {savingEdit ? "Speichern..." : "Speichern"}
                       </button>
 
                       <button
@@ -774,7 +774,7 @@ export default function OrganizerAnnouncements() {
                         onClick={() => setEditingPost(null)}
                         disabled={savingEdit}
                       >
-                        Cancel
+                        Abbrechen
                       </button>
                     </div>
 
@@ -786,7 +786,7 @@ export default function OrganizerAnnouncements() {
                         background: "rgba(0,0,0,0.03)",
                       }}
                     >
-                      <div style={{ fontSize: 12, color: "#666", marginBottom: 6 }}>Preview</div>
+                      <div style={{ fontSize: 12, color: "#666", marginBottom: 6 }}>Vorschau</div>
                       <div style={{ whiteSpace: "normal" }}>
                         {renderColoredText(editingPost?.body ?? "")}
                       </div>
@@ -818,7 +818,7 @@ export default function OrganizerAnnouncements() {
 
                 <div className="comments-section">
                   <button onClick={() => toggleComments(post.id)} className="toggle-comments-btn">
-                    {post.showComments ? "Hide Comments" : "Show Comments"}
+                    {post.showComments ? "Kommentare ausblenden" : "Kommentare anzeigen"}
                   </button>
 
                   {post.showComments && (
@@ -844,7 +844,7 @@ export default function OrganizerAnnouncements() {
                                 onClick={saveEditComment}
                                 className="comment-action-btn save-btn"
                               >
-                                Save
+                                Speichern
                               </button>
 
                               <button
@@ -852,7 +852,7 @@ export default function OrganizerAnnouncements() {
                                 onClick={() => setEditingComment(null)}
                                 className="comment-action-btn cancel-btn"
                               >
-                                Cancel
+                                Abbrechen
                               </button>
                             </div>
                           ) : (
@@ -864,14 +864,14 @@ export default function OrganizerAnnouncements() {
                                     setEditingComment({ id: comment.id, body: comment.body })
                                   }
                                   className="icon-btn edit"
-                                  title="Edit"
+                                  title="Bearbeiten"
                                 >
                                   ✎
                                 </button>
                                 <button
                                   onClick={() => handleDeleteComment(post.id, comment.id)}
                                   className="icon-btn delete"
-                                  title="Delete"
+                                  title="Löschen"
                                 >
                                   🗑
                                 </button>
@@ -884,13 +884,13 @@ export default function OrganizerAnnouncements() {
                       <div className="add-comment-form">
                         <input
                           type="text"
-                          placeholder="Write a comment..."
+                          placeholder="Kommentar schreiben..."
                           value={commentInputs[post.id] || ""}
                           onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
                           className="add-comment-input"
                         />
                         <button onClick={() => submitComment(post.id)} className="post-comment-btn">
-                          Post
+                          Senden
                         </button>
                       </div>
                     </div>

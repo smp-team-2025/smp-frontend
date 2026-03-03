@@ -272,7 +272,7 @@ export default function EventListPage() {
       </header>
 
       <main className="events-container">
-        <h1>My Events</h1>
+        <h1>Meine Events</h1>
 
         <div className="disclaimer-box">
           <div className="disclaimer-title">Hinweis</div>
@@ -293,7 +293,7 @@ export default function EventListPage() {
         </div>
 
         {loading ? (
-          <div className="muted">Loading…</div>
+          <div className="muted">Lädt…</div>
         ) : events.length === 0 ? (
           <div className="muted">Keine Events gefunden.</div>
         ) : (

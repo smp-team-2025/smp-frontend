@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./StudentAttendancePage.css";
+import "./student_homepage.css";
 
 type Session = {
   id: number;
@@ -132,18 +133,24 @@ export default function StudentAttendancePage() {
   }, [sessions, attendedSessionIds]);
 
   return (
-    <div>
-      <div className="student-attendance-page">
-        <div className="header-row">
-          <div>
-            <h1 className="title">Meine Anwesenheit</h1>
-            <p className="subtitle">Übersicht über alle Sessions</p>
-          </div>
-
-          <Link className="back-link" to="/studenthomepage">
-            ← Zurück
+    <div className="page-wrapper">
+      <header className="navbar">
+        <div className="nav-left">
+          <span className="logo">SMP 2026</span>
+        </div>
+        <div className="nav-right">
+          <Link to="/studenthomepage" className="back-btn">
+            ← Dashboard
+          </Link>
+          <Link to="/login" className="logout-btn">
+            Logout
           </Link>
         </div>
+      </header>
+
+      <main className="container">
+        <h1>Meine Anwesenheit</h1>
+        <p className="subtitle">Übersicht über alle Sessions</p>
 
         {loading && <div className="info-box">Lade Daten...</div>}
 
@@ -184,7 +191,7 @@ export default function StudentAttendancePage() {
             </table>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

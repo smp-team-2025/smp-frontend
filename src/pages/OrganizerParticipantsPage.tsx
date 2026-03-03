@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getActiveEvent } from "../api/event";
 import "./OrganizerParticipantsPage.css";
+import "./student_homepage.css";
 
 type Participant = {
   registrationId: number;
@@ -160,43 +161,50 @@ export default function OrganizerParticipantsPage() {
 }
 
   return (
-    <div className="org-participants-page">
-      <div className="org-header">
-        <div>
-          <h1 className="org-title">Teilnehmer</h1>
-          <p className="org-subtitle">Bestätigte Teilnehmende</p>
+    <div className="page-wrapper">
+      <header className="navbar">
+        <div className="nav-left">
+          <span className="logo">SMP 2026</span>
         </div>
+        <div className="nav-right">
+          <Link to="/ohomepage" className="back-btn">
+            ← Dashboard
+          </Link>
+          <Link to="/login" className="logout-btn">
+            Logout
+          </Link>
+        </div>
+      </header>
 
-        <Link className="org-back" to="/ohomepage">
-          ← Zurück
-        </Link>
-      </div>
+      <main className="container">
+        <h1>Teilnehmer</h1>
+        <p className="org-subtitle">Bestätigte Teilnehmende</p>
 
-            <div className="org-toolbar" style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <input
-          className="org-search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Suchen (Name / E-Mail / Schule / Ort / ID / Status …)"
-        />
-      
-        <button
-        onClick={() => activeEventId && downloadParticipantsCsv(activeEventId)}
-        disabled={!activeEventId || downloading}
-        style={{
-          padding: "10px 12px",
-          borderRadius: 10,
-          border: "1px solid rgba(0,0,0,0.12)",
-          background: "rgba(0,0,0,0.04)",
-          color: "#111",
-          cursor: !activeEventId || downloading ? "not-allowed" : "pointer",
-          whiteSpace: "nowrap",
-          fontWeight: 600,
-        }}
-      >
-        {downloading ? "CSV wird geladen…" : "CSV herunterladen"}
-      </button>
-      </div>
+        <div className="org-toolbar" style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 20 }}>
+          <input
+            className="org-search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Suchen (Name / E-Mail / Schule / Ort / ID / Status …)"
+          />
+
+          <button
+            onClick={() => activeEventId && downloadParticipantsCsv(activeEventId)}
+            disabled={!activeEventId || downloading}
+            style={{
+              padding: "10px 12px",
+              borderRadius: 10,
+              border: "1px solid rgba(0,0,0,0.12)",
+              background: "rgba(0,0,0,0.04)",
+              color: "#111",
+              cursor: !activeEventId || downloading ? "not-allowed" : "pointer",
+              whiteSpace: "nowrap",
+              fontWeight: 600,
+            }}
+          >
+            {downloading ? "CSV wird geladen…" : "CSV herunterladen"}
+          </button>
+        </div>
 
       {loading && <div className="org-info">Lade Daten…</div>}
       {!loading && error && <div className="org-error">{error}</div>}
@@ -246,6 +254,7 @@ export default function OrganizerParticipantsPage() {
           </table>
         </div>
       )}
+      </main>
     </div>
   );
 }

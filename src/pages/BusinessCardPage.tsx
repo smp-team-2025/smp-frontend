@@ -34,7 +34,7 @@ export default function BusinessCardPage(){
             URL.revokeObjectURL(pdfUrl);
         } catch (e) {
             console.error("Failed to download PDF", e);
-            alert("Failed to download PDF");
+            alert("PDF konnte nicht heruntergeladen werden");
         }
     };
 
@@ -42,7 +42,7 @@ export default function BusinessCardPage(){
         window.print();
     };
 
-    if (!user) return <div className="page-wrapper">Loading...</div>;
+    if (!user) return <div className="page-wrapper">Lädt...</div>;
 
     return(
         <div className="page-wrapper">
@@ -71,10 +71,10 @@ export default function BusinessCardPage(){
 
                 <div className="button-group">
                     <button onClick={handleDownload} className="download-btn">
-                        📥 Download PDF
+                        📥 PDF herunterladen
                     </button>
                     <button onClick={handlePrint} className="print-btn">
-                        🖨️ Print Card
+                        🖨️ Karte drucken
                     </button>
                 </div>
             </main>

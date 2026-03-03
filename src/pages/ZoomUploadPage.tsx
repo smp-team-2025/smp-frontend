@@ -55,12 +55,12 @@ export default function ZoomUploadPage() {
         setSessions(sortedSessions);
       } else {
         setSessions([]);
-        setStatus({ type: "error", msg: "Failed to load sessions." });
+        setStatus({ type: "error", msg: "Sessions konnten nicht geladen werden." });
       }
     } catch (err) {
       console.error("Failed to fetch sessions:", err);
       setSessions([]);
-      setStatus({ type: "error", msg: "Failed to load sessions." });
+      setStatus({ type: "error", msg: "Sessions konnten nicht geladen werden." });
     } finally {
       setLoadingSessions(false);
     }
@@ -75,7 +75,7 @@ export default function ZoomUploadPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSessionId || !file) {
-      setStatus({ type: "error", msg: "Please select a session and provide a CSV file." });
+      setStatus({ type: "error", msg: "Bitte wählen Sie eine Session und eine CSV-Datei aus." });
       return;
     }
 
@@ -106,13 +106,13 @@ export default function ZoomUploadPage() {
       if (res.ok) {
         setStatus({
           type: "success",
-          msg: `Success! Matched: ${data.matchedCount}, Unmatched: ${data.unmatchedCount}`,
+          msg: `Erfolg! Zugeordnet: ${data.matchedCount}, Nicht zugeordnet: ${data.unmatchedCount}`,
         });
       } else {
-        setStatus({ type: "error", msg: data.error || "Upload failed." });
+        setStatus({ type: "error", msg: data.error || "Hochladen fehlgeschlagen." });
       }
     } catch (err) {
-      setStatus({ type: "error", msg: "An error occurred during upload." });
+      setStatus({ type: "error", msg: "Beim Hochladen ist ein Fehler aufgetreten." });
     } finally {
       setLoading(false);
     }
@@ -143,16 +143,16 @@ export default function ZoomUploadPage() {
       </header>
 
       <main className="container">
-        <h1>Zoom Attendance Upload</h1>
+        <h1>Zoom Anwesenheit hochladen</h1>
         <div className="upload-card">
-          <p>Select a session and upload the Zoom CSV file to process attendance.</p>
+          <p>Wählen Sie eine Session aus und laden Sie die Zoom-CSV-Datei hoch, um die Anwesenheit zu erfassen.</p>
 
           {loadingSessions ? (
-            <p>Loading sessions...</p>
+            <p>Sessions werden geladen...</p>
           ) : (
             <form onSubmit={handleSubmit} className="upload-form">
               <div className="form-group">
-                <label htmlFor="sessionSelect">Select Session</label>
+                <label htmlFor="sessionSelect">Session auswählen</label>
                 <select
                   id="sessionSelect"
                   value={selectedSessionId}
@@ -167,7 +167,7 @@ export default function ZoomUploadPage() {
                     backgroundColor: "white",
                   }}
                 >
-                  <option value="">-- Select a session --</option>
+                  <option value="">-- Session auswählen --</option>
                   {sessions.map((session) => (
                     <option key={session.id} value={session.id}>
                       {formatSessionLabel(session)}
@@ -177,7 +177,7 @@ export default function ZoomUploadPage() {
               </div>
 
               <div className="form-group">
-                <label>Zoom CSV File</label>
+                <label>Zoom CSV-Datei</label>
                 <div className="file-input-container">
                   <input
                     type="file"
@@ -187,17 +187,17 @@ export default function ZoomUploadPage() {
                     className="file-input-hidden"
                   />
                   <label htmlFor="file" className="file-input-label">
-                    {file ? file.name : "Choose CSV File"}
+                    {file ? file.name : "CSV-Datei auswählen"}
                   </label>
                 </div>
               </div>
 
               <button type="submit" className="submit-btn" disabled={loading || !selectedSessionId || !file}>
-                {loading ? "Processing..." : "Upload and Take Attendance"}
+                {loading ? "Wird verarbeitet..." : "Hochladen und Anwesenheit erfassen"}
               </button>
 
               <button type="button" className="secondary-btn" onClick={() => navigate("/zoom-check")}>
-                Check Unmatched Participants
+                Nicht zugeordnete Teilnehmer prüfen
               </button>
             </form>
           )}

@@ -48,17 +48,17 @@ export default function QuizLeaderboardPage() {
       if (res.ok) {
         setLeaderboard(await res.json());
       } else {
-        alert("Error loading leaderboard");
+        alert("Fehler beim Laden des Leaderboards");
       }
     } catch (error) {
-      alert("Error: " + error);
+      alert("Fehler: " + error);
     } finally {
       setLoading(false);
     }
   }
 
   if (loading) {
-    return <div className="quiz-container">Loading...</div>;
+    return <div className="quiz-container">Lädt...</div>;
   }
 
   const renderLeaderboardTable = (entries: LeaderboardEntry[], title: string, color: string) => {
@@ -77,11 +77,11 @@ export default function QuizLeaderboardPage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ backgroundColor: "#f5f5f5" }}>
-                <th style={{ padding: "15px", textAlign: "left", fontWeight: "bold" }}>Rank</th>
-                <th style={{ padding: "15px", textAlign: "left", fontWeight: "bold" }}>Participant</th>
-                <th style={{ padding: "15px", textAlign: "center", fontWeight: "bold" }}>Total Score</th>
-                <th style={{ padding: "15px", textAlign: "center", fontWeight: "bold" }}>Questions Scores</th>
-                <th style={{ padding: "15px", textAlign: "left", fontWeight: "bold" }}>Submitted At</th>
+                <th style={{ padding: "15px", textAlign: "left", fontWeight: "bold" }}>Rang</th>
+                <th style={{ padding: "15px", textAlign: "left", fontWeight: "bold" }}>Teilnehmer</th>
+                <th style={{ padding: "15px", textAlign: "center", fontWeight: "bold" }}>Gesamtpunktzahl</th>
+                <th style={{ padding: "15px", textAlign: "center", fontWeight: "bold" }}>Fragenpunkte</th>
+                <th style={{ padding: "15px", textAlign: "left", fontWeight: "bold" }}>Abgegeben am</th>
               </tr>
             </thead>
             <tbody>
@@ -156,7 +156,7 @@ export default function QuizLeaderboardPage() {
         <span className="logo">SMP 2026</span>
         <div className="nav-right">
           <Link to="/quizlist" className="back-btn">
-            ← Back to Quizzes
+            ← Zurück zu Quizzes
           </Link>
           <Link to="/login" className="logout-btn">
             Logout
@@ -169,13 +169,13 @@ export default function QuizLeaderboardPage() {
 
         {leaderboard.students.length === 0 && leaderboard.teachers.length === 0 && leaderboard.guests.length === 0 ? (
           <p style={{ textAlign: "center", marginTop: "40px", color: "#666" }}>
-            No participants have submitted yet
+            Noch keine Teilnehmer haben abgegeben
           </p>
         ) : (
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-            {renderLeaderboardTable(leaderboard.students, "🎓 Students Leaderboard", "#1976d2")}
-            {renderLeaderboardTable(leaderboard.teachers, "👨‍🏫 Teachers Leaderboard", "#388e3c")}
-            {renderLeaderboardTable(leaderboard.guests, "👥 Guests Leaderboard", "#f57c00")}
+            {renderLeaderboardTable(leaderboard.students, "🎓 Schüler Leaderboard", "#1976d2")}
+            {renderLeaderboardTable(leaderboard.teachers, "👨‍🏫 Lehrer Leaderboard", "#388e3c")}
+            {renderLeaderboardTable(leaderboard.guests, "👥 Gäste Leaderboard", "#f57c00")}
 
             <div style={{
               marginTop: "30px",
@@ -183,13 +183,13 @@ export default function QuizLeaderboardPage() {
               backgroundColor: "#f5f5f5",
               borderRadius: "8px"
             }}>
-              <h3 style={{ marginTop: 0 }}>Scoring System</h3>
+              <h3 style={{ marginTop: 0 }}>Punktesystem</h3>
               <ul style={{ marginBottom: 0 }}>
-                <li><strong>0 points</strong> = Exact answer or very close</li>
-                <li><strong>1-2 points</strong> = Good estimate</li>
-                <li><strong>3-7 points</strong> = Far from correct answer</li>
-                <li><strong>8 points</strong> = Very far or no answer</li>
-                <li><strong>Lower total score = Better rank!</strong></li>
+                <li><strong>0 Punkte</strong> = Exakte Antwort oder sehr nah</li>
+                <li><strong>1-2 Punkte</strong> = Gute Schätzung</li>
+                <li><strong>3-7 Punkte</strong> = Weit von der richtigen Antwort</li>
+                <li><strong>8 Punkte</strong> = Sehr weit oder keine Antwort</li>
+                <li><strong>Niedrigere Gesamtpunktzahl = Besserer Rang!</strong></li>
               </ul>
             </div>
           </div>

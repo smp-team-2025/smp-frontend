@@ -106,7 +106,7 @@ export default function OHomePage() {
                 </p>
 
                 <div className="upcoming-card">
-                    <div className="upcoming-title">Upcoming session</div>
+                    <div className="upcoming-title">Kommende Session</div>
 
                     {upcomingLoading ? (
                         <div className="upcoming-muted">Lädt…</div>
@@ -183,11 +183,11 @@ export default function OHomePage() {
 
                     <Link to="/ohomepage/zoom" className="card">
                         <h2>Zoom Upload csv</h2>
-                        <p>Upload and get attendance</p>
+                        <p>CSV hochladen und Anwesenheit erfassen</p>
                     </Link>
 
                     <Link to="/ohomepage/diplomas" className="card">
-                        <h2>Diplomas</h2>
+                        <h2>Diplome</h2>
                         <p>Erstellte Diplome auflisten und herunterladen</p>
                     </Link>
 
@@ -213,7 +213,7 @@ export default function OHomePage() {
                     </Link>
 
                     <Link to="/archive" className="card">
-                        <h2>Archive</h2>
+                        <h2>Archiv</h2>
                         <p>Vergangene Events anzeigen</p>
                     </Link>
 

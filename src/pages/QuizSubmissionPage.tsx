@@ -80,7 +80,7 @@ export default function QuizSubmissionPage() {
         };
       });
 
-      alert("Time's up! Submitting your quiz...");
+      alert("Zeit abgelaufen! Quiz wird abgeschickt...");
       submitQuiz(allAnswers);
       return;
     }
@@ -109,11 +109,11 @@ export default function QuizSubmissionPage() {
         setQuiz(data);
         updateTimerFromQuiz(data);
       } else {
-        alert("Quiz not found");
+        alert("Quiz nicht gefunden");
         navigate("/studenthomepage");
       }
     } catch (error) {
-      alert("Error loading: " + error);
+      alert("Fehler beim Laden: " + error);
     } finally {
       setLoading(false);
     }
@@ -141,7 +141,7 @@ export default function QuizSubmissionPage() {
 
     // Show alert ONLY once when timer first starts
     if (!timerStarted && !alreadyShown && remainingSeconds > 0) {
-      alert(`Timer started! You have ${quizData.timerDurationMinutes} minutes to complete the quiz.`);
+      alert(`Timer gestartet! Sie haben ${quizData.timerDurationMinutes} Minuten Zeit.`);
       setTimerStarted(true);
       setAlertShown(true);
       localStorage.setItem(alertKey, 'true');
@@ -221,11 +221,11 @@ export default function QuizSubmissionPage() {
       });
 
       if (res.ok) {
-        alert("Quiz submitted successfully!");
+        alert("Quiz erfolgreich abgeschickt!");
         navigate("/studenthomepage");
       } else {
         const data = await res.json();
-        alert(data.error || "Error submitting quiz");
+        alert(data.error || "Fehler beim Absenden des Quiz");
         // If time is up and submit failed, redirect to home to avoid loop
         if (timeLeft !== null && timeLeft <= 0) {
           navigate("/studenthomepage");
@@ -234,7 +234,7 @@ export default function QuizSubmissionPage() {
         }
       }
     } catch (error) {
-      alert("Error: " + error);
+      alert("Fehler: " + error);
       // If time is up and submit failed, redirect to home to avoid loop
       if (timeLeft !== null && timeLeft <= 0) {
         navigate("/studenthomepage");
@@ -245,14 +245,14 @@ export default function QuizSubmissionPage() {
   }
 
   if (loading) {
-    return <div className="quiz-container">Loading...</div>;
+    return <div className="quiz-container">Lädt...</div>;
   }
 
   if (!quiz || quiz.questions.length === 0) {
     return (
       <div className="quiz-container">
-        <p>No quiz available</p>
-        <button onClick={() => navigate("/studenthomepage")}>Back</button>
+        <p>Kein Quiz verfügbar</p>
+        <button onClick={() => navigate("/studenthomepage")}>Zurück</button>
       </div>
     );
   }
@@ -276,7 +276,7 @@ export default function QuizSubmissionPage() {
           <div className="progress-fill" style={{ width: `${progress}%` }}></div>
         </div>
         <p className="question-counter">
-          Question {currentQuestionIndex + 1} of {quiz.questions.length}
+          Frage {currentQuestionIndex + 1} von {quiz.questions.length}
         </p>
       </div>
 
@@ -286,7 +286,7 @@ export default function QuizSubmissionPage() {
             {minutes}:{seconds.toString().padStart(2, '0')}
           </div>
           <p style={{ textAlign: "center", marginTop: "10px", color: "#666", fontSize: "14px" }}>
-            Time remaining
+            Verbleibende Zeit
           </p>
         </div>
       )}
@@ -303,9 +303,9 @@ export default function QuizSubmissionPage() {
           }}
           className="quiz-form"
         >
-          <label>Your Answer (Power of 10)</label>
+          <label>Ihre Antwort (Zehnerpotenz)</label>
           <p style={{ fontSize: "14px", color: "#666", marginBottom: "15px" }}>
-            Select the exponent: 10^n where n is between -50 and 50
+            Wählen Sie den Exponenten: 10^n wobei n zwischen -50 und 50 liegt
           </p>
           <select
             value={currentAnswer !== null ? currentAnswer : ""}
@@ -323,7 +323,7 @@ export default function QuizSubmissionPage() {
               color: "#333"
             }}
           >
-            <option value="">-- Select exponent --</option>
+            <option value="">-- Exponent auswählen --</option>
             {Array.from({ length: 101 }, (_, i) => i - 50).map((n) => (
               <option key={n} value={n}>
                 {n}
@@ -339,7 +339,7 @@ export default function QuizSubmissionPage() {
               disabled={currentQuestionIndex === 0 || submitting}
               style={{ flex: 1 }}
             >
-              ← Previous
+              ← Zurück
             </button>
 
             <button
@@ -350,9 +350,9 @@ export default function QuizSubmissionPage() {
             >
               {currentQuestionIndex === quiz.questions.length - 1
                 ? submitting
-                  ? "Submitting Quiz..."
-                  : "Submit Quiz"
-                : "Next →"}
+                  ? "Quiz wird abgeschickt..."
+                  : "Quiz absenden"
+                : "Weiter →"}
             </button>
           </div>
         </form>

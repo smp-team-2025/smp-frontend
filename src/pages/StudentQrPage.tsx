@@ -17,7 +17,7 @@ export default function StudentQrPage(){
                 const src = await qrApi.getUserQrCode(user.id);
                 setQrSrc(src);
             } catch (err: any) {
-                setError("Could not load QR code");
+                setError("QR-Code konnte nicht geladen werden");
             }
         };
         loadData();
@@ -39,8 +39,8 @@ export default function StudentQrPage(){
             </header>
 
             <main className="qr-container">
-                <h1>My QR Code</h1>
-                <p className="subtitle">Show this QR code at the entrance</p>
+                <h1>Mein QR-Code</h1>
+                <p className="subtitle">Zeigen Sie diesen QR-Code am Eingang</p>
 
                 <div className="qr-card">
                     {error ? (
@@ -48,7 +48,7 @@ export default function StudentQrPage(){
                     ) : qrSrc ? (
                         <img src={qrSrc} alt="QR Code" />
                     ) : (
-                        <p>Loading QR Code...</p>
+                        <p>QR-Code wird geladen...</p>
                     )}
                     <p className="student-name">{username}</p>
                 </div>

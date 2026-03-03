@@ -109,7 +109,7 @@ export default function SessionListPage() {
             });
 
             if (!res.ok) {
-                setError("Failed to load sessions.");
+                setError("Sessions konnten nicht geladen werden.");
                 return;
             }
 
@@ -121,7 +121,7 @@ export default function SessionListPage() {
             );
         } catch (err) {
             console.error(err);
-            setError("Failed to load sessions.");
+            setError("Sessions konnten nicht geladen werden.");
         }
     };
 
@@ -134,7 +134,7 @@ export default function SessionListPage() {
         e.preventDefault();
 
         if (!activeEventId) {
-            alert("No active event selected.");
+            alert("Kein aktives Event ausgewählt.");
             return;
         }
 
@@ -142,7 +142,7 @@ export default function SessionListPage() {
         if (!token) return;
 
         if (!newSession.startsAt) {
-            alert("Start time is required");
+            alert("Startzeit ist erforderlich");
             return;
         }
 
@@ -172,7 +172,7 @@ export default function SessionListPage() {
             setNewSession({ title: "", description: "", location: "", startsAt: "", endsAt: "" });
         } else {
             const data = await res.json().catch(() => ({}));
-            alert(data.error || "Failed to create session");
+            alert(data.error || "Session konnte nicht erstellt werden");
         }
     };
 
@@ -266,7 +266,7 @@ export default function SessionListPage() {
         e.preventDefault();
 
         if (!activeEventId) {
-            alert("No active event selected.");
+            alert("Kein aktives Event ausgewählt.");
             return;
         }
 
@@ -274,7 +274,7 @@ export default function SessionListPage() {
         if (!token) return;
 
         if (!editSession.startsAt) {
-            alert("Start time is required");
+            alert("Startzeit ist erforderlich");
             return;
         }
 
@@ -305,17 +305,17 @@ export default function SessionListPage() {
             handleCancelEdit();
         } else {
             const data = await res.json().catch(() => ({}));
-            alert(data.error || "Failed to update session");
+            alert(data.error || "Session konnte nicht aktualisiert werden");
         }
     };
 
     const handleDeleteSession = async (sessionId: number) => {
         if (!activeEventId) {
-            alert("No active event selected.");
+            alert("Kein aktives Event ausgewählt.");
             return;
         }
 
-        if (!confirm("Are you sure you want to delete this session?")) return;
+        if (!confirm("Möchten Sie diese Session wirklich löschen?")) return;
 
         const token = localStorage.getItem("token");
         const res = await fetch(`/api/events/${activeEventId}/sessions/${sessionId}`, {
@@ -327,7 +327,7 @@ export default function SessionListPage() {
             setSessions((prev) => prev.filter((s) => s.id !== sessionId));
         } else {
             const data = await res.json().catch(() => ({}));
-            alert(data.error || "Failed to delete session");
+            alert(data.error || "Session konnte nicht gelöscht werden");
         }
     };
 
@@ -348,7 +348,7 @@ export default function SessionListPage() {
             fetchHiwisForSession(sessionId);
         } else {
             const data = await res.json().catch(() => ({}));
-            alert(data.error || "Failed to assign HiWi");
+            alert(data.error || "HiWi konnte nicht zugewiesen werden");
         }
     };
 
@@ -368,7 +368,7 @@ export default function SessionListPage() {
             fetchHiwisForSession(sessionId);
         } else {
             const data = await res.json().catch(() => ({}));
-            alert(data.error || "Failed to unassign HiWi");
+            alert(data.error || "HiWi konnte nicht entfernt werden");
         }
     };
 
@@ -387,45 +387,45 @@ export default function SessionListPage() {
             </header>
 
             <main className="session-container">
-                <h1>Session Management</h1>
+                <h1>Session Verwaltung</h1>
 
                 <button
                     className="session-create-btn"
                     onClick={() => setShowCreateForm(!showCreateForm)}
                     disabled={!activeEventId}
-                    title={!activeEventId ? "No active event selected" : ""}
+                    title={!activeEventId ? "Kein aktives Event ausgewählt" : ""}
                 >
-                    {showCreateForm ? "− Cancel" : "+ Create Session"}
+                    {showCreateForm ? "− Abbrechen" : "+ Session erstellen"}
                 </button>
 
                 {showCreateForm && (
                     <div className="session-create-wrapper">
                         <div className="session-create-card">
-                            <h2>Create New Session</h2>
+                            <h2>Neue Session erstellen</h2>
                             <form onSubmit={handleCreateSession} className="session-form">
                                 <input
                                     name="title"
-                                    placeholder="Title"
+                                    placeholder="Titel"
                                     value={newSession.title}
                                     onChange={handleChange}
                                     required
                                 />
                                 <textarea
                                     name="description"
-                                    placeholder="Description (optional)"
+                                    placeholder="Beschreibung (optional)"
                                     value={newSession.description}
                                     onChange={handleChange}
                                 />
                                 <input
                                     name="location"
-                                    placeholder="Location (optional)"
+                                    placeholder="Ort (optional)"
                                     value={newSession.location}
                                     onChange={handleChange}
                                 />
 
                                 <div className="session-form-row">
                                     <div>
-                                        <label>Start Time</label>
+                                        <label>Startzeit</label>
                                         <input
                                             type="datetime-local"
                                             name="startsAt"
@@ -435,7 +435,7 @@ export default function SessionListPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label>End Time</label>
+                                        <label>Endzeit</label>
                                         <input
                                             type="datetime-local"
                                             name="endsAt"
@@ -446,14 +446,14 @@ export default function SessionListPage() {
                                 </div>
 
                                 <button type="submit" className="session-save-btn">
-                                    Save Session
+                                    Session speichern
                                 </button>
                             </form>
                         </div>
                     </div>
                 )}
 
-                {loading && <p>Loading...</p>}
+                {loading && <p>Lädt...</p>}
                 {error && <p className="session-error">{error}</p>}
 
                 <div className="session-grid">
@@ -467,7 +467,7 @@ export default function SessionListPage() {
                                 >
                                     <input
                                         name="title"
-                                        placeholder="Title"
+                                        placeholder="Titel"
                                         value={editSession.title}
                                         onChange={(e) => setEditSession({ ...editSession, title: e.target.value })}
                                         required
@@ -475,7 +475,7 @@ export default function SessionListPage() {
                                     />
                                     <textarea
                                         name="description"
-                                        placeholder="Description (optional)"
+                                        placeholder="Beschreibung (optional)"
                                         value={editSession.description}
                                         onChange={(e) =>
                                             setEditSession({ ...editSession, description: e.target.value })
@@ -484,7 +484,7 @@ export default function SessionListPage() {
                                     />
                                     <input
                                         name="location"
-                                        placeholder="Location (optional)"
+                                        placeholder="Ort (optional)"
                                         value={editSession.location}
                                         onChange={(e) =>
                                             setEditSession({ ...editSession, location: e.target.value })
@@ -493,7 +493,7 @@ export default function SessionListPage() {
                                     />
                                     <div className="session-form-row">
                                         <div>
-                                            <label>Start Time</label>
+                                            <label>Startzeit</label>
                                             <input
                                                 type="datetime-local"
                                                 name="startsAt"
@@ -505,7 +505,7 @@ export default function SessionListPage() {
                                             />
                                         </div>
                                         <div>
-                                            <label>End Time</label>
+                                            <label>Endzeit</label>
                                             <input
                                                 type="datetime-local"
                                                 name="endsAt"
@@ -518,7 +518,7 @@ export default function SessionListPage() {
                                     </div>
                                     <div style={{ display: "flex", gap: "10px" }}>
                                         <button type="submit" className="session-save-btn">
-                                            Save Changes
+                                            Änderungen speichern
                                         </button>
                                         <button
                                             type="button"
@@ -532,7 +532,7 @@ export default function SessionListPage() {
                                                 cursor: "pointer",
                                             }}
                                         >
-                                            Cancel
+                                            Abbrechen
                                         </button>
                                     </div>
                                 </form>
@@ -545,7 +545,7 @@ export default function SessionListPage() {
                                         </p>
                                         {session.location && (
                                             <p>
-                                                <strong>Location:</strong> {session.location}
+                                                <strong>Ort:</strong> {session.location}
                                             </p>
                                         )}
                                     </div>
@@ -562,7 +562,7 @@ export default function SessionListPage() {
                                                 cursor: "pointer",
                                             }}
                                         >
-                                            Edit Session
+                                            Session bearbeiten
                                         </button>
                                         <button
                                             onClick={() => handleDeleteSession(session.id)}
@@ -575,7 +575,7 @@ export default function SessionListPage() {
                                                 cursor: "pointer",
                                             }}
                                         >
-                                            Delete
+                                            Löschen
                                         </button>
                                     </div>
                                 </>
@@ -583,9 +583,9 @@ export default function SessionListPage() {
 
                             {expandedSessionId === session.id && (
                                 <div style={{ marginTop: "15px", paddingTop: "15px", borderTop: "1px solid #ddd" }}>
-                                    <h4 style={{ marginBottom: "10px" }}>Assigned HiWis</h4>
+                                    <h4 style={{ marginBottom: "10px" }}>Zugewiesene HiWis</h4>
                                     {assignedHiwis.length === 0 ? (
-                                        <p style={{ fontSize: "0.9rem", color: "#666" }}>No HiWis assigned yet</p>
+                                        <p style={{ fontSize: "0.9rem", color: "#666" }}>Noch keine HiWis zugewiesen</p>
                                     ) : (
                                         <ul style={{ paddingLeft: "20px", margin: "0" }}>
                                             {assignedHiwis.map((assigned) => (
@@ -614,19 +614,19 @@ export default function SessionListPage() {
                                     cursor: "pointer",
                                 }}
                             >
-                                {selectedSessionId === session.id ? "Close HiWi Management" : "Manage HiWis"}
+                                {selectedSessionId === session.id ? "HiWi-Verwaltung schließen" : "HiWis verwalten"}
                             </button>
 
                             {selectedSessionId === session.id && (
                                 <div style={{ marginTop: "15px", padding: "10px", backgroundColor: "#f8f9fa", borderRadius: "4px" }}>
                                     {loadingHiwis ? (
-                                        <p>Loading HiWis...</p>
+                                        <p>HiWis werden geladen...</p>
                                     ) : (
                                         <>
                                             <div style={{ marginBottom: "15px" }}>
-                                                <h4 style={{ marginBottom: "10px" }}>Assigned HiWis</h4>
+                                                <h4 style={{ marginBottom: "10px" }}>Zugewiesene HiWis</h4>
                                                 {assignedHiwis.length === 0 ? (
-                                                    <p>No HiWis assigned yet.</p>
+                                                    <p>Noch keine HiWis zugewiesen.</p>
                                                 ) : (
                                                     <div>
                                                         {assignedHiwis.map((assigned) => (
@@ -656,7 +656,7 @@ export default function SessionListPage() {
                                                                         cursor: "pointer",
                                                                     }}
                                                                 >
-                                                                    Remove
+                                                                    Entfernen
                                                                 </button>
                                                             </div>
                                                         ))}
@@ -665,9 +665,9 @@ export default function SessionListPage() {
                                             </div>
 
                                             <div>
-                                                <h4 style={{ marginBottom: "10px" }}>Available HiWis</h4>
+                                                <h4 style={{ marginBottom: "10px" }}>Verfügbare HiWis</h4>
                                                 {availableHiwis.filter((h) => !assignedHiwis.some((a) => a.hiwiId === h.id)).length === 0 ? (
-                                                    <p>All HiWis are assigned or no HiWis available.</p>
+                                                    <p>Alle HiWis sind zugewiesen oder keine HiWis verfügbar.</p>
                                                 ) : (
                                                     <div>
                                                         {availableHiwis
@@ -699,7 +699,7 @@ export default function SessionListPage() {
                                                                             cursor: "pointer",
                                                                         }}
                                                                     >
-                                                                        Assign
+                                                                        Zuweisen
                                                                     </button>
                                                                 </div>
                                                             ))}
@@ -714,7 +714,7 @@ export default function SessionListPage() {
                     ))}
                 </div>
 
-                {!loading && sessions.length === 0 && <p>No sessions found.</p>}
+                {!loading && sessions.length === 0 && <p>Keine Sessions gefunden.</p>}
             </main>
         </div>
     );
