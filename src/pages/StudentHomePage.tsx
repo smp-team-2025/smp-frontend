@@ -90,6 +90,7 @@ export default function StudentHomePage() {
             <header className="navbar">
                 <div className="nav-left">
                     <span className="logo">SMP 2026</span>
+                    <img src="/smp-logo.jpeg" alt="SMP Logo" style={{ height: '3rem', marginRight: '10px' }} />
                 </div>
 
                 <div className="nav-right">

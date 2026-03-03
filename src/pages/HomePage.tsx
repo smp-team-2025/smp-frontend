@@ -32,6 +32,7 @@ export default function HomePage() {
       {/* NAVBAR */}
       <header className="navbar">
         <div className="brand">Saturday Morning Physics 2025</div>
+        <img src="/smp-logo.jpeg" alt="SMP Logo" style={{ height: '3rem', marginRight: '10px'}} />
 
         <div className="nav-actions">
           <a href="/login" className="btn login">Login</a>

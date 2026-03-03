@@ -89,6 +89,7 @@ export default function HiwiHomePage() {
     <div className="page-wrapper">
       <header className="navbar">
         <span className="logo">SMP 2026</span>
+        <img src="/smp-logo.jpeg" alt="SMP Logo" style={{ height: '3rem', marginRight: '10px' }} />
         <div className="nav-right">
           <Link to="/login" className="logout-btn"> Logout </Link>
         </div>
