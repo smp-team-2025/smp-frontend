@@ -31,6 +31,7 @@ export default function QuizLeaderboardPage() {
   const navigate = useNavigate();
   const [leaderboard, setLeaderboard] = useState<LeaderboardData>({ students: [], teachers: [], guests: [] });
   const [loading, setLoading] = useState(true);
+  const [downloadingCsv, setDownloadingCsv] = useState(false);
 
   useEffect(() => {
     if (checkAuthAndRedirect(navigate)) {
@@ -55,6 +56,41 @@ export default function QuizLeaderboardPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function downloadQuizResultsCsv() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    setDownloadingCsv(true);
+    try {
+      const res = await fetch(`/api/quizzes/${quizId}/results.csv`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        throw new Error(`CSV download failed (${res.status}): ${t}`);
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `quiz_${quizId}_results.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+      alert("CSV konnte nicht heruntergeladen werden");
+    } finally {
+      setDownloadingCsv(false);
+    }
+
   }
 
   if (loading) {
@@ -163,9 +199,28 @@ export default function QuizLeaderboardPage() {
           </Link>
         </div>
       </header>
-
+      
       <main className="container">
         <h1>Fermi Quiz Leaderboard</h1>
+        <div style={{ display: "flex", justifyContent: "flex-end", margin: "10px 0 16px" }}>
+          <button
+            onClick={downloadQuizResultsCsv}
+            disabled={downloadingCsv}
+            style={{
+              minWidth: 180,
+              height: 42,
+              padding: "0 18px",
+              borderRadius: "8px",
+              border: "none",
+              background: "#111",
+              color: "white",
+              fontWeight: 600,
+              cursor: downloadingCsv ? "not-allowed" : "pointer",
+            }}
+          >
+            {downloadingCsv ? "CSV wird erstellt..." : "CSV herunterladen"}
+          </button>
+        </div>
 
         {leaderboard.students.length === 0 && leaderboard.teachers.length === 0 && leaderboard.guests.length === 0 ? (
           <p style={{ textAlign: "center", marginTop: "40px", color: "#666" }}>
