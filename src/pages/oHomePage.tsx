@@ -92,7 +92,6 @@ export default function OHomePage() {
         <div className="page-wrapper">
             <header className="navbar">
                 <div className="nav-left">
-                    <img src="/smp-logo.jpeg" alt="SMP Logo" style={{ height: '3rem', marginRight: '10px' }} />
                     <span className="logo">SMP 2026</span>
                 </div>
 
