@@ -46,7 +46,7 @@ import ArchiveAttendanceDataPage from "./pages/ArchiveAttendanceDataPage";
 import ArchiveDiplomaListPage from "./pages/ArchiveDiplomaListPage";
 import HiwiAvailabilityPage from "./pages/HiwiAvailabilityPage";
 import OrganizerHiwiAttendanceOverviewPage from "./pages/organizerHiwiAttendanceOverviewPage";
-
+import DiplomaSettingsPage from "./pages/DiplomaSettingsPage";
 
 
 
@@ -107,7 +107,7 @@ export default function App() {
         <Route path="/archive/attendance" element={<ArchiveAttendanceDataPage />} />
         <Route path="/archive/diplomas" element={<ArchiveDiplomaListPage />} />
         <Route path="ohomepage/hiwi-attendance" element={<OrganizerHiwiAttendanceOverviewPage />} />
-
+        <Route path="/ohomepage/diplomas/settings" element={<DiplomaSettingsPage />} />
 
 
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { diplomasApi, type DiplomaIssued } from "../api/diplomas";
 import { getActiveEvent } from "../api/event";
 import "./admin.css";
@@ -18,6 +18,9 @@ export default function DiplomaListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [downloadingCsv, setDownloadingCsv] = useState(false);
+  const [downloadingPdfKey, setDownloadingPdfKey] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [openingSettings, setOpeningSettings] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -63,6 +66,11 @@ export default function DiplomaListPage() {
     return items;
   }, [items, sessionId]);
 
+    const goToDiplomaSettings = () => {
+    setOpeningSettings(true);
+    navigate("/ohomepage/diplomas/settings");
+  };
+
   async function downloadDiplomaListCsv() {
   if (!activeEvent) return;
 
@@ -87,6 +95,43 @@ export default function DiplomaListPage() {
     setDownloadingCsv(false);
   }
 }
+
+async function downloadDiplomaPdf(participantId: number, eventId: number, fileName?: string) {
+   const key = `${participantId}:${eventId}`;
+   setDownloadingPdfKey(key);
+   setError(null);
+         
+   try {
+     const token = localStorage.getItem("token");
+     if (!token) throw new Error("Nicht eingeloggt.");
+   
+     const res = await fetch(`/api/diplomas/${participantId}/${eventId}`, {
+       method: "GET",
+       headers: { Authorization: `Bearer ${token}` },
+     });
+   
+     if (!res.ok) {
+       const text = await res.text().catch(() => "");
+       throw new Error(text || `Download fehlgeschlagen (${res.status})`);
+     }
+   
+     const blob = await res.blob();
+     const url = window.URL.createObjectURL(blob);
+   
+     const a = document.createElement("a");
+     a.href = url;
+     a.download = fileName ? `${fileName}.pdf` : `diploma_${participantId}_${eventId}.pdf`;
+     document.body.appendChild(a);
+     a.click();
+     a.remove();
+   
+     window.URL.revokeObjectURL(url);
+   } catch (e: any) {
+     setError(e?.message || "PDF konnte nicht heruntergeladen werden");
+   } finally {
+     setDownloadingPdfKey(null);
+   }
+ }
 
 const actionButtonStyle: React.CSSProperties = {
   minWidth: 170,
@@ -163,6 +208,14 @@ const actionButtonStyle: React.CSSProperties = {
             Aktualisieren
           </button>
 
+
+          <button
+            style={actionButtonStyle}
+            onClick={() => navigate("/ohomepage/diplomas/settings")}
+            disabled={!activeEvent}
+          >
+            Diplom-Einstellungen
+          </button>
           <button
             style={actionButtonStyle}
             onClick={downloadDiplomaListCsv}
@@ -193,9 +246,20 @@ const actionButtonStyle: React.CSSProperties = {
                   <td>{d.certificateNumber}</td>
                   <td>{new Date(d.createdAt).toLocaleString("de-DE")}</td>
                   <td>
-                    <Link to={`/diplomas/${d.participant.id}/${d.event.id}`}>
-                      Download
-                    </Link>
+                    <button
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        color: "#4c6fff",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                      }}
+                      onClick={() => downloadDiplomaPdf(d.participant.id, d.event.id, d.certificateNumber)}
+                      disabled={downloadingPdfKey === `${d.participant.id}:${d.event.id}`}
+                    >
+                      {downloadingPdfKey === `${d.participant.id}:${d.event.id}` ? "Wird heruntergeladen..." : "Download"}
+                    </button>
                   </td>
                 </tr>
               ))}
