@@ -47,6 +47,7 @@ import ArchiveDiplomaListPage from "./pages/ArchiveDiplomaListPage";
 import HiwiAvailabilityPage from "./pages/HiwiAvailabilityPage";
 import OrganizerHiwiAttendanceOverviewPage from "./pages/organizerHiwiAttendanceOverviewPage";
 import DiplomaSettingsPage from "./pages/DiplomaSettingsPage";
+import ApprovalEmailSettingsPage from "./pages/ApprovalEmailSettingsPage";
 
 
 
@@ -108,6 +109,7 @@ export default function App() {
         <Route path="/archive/diplomas" element={<ArchiveDiplomaListPage />} />
         <Route path="ohomepage/hiwi-attendance" element={<OrganizerHiwiAttendanceOverviewPage />} />
         <Route path="/ohomepage/diplomas/settings" element={<DiplomaSettingsPage />} />
+        <Route path="/ohomepage/approval-email" element={<ApprovalEmailSettingsPage />} />
 
 
 

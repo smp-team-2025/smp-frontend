@@ -203,6 +203,10 @@ export default function OHomePage() {
                         <h2>Registrierungen genehmigen</h2>
                         <p>Benutzerregistrierungen genehmigen oder ablehnen</p>
                     </Link>
+                    <Link to="/ohomepage/approval-email" className="card">
+  <                     h2>Approval E-Mail</h2>
+                        <p>Betreff & Einleitungstext für Genehmigungs-E-Mails</p>
+                    </Link>
 
                     <Link to="/organizer/participants" className="card">
                         <h2>Teilnehmer</h2>
