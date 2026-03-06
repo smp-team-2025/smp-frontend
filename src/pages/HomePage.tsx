@@ -31,7 +31,7 @@ export default function HomePage() {
     <div>
       {/* NAVBAR */}
       <header className="navbar">
-        <div className="brand">Saturday Morning Physics 2025</div>
+        <div className="brand">Saturday Morning Physics 2026</div>
 
         <div className="nav-actions">
           <a href="/login" className="btn login">Login</a>
@@ -43,8 +43,7 @@ export default function HomePage() {
 
       {/* MAIN CONTENT */}
       <main className="container">
-        <h1 className="title">Saturday Morning Physics 2025</h1>
-        <div className="subtitle">???</div>
+        <h1 className="title">Saturday Morning Physics 2026</h1>
 
         <article className="hero-card">
           <div className="hero-inner">
@@ -59,7 +58,7 @@ export default function HomePage() {
             <div className="hero-text">
               <h3>Das Programm für dieses Jahr ist veröffentlicht</h3>
               <p>
-                Unsere Veranstaltungsreihe Saturday Morning Physics 2025 kehrt mit
+                Unsere Veranstaltungsreihe Saturday Morning Physics 2026 kehrt mit
                 Universitätsvorträgen, Labortouren und offenen Diskussionsrunden
                 zurück. Um sich anzumelden, klicken Sie bitte auf die Schaltfläche
                 Register, oder wenn Sie bereits Teilnehmer*in sind, können Sie sich
@@ -73,7 +72,7 @@ export default function HomePage() {
         <section className="content">
           <h2>Programm</h2>
           <p>
-            SATURDAY MORNING PHYSICS findet im Wintersemester 2025 an 5 Samstagen
+            SATURDAY MORNING PHYSICS findet im diesen Wintersemester an 5 Samstagen
             von 9.00 bis 12.00 Uhr im großen Physik-Hörsaal und per Zoom statt.
 
           </p>
