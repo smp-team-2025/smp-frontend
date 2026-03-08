@@ -255,7 +255,7 @@ const actionButtonStyle: React.CSSProperties = {
                         cursor: "pointer",
                         textDecoration: "underline",
                       }}
-                      onClick={() => downloadDiplomaPdf(d.participant.id, d.event.id, d.certificateNumber)}
+                      onClick={() => downloadDiplomaPdf(d.participant.id, d.event.id, "SMP-Diplom")}
                       disabled={downloadingPdfKey === `${d.participant.id}:${d.event.id}`}
                     >
                       {downloadingPdfKey === `${d.participant.id}:${d.event.id}` ? "Wird heruntergeladen..." : "Download"}
