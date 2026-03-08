@@ -50,7 +50,7 @@ export default function HomePage() {
 
             <div className="hero-image">
               <img
-                src="/public/saturday_morning_physics-27742_1300x0.jpg"
+                src="/saturday_morning_physics-27742_1300x0.jpg"
                 alt="Saturday Morning Physics"
               />
             </div>
