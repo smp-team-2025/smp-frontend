@@ -209,7 +209,10 @@ export default function QuizCreationPage() {
                             )}
                           </div>
                           {q.correctAnswer !== null && (
-                            <div className="answer-badge">10^{q.correctAnswer}</div>
+                            <div className="answer-badge">
+                              10^{q.correctAnswer}
+                              {q.correctAnswer2 !== null && ` / 10^${q.correctAnswer2}`}
+                            </div>
                           )}
                         </div>
                       ))}
@@ -272,6 +275,16 @@ export default function QuizCreationPage() {
             >
               {creating ? "Wird erstellt..." : "Quiz erstellen"}
             </button>
+            {!selectedSession && selectedQuestions.length === 10 && (
+              <p style={{ color: "#ff6b6b", marginTop: "10px", fontSize: "14px" }}>
+                ⚠️ Bitte wählen Sie zuerst eine Session aus (Schritt 1)
+              </p>
+            )}
+            {selectedSession && selectedQuestions.length !== 10 && (
+              <p style={{ color: "#ff6b6b", marginTop: "10px", fontSize: "14px" }}>
+                ⚠️ Bitte wählen Sie genau 10 Fragen aus ({selectedQuestions.length}/10 ausgewählt)
+              </p>
+            )}
           </div>
         </div>
       </main>

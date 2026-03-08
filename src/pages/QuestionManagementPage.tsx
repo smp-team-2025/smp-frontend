@@ -204,10 +204,19 @@ export default function QuestionManagementPage() {
                       />
                       <input
                         type="number"
-                        step="any"
                         value={editQuestion.correctAnswer}
                         onChange={(e) => setEditQuestion({ ...editQuestion, correctAnswer: e.target.value })}
-                        placeholder="Richtige Antwort"
+                        placeholder="Richtige Antwort (Zehnerpotenz)"
+                        min="-50"
+                        max="50"
+                      />
+                      <input
+                        type="number"
+                        value={editQuestion.correctAnswer2}
+                        onChange={(e) => setEditQuestion({ ...editQuestion, correctAnswer2: e.target.value })}
+                        placeholder="Zweite Antwort (optional)"
+                        min="-50"
+                        max="50"
                       />
                       <div className="btn-group">
                         <button onClick={() => handleUpdate(q.id)} className="btn-save">
@@ -223,7 +232,12 @@ export default function QuestionManagementPage() {
                       <div className="question-text">{q.text}</div>
                       {q.correctAnswer !== null && (
                         <div className="correct-answer-badge">
-                          Antwort: {q.correctAnswer.toExponential(2)}
+                          Antwort 1: 10^{q.correctAnswer}
+                          {q.correctAnswer2 !== null && (
+                            <span style={{ marginLeft: "10px" }}>
+                              | Antwort 2: 10^{q.correctAnswer2}
+                            </span>
+                          )}
                         </div>
                       )}
                       <div className="btn-group">
