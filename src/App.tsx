@@ -5,7 +5,6 @@ import HomePage from "./pages/HomePage";
 import AdminRegistrationsListPage from "./pages/AdminRegistrationsListPage";
 import AdminRegistrationDetailPage from "./pages/AdminRegistrationDetailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OHomePage from "./pages/oHomePage";
 import EventListPage from "./pages/EventListPage";
 import EventDetailPage from "./pages/EventDetailPage";
@@ -65,7 +64,6 @@ export default function App() {
         <Route path="/admin/registrations" element={<AdminRegistrationsListPage />} />
         <Route path="/admin/registrations/:id" element={<AdminRegistrationDetailPage />} />
         <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/ohomepage" element={<OHomePage />} />
         <Route path="/ohomepage/eventlist" element={<EventListPage />} />
         <Route path="/ohomepage/eventdetail" element={<EventDetailPage />} />

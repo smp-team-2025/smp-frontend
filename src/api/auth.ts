@@ -15,34 +15,20 @@ export async function login(email: string,password: string){
 }
 
 
-export async function forgotPassword(email: string){
-    const response = await fetch(`${URL}/forgot-password`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({email}),
-    });
+export async function forgotPassword(email: string) {
+  const response = await fetch(`${URL}/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
 
-    if(!response.ok){
-        const error = await response.text();
-        throw new Error(error || "Gegebene E-Mail konnte nicht gefunden werden.");
-    }
-    return response.json();
+  const data = await response.json().catch(() => null);
 
-        
-}
+  if (!response.ok) {
+    throw new Error(data?.error || "Passwort konnte nicht zurückgesetzt werden.");
+  }
 
-export async function resetPassword(token: string, newPassword: string, confirmPassword: string){
-    const response = await fetch(`${URL}/reset-password`, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({token,newPassword,confirmPassword}),
-    });
-
-    if(!response.ok){
-        const error = await response.text();
-        throw new Error(error || "Passwort konnte nicht zurückgesetzt werden.");
-    }
-    return response.json();
+  return data;
 }
 
 export async function getMe(headers: HeadersInit) {
