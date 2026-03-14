@@ -91,7 +91,7 @@ export default function LoginPage(){
                     <div className="register-link">
                         <p>
                             Noch nicht registriert?{" "}
-                            <a href="/registration">Registrieren</a>
+                            <a href="/register">Registrieren</a>
                         </p>
                     </div>
 
