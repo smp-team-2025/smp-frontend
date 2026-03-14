@@ -61,7 +61,7 @@ export default function App() {
 
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/registration" element={<RegistrationPage />} />
+        <Route path="/register" element={<RegistrationPage />} />
         <Route path="/admin/registrations" element={<AdminRegistrationsListPage />} />
         <Route path="/admin/registrations/:id" element={<AdminRegistrationDetailPage />} />
         <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
