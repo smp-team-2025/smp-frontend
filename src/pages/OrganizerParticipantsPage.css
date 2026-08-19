@@ -116,3 +116,164 @@
 .org-table-wrap::-webkit-scrollbar {
   height: 10px;
 }
+/* ---------------------------------------------
+   Organizer participants page: wide table layout
+   --------------------------------------------- */
+
+/* The table has many columns, so this page uses more of the window than
+   the default .container (1100px) while staying readable on large screens. */
+.page-wrapper .org-participants-main {
+  max-width: 1700px;
+  width: 100%;
+  margin: 70px auto;
+  padding: 0 24px;
+}
+
+.page-wrapper .org-participants-main .org-table {
+  /* Low enough that the table fits a 1280px laptop without a scrollbar,
+     high enough to stay readable when it does scroll on small screens. */
+  min-width: 1000px;
+}
+
+.page-wrapper .org-participants-main .org-table thead th,
+.page-wrapper .org-participants-main .org-table tbody td {
+  padding: 12px 12px;
+}
+
+/* Long e-mail addresses are a single token: let them break, but keep the
+   column wide enough to stay readable. */
+.page-wrapper .org-participants-main .org-table th:nth-child(4),
+.page-wrapper .org-participants-main .org-table td:nth-child(4) {
+  min-width: 200px;
+  overflow-wrap: anywhere;
+}
+
+/* The actions column keeps both buttons on one line. */
+.page-wrapper .org-participants-main .org-table th:last-child,
+.page-wrapper .org-participants-main .org-table td:last-child {
+  min-width: 205px;
+}
+
+/* While a row is being edited the column is pinned to the right edge, so
+   "Speichern"/"Abbrechen" stay reachable no matter how far the table scrolls.
+   Outside of editing it scrolls normally and covers no data. */
+.page-wrapper .org-participants-main .org-table.is-editing th:last-child,
+.page-wrapper .org-participants-main .org-table.is-editing td:last-child {
+  position: sticky;
+  right: 0;
+  background: white;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.page-wrapper .org-participants-main .org-table.is-editing thead th:last-child {
+  background: #f4f4f6;
+}
+
+.org-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 22px 0;
+}
+
+.org-toolbar .org-search {
+  flex: 1 1 320px;
+}
+
+.org-btn {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.04);
+  color: #111;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.org-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.org-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.org-btn-primary {
+  background: #5a5dff;
+  border-color: #5a5dff;
+  color: white;
+}
+
+.org-btn-primary:hover:not(:disabled) {
+  background: #4b4ee6;
+}
+
+.org-btn-danger {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.org-btn-danger:hover:not(:disabled) {
+  background: #c22133;
+}
+
+.org-row-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.org-row-actions .org-btn {
+  padding: 8px 10px;
+}
+
+.org-edit-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.org-edit-input {
+  width: 100%;
+  min-width: 120px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: white;
+  color: #1f2937;
+  font-size: 15px;
+}
+
+.org-edit-input:focus {
+  outline: none;
+  border-color: rgba(90, 93, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(90, 93, 255, 0.15);
+}
+
+/* On small screens the table keeps its width and scrolls horizontally,
+   only the page padding shrinks. */
+@media (max-width: 900px) {
+  .page-wrapper .org-participants-main {
+    margin: 40px auto;
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 700px) {
+  /* On phones a pinned column would eat most of the screen, so the actions
+     scroll along with the rest of the row even while editing. */
+  .page-wrapper .org-participants-main .org-table.is-editing th:last-child,
+  .page-wrapper .org-participants-main .org-table.is-editing td:last-child {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .org-toolbar .org-btn {
+    width: 100%;
+  }
+}
