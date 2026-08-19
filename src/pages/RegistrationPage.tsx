@@ -50,7 +50,12 @@ export default function RegistrationPage(){
             setIsSuccess(true);
             console.log("Server response:", response);
         } catch (error) {
-            setMessage("Registration fehlgeschlagen.");
+            const errorCode = error instanceof Error ? error.message : "";
+            if (errorCode === "EMAIL_ALREADY_REGISTERED") {
+                setMessage("Diese E-Mail-Adresse wird bereits verwendet. Bitte verwenden Sie eine andere E-Mail-Adresse.");
+            } else {
+                setMessage("Registrierung fehlgeschlagen.");
+            }
             console.error(error);
         }
     }
@@ -62,7 +67,7 @@ export default function RegistrationPage(){
                 <div className="container">
                     <h1>Registrierung erfolgreich</h1>
                     <p className="intro">
-                        Registrierung erfolgreich. Sie werden ein E-Mail aus Organisatoren bekommen, wenn die Ihnen billigen.
+                        Ihre Registrierung war erfolgreich. Sobald die Organisatoren Ihre Anmeldung geprüft und bestätigt haben, erhalten Sie eine E-Mail.
                     </p>
                     <Link to="/homepage" className="submit-btn" style={{ display: "block", width: "fit-content", margin: "20px auto", textDecoration: "none", textAlign: "center" }}>
                         Zurück zur Startseite
@@ -632,11 +637,10 @@ export default function RegistrationPage(){
 
             {/* SECTION 6 — COMMENTS */}
             <div className="form-section">
-            <h2>(6) Kommentare (*)</h2>
+            <h2>(6) Kommentare</h2>
             <textarea
                 placeholder="Weitere Hinweise, Wünsche..."
                 name="comments"
-                required
                 value={formData.comments}
                 onChange={handleChange}
             ></textarea>

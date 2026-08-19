@@ -30,7 +30,7 @@ export async function userRegister(data:RegistrationData) {
         } catch (e) {
             error = { message: await response.text() };
         }
-        throw new Error(error.message || 'Registration failed due to an unknown error.');
+        throw new Error(error.error || error.message || 'Registration failed due to an unknown error.');
     }
 
     return response.json();
